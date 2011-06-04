@@ -5,14 +5,17 @@ description: Dead Man's Chest mod for Bukkit. Forked from Tombstone by Drakia (T
 author: Southpaw018
 website: http://www.moofit.com
 commands:
-  tomblist:
-    description: Show a list of your Tombstones
-    usage: /<command> - Show a list of your Tombstones
-  tombfind:
+  cenotaphlist:
+    description: Show a list of your Cenotaphs
+    usage: /<command> - Show a list of your Cenotaphs
+    aliases: [cenlist]
+  cenotaphfind:
     description: |
-      Set your compass to point at the designated Tombstone.
-      Get the index using /tomblist
-    usage: /<command> <index> - Point your compass at the given Tombstone
-  tombreset:
+      Set your compass to point at the designated Cenotaph.
+      Get the index using /cenotaphlist
+    usage: /<command> <index> - Point your compass at the given Cenotaph
+    aliases: [cenfind]
+  cenotaphreset:
     description: Reset your compass to spawn
     usage: /<command>
+    aliases: [cenreset]

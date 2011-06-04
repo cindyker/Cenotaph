@@ -419,8 +419,8 @@ public class Cenotaph extends JavaPlugin {
     	if (!(sender instanceof Player)) return false;
     	Player p = (Player)sender;
     	String cmd = command.getName();
-    	if (cmd.equalsIgnoreCase("tomblist")) {
-    		if (!hasPerm(p, "cenotaph.cmd.tomblist", p.isOp())) {
+    	if (cmd.equalsIgnoreCase("cenotaphlist")) {
+    		if (!hasPerm(p, "cenotaph.cmd.cenotaphlist", p.isOp())) {
     			sendMessage(p, "Permission Denied");
     			return true;
     		}
@@ -440,8 +440,8 @@ public class Cenotaph extends JavaPlugin {
 				sendMessage(p, "  " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
 			}
     		return true;
-    	} else if (cmd.equalsIgnoreCase("tombfind")) {
-    		if (!hasPerm(p, "cenotaph.cmd.tombfind", p.isOp())) {
+    	} else if (cmd.equalsIgnoreCase("cenotaphfind")) {
+    		if (!hasPerm(p, "cenotaph.cmd.cenotaphfind", p.isOp())) {
     			sendMessage(p, "Permission Denied");
     			return true;
     		}
@@ -468,8 +468,8 @@ public class Cenotaph extends JavaPlugin {
     		//p.setCompassTarget(tBlock.getBlock().getLocation());
     		sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + getDirection(degrees));
     		return true;
-    	} else if (cmd.equalsIgnoreCase("tombreset")) {
-    		if (!hasPerm(p, "cenotaph.cmd.tombreset", p.isOp())) {
+    	} else if (cmd.equalsIgnoreCase("cenotaphreset")) {
+    		if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
     			sendMessage(p, "Permission Denied");
     			return true;
     		}
