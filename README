@@ -25,17 +25,17 @@ The ability to point your compass at your tombstones! (Broken in 1.4)
 =============
  Permissions
 =============
-tombstone.use - Allow the player/group to use the tombstone mod
-tombstone.freechest - Allow the player to get a chest whether they are carrying a chest or not
-tombstone.large - Allow the player to spawn a large chest if carrying two chests and if one will fit
-tombstone.lwc - Protect the placed chest if LWC is enabled
-tombstone.sign - Whether the player gets a sign on their tombstone chest
-tombstone.freesign - Allow the player to get a free sign whether they are carrying one or not.
-tombstone.quickloot - Whether to allow a player/group to quickloot by right clicking the tombstone sign.
-tombstone.admin - Allow this user to destroy other peoples tombstones.
-tombstone.cmd.tomblist - Allow this user to use /tomblist
-tombstone.cmd.tombfind - Allow this user to use /tombfind
-tombstone.cmd.tombreset - Allow this user to use /tombreset
+cenotaph.use - Allow the player/group to use the cenotaph mod
+cenotaph.freechest - Allow the player to get a chest whether they are carrying a chest or not
+cenotaph.large - Allow the player to spawn a large chest if carrying two chests and if one will fit
+cenotaph.lwc - Protect the placed chest if LWC is enabled
+cenotaph.sign - Whether the player gets a sign on their cenotaph chest
+cenotaph.freesign - Allow the player to get a free sign whether they are carrying one or not.
+cenotaph.quickloot - Whether to allow a player/group to quickloot by right clicking the cenotaph sign.
+cenotaph.admin - Allow this user to destroy other peoples cenotaphs.
+cenotaph.cmd.tomblist - Allow this user to use /tomblist
+cenotaph.cmd.tombfind - Allow this user to use /tombfind
+cenotaph.cmd.tombreset - Allow this user to use /tombreset
 
 =============
  Config
@@ -43,16 +43,16 @@ tombstone.cmd.tombreset - Allow this user to use /tombreset
 lwcEnable - Whether to use LWC if available 
 lwcRemove - Whether to remove LWC after a specific timeout
 lwcPublic - Set to true to set LWC protection to Public instead or removing
-lwcTimeout - How long to wait before disabling LWC on a tombstone
+lwcTimeout - How long to wait before disabling LWC on a cenotaph
 LocketteEnable - Whether to use Lockette if available
-tombSign - Whether to place a sign on the tombstone
-removeTime - How long to wait before destroying a tombstone
-tombRemove - Whether or not to destroy a tombstone after a timeout
+tombSign - Whether to place a sign on the cenotaph
+removeTime - How long to wait before destroying a cenotaph
+tombRemove - Whether or not to destroy a cenotaph after a timeout
 playerMessage - Whether or not to show messages to the player
-saveTombList - Whether to save a list of tombstones between server reloads
+saveTombList - Whether to save a list of cenotaphs between server reloads
 destroyQuickLoot - Set to true to destroy the chest/sign on quickloot
-noDestroy - Set to true to disallow any player from destroying a tombstone (Other than quickloot) 
-noInterfere - Set whether or not to stop tombstone creation next to existing chests (Default true)
+noDestroy - Set to true to disallow any player from destroying a cenotaph (Other than quickloot) 
+noInterfere - Set whether or not to stop cenotaph creation next to existing chests (Default true)
 
 =============
  Credits
