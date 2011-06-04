@@ -1,4 +1,4 @@
-package net.TheDgtl.Tombstone;
+package com.MoofIT.Minecraft.Cenotaph;
 
 /**
  * Tombstone - A tombstone plugin for Bukkit
@@ -66,8 +66,9 @@ import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
 import com.griefcraft.model.ProtectionTypes;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import org.yi.acru.bukkit.Lockette.Lockette;
 
-public class Tombstone extends JavaPlugin {
+public class Cenotaph extends JavaPlugin {
 	private final eListener entityListener = new eListener();
 	private final bListener blockListener = new bListener();
 	private final sListener serverListener = new sListener();
@@ -77,12 +78,13 @@ public class Tombstone extends JavaPlugin {
 	
 	private Permissions permissions = null;
 	private LWCPlugin lwcPlugin = null;
+	private Lockette LockettePlugin = null;
 	
 	private ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
 	private HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
 	private HashMap<String, ArrayList<TombBlock>> playerTombList = new HashMap<String, ArrayList<TombBlock>>();
 	private Configuration config;
-	private Tombstone plugin;
+	private Cenotaph plugin;
 	
 	/**
 	 * Configuration options - Defaults
@@ -100,6 +102,7 @@ public class Tombstone extends JavaPlugin {
 	private boolean noDestroy = false;
 	private boolean noInterfere = true;
 	private boolean logEvents = false;
+	private boolean LocketteEnable = false;
 	
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
@@ -118,6 +121,7 @@ public class Tombstone extends JavaPlugin {
         
         permissions = (Permissions)checkPlugin("Permissions");
         lwcPlugin = (LWCPlugin)checkPlugin("LWC");
+        LockettePlugin = (Lockette)checkPlugin("Lockette");
         plugin = this;
         
         reloadConfig();
@@ -144,7 +148,7 @@ public class Tombstone extends JavaPlugin {
         noDestroy = config.getBoolean("noDestroy", noDestroy);
         noInterfere = config.getBoolean("noInterfere", noInterfere);
         logEvents = config.getBoolean("logEvents", logEvents);
-
+        LocketteEnable = config.getBoolean("LocketteEnable", LocketteEnable);
         saveConfig();
     }
 	
@@ -162,6 +166,7 @@ public class Tombstone extends JavaPlugin {
         config.setProperty("noDestroy", noDestroy);
         config.setProperty("noInterfere", noInterfere);
         config.setProperty("logEvents", logEvents);
+        config.setProperty("LocketteEnable", LocketteEnable);
         config.save();
 	}
 	
@@ -182,7 +187,7 @@ public class Tombstone extends JavaPlugin {
 				long time = Long.valueOf(split[4]);
 				boolean lwc = Boolean.valueOf(split[5]);
 				if (block == null || owner == null) {
-					log.info("[Tombstone] Invalid tombstone in database " + fh.getName());
+					log.info("[Cenotaph] Invalid tombstone in database " + fh.getName());
 					continue;
 				}
 				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, time, lwc);
@@ -200,7 +205,7 @@ public class Tombstone extends JavaPlugin {
 			}
 			scanner.close();
 		} catch (IOException e) {
-			Tombstone.log.info("[Tombstone] Error loading tombstone list: " + e);
+			Cenotaph.log.info("[Cenotaph] Error loading tombstone list: " + e);
 		}
 	}
 	
@@ -233,7 +238,7 @@ public class Tombstone extends JavaPlugin {
 			}
 			bw.close();
 		} catch (IOException e) {
-			Tombstone.log.info("[Tombstone] Error saving tombstone list: " + e);
+			Cenotaph.log.info("[Cenotaph] Error saving tombstone list: " + e);
 		}
 	}
 	
@@ -266,7 +271,7 @@ public class Tombstone extends JavaPlugin {
 	
 	private Plugin checkPlugin(Plugin plugin) {
 		if (plugin != null && plugin.isEnabled()) {
-			log.info("[Tombstone] Using " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
+			log.info("[Cenotaph] Using " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
 			return plugin;
 		}
 		return null;
@@ -285,6 +290,65 @@ public class Tombstone extends JavaPlugin {
 			lwc.getPhysicalDatabase().registerProtection(sign.getTypeId(), ProtectionTypes.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
 		
 		tBlock.setLwcEnabled(true);
+		return true;
+	}
+
+	private Boolean protectWithLockette(Player player, TombBlock tBlock) {
+		if (!LocketteEnable) return false;
+		if (LockettePlugin == null) return false;
+
+		Block signBlock = null;
+		
+		/* Assuming single chest for now, will add in double chest checks and calculations later
+		//modify this to get left or right of chest. need to add in yaw calculation
+		signBlock = tBlock.getBlock();
+		signBlock = signBlock.getWorld().getBlockAt(signBlock.getX() + 1, signBlock.getY(), signBlock.getZ());
+
+		//float yaw;
+		yaw = signBlock.getLocation().getYaw();
+		if (yaw == 0 || yaw == 180) {
+			//north-south face
+		}
+		else if (yaw == 90 || yaw == 270) {
+			//east-west face
+		}
+		else {
+			//sanity check, search north-south face
+		}
+		//signBlock = 1 to the left
+		/*if (!canReplace(signBlock.getType())) {
+			//signBlock = 1 to the right
+			if (!canReplace(signBlock.getType())) {
+				//fail gracefully, do not protect
+			}
+		}*/
+		int baseX = tBlock.getBlock().getX();
+		int baseY = tBlock.getBlock().getY();
+		int baseZ = tBlock.getBlock().getZ();
+		World w = tBlock.getBlock().getWorld();
+		
+		/*for (int x = baseX - 1; x < baseX + 1; x++) {
+			for (int z = baseZ - 1; z < baseZ + 1; z++) {
+				Block b = w.getBlockAt(x, baseY, z);
+				if (b.getType() == Material.AIR)
+					signBlock = b;
+			}
+		}*/
+		signBlock = w.getBlockAt(baseX, baseY, baseZ + 1);
+		
+    	signBlock.setType(Material.WALL_SIGN);
+    	signBlock.setData(tBlock.getBlock().getData());
+    	final Sign sign = (Sign)signBlock.getState();
+    	String name = player.getName();
+    	if (name.length() > 15) name = name.substring(0, 15);
+    	sign.setLine(0, "[Private]");
+    	sign.setLine(1, name);
+		getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			public void run() {
+	        	sign.update();
+			}
+		});
+		tBlock.setLocketteSign(sign);
 		return true;
 	}
 	
@@ -346,7 +410,7 @@ public class Tombstone extends JavaPlugin {
 	
     public void sendMessage(Player p, String msg) {
     	if (!pMessage) return;
-    	p.sendMessage("[Tombstone] " + msg);
+    	p.sendMessage("[Cenotaph] " + msg);
     }
     
     @Override
@@ -465,7 +529,7 @@ public class Tombstone extends JavaPlugin {
      */
     private void logEvent(String msg) {
     	if (!logEvents) return;
-    	log.info("[Tombstone] " + msg);
+    	log.info("[Cenotaph] " + msg);
     }
     
     private class bListener extends BlockListener {
@@ -558,8 +622,10 @@ public class Tombstone extends JavaPlugin {
 				
 				if (destroyQuickLoot) {
 					if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
+					if (tBlock.getLocketteSign() != null) tBlock.getLocketteSign().setType(Material.AIR);
 					tBlock.getBlock().setType(Material.AIR);
 					if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
+					
 				}
 			}
 			
@@ -700,9 +766,16 @@ public class Tombstone extends JavaPlugin {
 			
 			// Protect the chest/sign if LWC is installed.
 			Boolean prot = false;
+			Boolean protLWC = false;
 			if (hasPerm(p, "tombstone.lwc", true))
 				prot = activateLWC(p, tBlock);
 			tBlock.setLwcEnabled(prot);
+			if (prot) protLWC = true;
+
+			// Protect the chest with Lockette if installed, enabled, and unprotected.
+			if (hasPerm(p, "tombstone.lockette", true))
+				prot = protectWithLockette(p, tBlock);
+			
 			
 			// Add tombstone to list
 			tombList.offer(tBlock);
@@ -770,9 +843,13 @@ public class Tombstone extends JavaPlugin {
 				msg += event.getDrops().size() + " items wouldn't fit in chest.";
 			sendMessage(p, msg);
 			logEvent(p.getName() + " " + msg);
-			if (prot) {
+			if (prot && protLWC) {
 				sendMessage(p, "Chest protected with LWC. " + lwcTime + "s before chest is unprotected.");
 				logEvent(p.getName() + " Chest protected with LWC. " + lwcTime + "s before chest is unprotected.");
+			}
+			if (prot && !protLWC) {
+				sendMessage(p, "Chest protected with Lockette.");
+				logEvent(p.getName() + " Chest protected with Lockette.");				
 			}
 			if (tombRemove) {
 				sendMessage(p, "Chest will be automatically removed in " + removeTime + "s");
@@ -880,16 +957,25 @@ public class Tombstone extends JavaPlugin {
 					permissions = (Permissions)checkPlugin(event.getPlugin());
 				}
 			}
+			if (LockettePlugin == null) {
+				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Lockette")) {
+					LockettePlugin = (Lockette)checkPlugin(event.getPlugin());
+				}
+			}
 		}
 		
 		@Override
 		public void onPluginDisable(PluginDisableEvent event) {
 			if (event.getPlugin() == lwcPlugin) {
-				log.info("[Tombstone] LWC plugin lost.");
+				log.info("[Cenotaph] LWC plugin lost.");
 				lwcPlugin = null;
 			}
 			if (event.getPlugin() == permissions) {
-				log.info("[Tombstone] Permissions plugin lost.");
+				log.info("[Cenotaph] Permissions plugin lost.");
+				permissions = null;
+			}
+			if (event.getPlugin() == LockettePlugin) {
+				log.info("[Cenotaph] Lockette plugin lost.");
 				permissions = null;
 			}
 		}
@@ -918,6 +1004,9 @@ public class Tombstone extends JavaPlugin {
 					if (tBlock.getLwcEnabled()) {
 						deactivateLWC(tBlock, true);
 					}
+					if (tBlock.getLocketteSign() != null) {
+						tBlock.getLocketteSign().setType(Material.AIR);
+					}
 					if (tBlock.getSign() != null)
 						tBlock.getSign().setType(Material.AIR);
 					tBlock.getBlock().setType(Material.AIR);
@@ -940,6 +1029,7 @@ public class Tombstone extends JavaPlugin {
 		private Block block;
 		private Block lBlock;
 		private Block sign;
+		private Sign LocketteSign;
 		private long time;
 		private String owner;
 		private boolean lwcEnabled = false;
@@ -970,6 +1060,9 @@ public class Tombstone extends JavaPlugin {
 		Block getSign() {
 			return sign;
 		}
+		Sign getLocketteSign() {
+			return LocketteSign;
+		}
 		String getOwner() {
 			return owner;
 		}
@@ -978,6 +1071,9 @@ public class Tombstone extends JavaPlugin {
 		}
 		void setLwcEnabled(boolean val) {
 			lwcEnabled = val;
+		}
+		void setLocketteSign(Sign sign) {
+			this.LocketteSign = sign;
 		}
 	}
 }
