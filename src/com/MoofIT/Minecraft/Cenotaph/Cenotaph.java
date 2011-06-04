@@ -622,7 +622,9 @@ public class Cenotaph extends JavaPlugin {
 				
 				if (destroyQuickLoot) {
 					if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
-					if (tBlock.getLocketteSign() != null) tBlock.getLocketteSign().setType(Material.AIR);
+					if (tBlock.getLocketteSign() != null) {
+						tBlock.getLocketteSign().getBlock().setType(Material.AIR);;
+					}
 					tBlock.getBlock().setType(Material.AIR);
 					if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
 					
@@ -883,14 +885,14 @@ public class Cenotaph extends JavaPlugin {
          */
         Block findPlace(Block base) {
         	if (canReplace(base.getType())) return base;
-        	int x = base.getX();
-        	int y = base.getY();
-        	int z = base.getZ();
+        	int baseX = base.getX();
+        	int baseY = base.getY();
+        	int baseZ = base.getZ();
         	World w = base.getWorld();
         	
-        	for (int i = x - 1; i < x + 1; i++) {
-        		for (int j = z - 1; j < z + 1; j++) {
-        			Block b = w.getBlockAt(i, y, j);
+        	for (int x = baseX - 1; x < baseX + 1; x++) {
+        		for (int z = baseZ - 1; z < baseZ + 1; z++) {
+        			Block b = w.getBlockAt(x, baseY, z);
         			if (canReplace(b.getType())) return b;
         		}
         	}
@@ -940,7 +942,9 @@ public class Cenotaph extends JavaPlugin {
         			mat == Material.FIRE || 
         			mat == Material.CROPS || 
         			mat == Material.SNOW || 
-        			mat == Material.SUGAR_CANE);
+        			mat == Material.SUGAR_CANE ||
+        			mat == Material.GRAVEL ||
+        			mat == Material.SAND);
         }
 	}
 	
