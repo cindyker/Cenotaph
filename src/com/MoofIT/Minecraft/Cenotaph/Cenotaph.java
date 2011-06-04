@@ -1,8 +1,9 @@
 package com.MoofIT.Minecraft.Cenotaph;
 
 /**
- * Tombstone - A tombstone plugin for Bukkit
- * Copyright (C) 2011 Steven "Drakia" Scott <Drakia@Gmail.com>
+ * Cenotaph - A Dead Man's Chest plugin for Bukkit
+ * By Jim Drey (Southpaw018) <moof@moofit.com>
+ * Original Copyright (C) 2011 Steven "Drakia" Scott <Drakia@Gmail.com>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
