@@ -76,17 +76,17 @@ public class Cenotaph extends JavaPlugin {
 	private final pListener playerListener = new pListener();
 	public static Logger log;
 	PluginManager pm;
-	
+
 	private Permissions permissions = null;
 	private LWCPlugin lwcPlugin = null;
 	private Lockette LockettePlugin = null;
-	
+
 	private ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
 	private HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
 	private HashMap<String, ArrayList<TombBlock>> playerTombList = new HashMap<String, ArrayList<TombBlock>>();
 	private Configuration config;
 	private Cenotaph plugin;
-	
+
 	/**
 	 * Configuration options - Defaults
 	 */
@@ -98,81 +98,93 @@ public class Cenotaph extends JavaPlugin {
 	private boolean cenotaphRemove = false;
 	private boolean cenotaphSign = true;
 	private boolean pMessage = true;
-	private boolean saveTombList = true;
+	private boolean saveCenotaphList = true;
 	private boolean destroyQuickLoot = false;
 	private boolean noDestroy = false;
 	private boolean noInterfere = true;
 	private boolean logEvents = false;
 	private boolean LocketteEnable = false;
-	
+
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
-    	log = Logger.getLogger("Minecraft");
-    	config = this.getConfiguration();
-    	
-        log.info(pdfFile.getName() + " v." + pdfFile.getVersion() + " is enabled.");
-        
-        pm = getServer().getPluginManager();
-        pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
-        pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
-        // we destroy a block, so we want last say.
-        pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
+		log = Logger.getLogger("Minecraft");
+		config = this.getConfiguration();
+
+		log.info(pdfFile.getName() + " v." + pdfFile.getVersion() + " is enabled.");
+
+		pm = getServer().getPluginManager();
+		pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
+		// we destroy a block, so we want last say.
+		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Highest, this);
+		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
 		pm.registerEvent(Event.Type.PLUGIN_DISABLE, serverListener, Priority.Monitor, this);
-        
-        permissions = (Permissions)checkPlugin("Permissions");
-        lwcPlugin = (LWCPlugin)checkPlugin("LWC");
-        LockettePlugin = (Lockette)checkPlugin("Lockette");
-        plugin = this;
-        
-        reloadConfig();
-        for (World w : getServer().getWorlds())
-        	loadTombList(w.getName());
-        
-        // Start removal timer. Run every 30 seconds (20 ticks per second)
-        if (lwcRemove || cenotaphRemove)
-        	getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(), 0L, 100L);
+
+		permissions = (Permissions)checkPlugin("Permissions");
+		lwcPlugin = (LWCPlugin)checkPlugin("LWC");
+		LockettePlugin = (Lockette)checkPlugin("Lockette");
+		plugin = this;
+
+		reloadConfig();
+		for (World w : getServer().getWorlds())
+			loadTombList(w.getName());
+
+		// Start removal timer. Run every 30 seconds (20 ticks per second)
+		if (lwcRemove || cenotaphRemove)
+			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(), 0L, 100L);
 	}
-	
+
 	public void reloadConfig() {
-    	config.load();
-    	lwcEnable = config.getBoolean("Protection.lwcEnable", lwcEnable);
-        lwcTime = config.getInt("Protection.lwcTimeout", lwcTime);
-        lwcRemove = config.getBoolean("Protection.lwcRemove", lwcRemove);
-        lwcPublic = config.getBoolean("Protection.lwcPublic", lwcPublic);
-        cenotaphSign = config.getBoolean("Core.cenotaphSign", cenotaphSign);
-        removeTime = config.getInt("Removal.removeTime", removeTime);
-        cenotaphRemove = config.getBoolean("Removal.cenotaphRemove", cenotaphRemove);
-        pMessage = config.getBoolean("Core.playerMessage", pMessage);
-        saveTombList = config.getBoolean("Core.saveTombList", saveTombList);
-        destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
-        noDestroy = config.getBoolean("Core.noDestroy", noDestroy);
-        noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
-        logEvents = config.getBoolean("Core.logEvents", logEvents);
-        LocketteEnable = config.getBoolean("Protection.LocketteEnable", LocketteEnable);
-        saveConfig();
-    }
-	
-	public void saveConfig() {
-		config.setProperty("Protection.lwcEnable", lwcEnable);
-		config.setProperty("Protection.lwcTimeout", lwcTime);
-        config.setProperty("Protection.lwcRemove", lwcRemove);
-        config.setProperty("Protection.lwcPublic", lwcPublic);
-        config.setProperty("Core.cenotaphSign", cenotaphSign);
-        config.setProperty("Removal.removeTime", removeTime);
-        config.setProperty("Removal.cenotaphRemove", cenotaphRemove);
-        config.setProperty("Core.playerMessage", pMessage);
-        config.setProperty("Core.saveTombList", saveTombList);
-        config.setProperty("Removal.destroyQuickLoot", destroyQuickLoot);
-        config.setProperty("Core.noDestroy", noDestroy);
-        config.setProperty("Core.noInterfere", noInterfere);
-        config.setProperty("Core.logEvents", logEvents);
-        config.setProperty("Core.Protection.LocketteEnable", LocketteEnable);
-        config.save();
+		config.load();
+
+		//Core
+		logEvents = config.getBoolean("Core.logEvents", logEvents);
+		cenotaphSign = config.getBoolean("Core.cenotaphSign", cenotaphSign);
+		noDestroy = config.getBoolean("Core.noDestroy", noDestroy);
+		pMessage = config.getBoolean("Core.playerMessage", pMessage);
+		saveCenotaphList = config.getBoolean("Core.saveCenotaphList", saveCenotaphList);
+		noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
+
+		//Removal
+		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
+		cenotaphRemove = config.getBoolean("Removal.cenotaphRemove", cenotaphRemove);
+		removeTime = config.getInt("Removal.removeTime", removeTime);
+
+		//Security
+		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
+		lwcEnable = config.getBoolean("Security.lwcEnable", lwcEnable);
+		lwcRemove = config.getBoolean("Security.lwcRemove", lwcRemove);
+		lwcTime = config.getInt("Security.lwcTimeout", lwcTime);
+		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
+		saveConfig();
 	}
-	
+
+	public void saveConfig() {
+		//Core
+		config.setProperty("Core.logEvents", logEvents);
+		config.setProperty("Core.cenotaphSign", cenotaphSign);
+		config.setProperty("Core.noDestroy", noDestroy);
+		config.setProperty("Core.playerMessage", pMessage);
+		config.setProperty("Core.saveCenotaphList", saveCenotaphList);
+		config.setProperty("Core.noInterfere", noInterfere);
+
+		//Removal
+		config.setProperty("Removal.destroyQuickLoot", destroyQuickLoot);
+		config.setProperty("Removal.cenotaphRemove", cenotaphRemove);
+		config.setProperty("Removal.removeTime", removeTime);
+
+		//Security
+		config.setProperty("Security.LocketteEnable", LocketteEnable);
+		config.setProperty("Security.lwcEnable", lwcEnable);
+		config.setProperty("Security.lwcRemove", lwcRemove);
+		config.setProperty("Security.lwcTimeout", lwcTime);
+		config.setProperty("Security.lwcPublic", lwcPublic);
+
+		config.save();
+	}
+
 	public void loadTombList(String world) {
-		if (!saveTombList) return;
+		if (!saveCenotaphList) return;
 		try {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
 			if (!fh.exists()) return;
@@ -209,9 +221,9 @@ public class Cenotaph extends JavaPlugin {
 			Cenotaph.log.info("[Cenotaph] Error loading cenotaph list: " + e);
 		}
 	}
-	
-	public void saveTombList(String world) {
-		if (!saveTombList) return;
+
+	public void saveCenotaphList(String world) {
+		if (!saveCenotaphList) return;
 		try {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(fh));
@@ -219,9 +231,9 @@ public class Cenotaph extends JavaPlugin {
 				TombBlock tBlock = iter.next();
 				// Skip not this world
 				if (!tBlock.getBlock().getWorld().getName().equalsIgnoreCase(world)) continue;
-				
+
 				StringBuilder builder = new StringBuilder();
-				
+
 				bw.append(printBlock(tBlock.getBlock()));
 				bw.append(":");
 				bw.append(printBlock(tBlock.getLBlock()));
@@ -233,7 +245,7 @@ public class Cenotaph extends JavaPlugin {
 				bw.append(String.valueOf(tBlock.getTime()));
 				bw.append(":");
 				bw.append(String.valueOf(tBlock.getLwcEnabled()));
-				
+
 				bw.append(builder.toString());
 				bw.newLine();
 			}
@@ -242,12 +254,12 @@ public class Cenotaph extends JavaPlugin {
 			Cenotaph.log.info("[Cenotaph] Error saving cenotaph list: " + e);
 		}
 	}
-	
+
 	private String printBlock(Block b) {
 		if (b == null) return "";
 		return b.getWorld().getName() + "," + b.getX() + "," + b.getY() + "," + b.getZ();
 	}
-	
+
 	private Block readBlock(String b) {
 		if (b.length() == 0) return null;
 		String[] split = b.split(",");
@@ -256,12 +268,12 @@ public class Cenotaph extends JavaPlugin {
 		if (world == null) return null;
 		return world.getBlockAt(Integer.valueOf(split[1]), Integer.valueOf(split[2]), Integer.valueOf(split[3]));
 	}
-	
+
 	public void onDisable() {
-        for (World w : getServer().getWorlds())
-        	saveTombList(w.getName());
+		for (World w : getServer().getWorlds())
+			saveCenotaphList(w.getName());
 	}
-	
+
 	/*
 	 * Check if a plugin is loaded/enabled already. Returns the plugin if so, null otherwise
 	 */
@@ -269,7 +281,7 @@ public class Cenotaph extends JavaPlugin {
 		Plugin plugin = pm.getPlugin(p);
 		return checkPlugin(plugin);
 	}
-	
+
 	private Plugin checkPlugin(Plugin plugin) {
 		if (plugin != null && plugin.isEnabled()) {
 			log.info("[Cenotaph] Using " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
@@ -277,19 +289,19 @@ public class Cenotaph extends JavaPlugin {
 		}
 		return null;
 	}
-	
+
 	private Boolean activateLWC(Player player, TombBlock tBlock) {
 		if (!lwcEnable) return false;
 		if (lwcPlugin == null) return false;
 		LWC lwc = lwcPlugin.getLWC();
-		
+
 		// Register the chest + sign as private
 		Block block = tBlock.getBlock();
 		Block sign = tBlock.getSign();
 		lwc.getPhysicalDatabase().registerProtection(block.getTypeId(), ProtectionTypes.PRIVATE, block.getWorld().getName(), player.getName(), "", block.getX(), block.getY(), block.getZ());
 		if (sign != null)
 			lwc.getPhysicalDatabase().registerProtection(sign.getTypeId(), ProtectionTypes.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
-		
+
 		tBlock.setLwcEnabled(true);
 		return true;
 	}
@@ -299,7 +311,7 @@ public class Cenotaph extends JavaPlugin {
 		if (LockettePlugin == null) return false;
 
 		Block signBlock = null;
-		
+
 		/* Assuming single chest for now, will add in double chest checks and calculations later
 		//modify this to get left or right of chest. need to add in yaw calculation
 		signBlock = tBlock.getBlock();
@@ -327,7 +339,7 @@ public class Cenotaph extends JavaPlugin {
 		int baseY = tBlock.getBlock().getY();
 		int baseZ = tBlock.getBlock().getZ();
 		World w = tBlock.getBlock().getWorld();
-		
+
 		/*for (int x = baseX - 1; x < baseX + 1; x++) {
 			for (int z = baseZ - 1; z < baseZ + 1; z++) {
 				Block b = w.getBlockAt(x, baseY, z);
@@ -336,28 +348,28 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}*/
 		signBlock = w.getBlockAt(baseX, baseY, baseZ + 1);
-		
-    	signBlock.setType(Material.WALL_SIGN);
-    	signBlock.setData(tBlock.getBlock().getData());
-    	final Sign sign = (Sign)signBlock.getState();
-    	String name = player.getName();
-    	if (name.length() > 15) name = name.substring(0, 15);
-    	sign.setLine(0, "[Private]");
-    	sign.setLine(1, name);
+
+		signBlock.setType(Material.WALL_SIGN);
+		signBlock.setData(tBlock.getBlock().getData());
+		final Sign sign = (Sign)signBlock.getState();
+		String name = player.getName();
+		if (name.length() > 15) name = name.substring(0, 15);
+		sign.setLine(0, "[Private]");
+		sign.setLine(1, name);
 		getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
-	        	sign.update();
+				sign.update();
 			}
 		});
 		tBlock.setLocketteSign(sign);
 		return true;
 	}
-	
+
 	private void deactivateLWC(TombBlock tBlock, boolean force) {
 		if (!lwcEnable) return;
 		if (lwcPlugin == null) return;
 		LWC lwc = lwcPlugin.getLWC();
-		
+
 		// Remove the protection on the chest
 		Block _block = tBlock.getBlock();
 		Protection protection = lwc.findProtection(_block);
@@ -367,7 +379,7 @@ public class Cenotaph extends JavaPlugin {
 			if (lwcPublic && !force)
 				lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), ProtectionTypes.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 		}
-		
+
 		// Remove the protection on the sign
 		_block = tBlock.getSign();
 		if (_block != null) {
@@ -381,23 +393,23 @@ public class Cenotaph extends JavaPlugin {
 		}
 		tBlock.setLwcEnabled(false);
 	}
-	
+
 	private void removeTomb(TombBlock tBlock, boolean removeList) {
 		if (tBlock == null) return;
-		
+
 		tombBlockList.remove(tBlock.getBlock().getLocation());
 		if (tBlock.getLBlock() != null) tombBlockList.remove(tBlock.getLBlock().getLocation());
 		if (tBlock.getSign() != null) tombBlockList.remove(tBlock.getSign().getLocation());
-		
+
 		playerTombList.remove(tBlock.getOwner());
 
 		if (removeList)
 			tombList.remove(tBlock);
-		
+
 		if (tBlock.getBlock() != null)
-			saveTombList(tBlock.getBlock().getWorld().getName());
+			saveCenotaphList(tBlock.getBlock().getWorld().getName());
 	}
-    
+
 	/*
 	 * Check whether the player has the given permissions.
 	 */
@@ -408,27 +420,27 @@ public class Cenotaph extends JavaPlugin {
 			return def;
 		}
 	}
-	
-    public void sendMessage(Player p, String msg) {
-    	if (!pMessage) return;
-    	p.sendMessage("[Cenotaph] " + msg);
-    }
-    
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-    	if (!(sender instanceof Player)) return false;
-    	Player p = (Player)sender;
-    	String cmd = command.getName();
-    	if (cmd.equalsIgnoreCase("cenotaphlist")) {
-    		if (!hasPerm(p, "cenotaph.cmd.cenotaphlist", p.isOp())) {
-    			sendMessage(p, "Permission Denied");
-    			return true;
-    		}
-    		ArrayList<TombBlock> pList = playerTombList.get(p.getName());
-    		if (pList == null) {
-    			sendMessage(p, "You have no cenotaphs.");
-    			return true;
-    		}
+
+	public void sendMessage(Player p, String msg) {
+		if (!pMessage) return;
+		p.sendMessage("[Cenotaph] " + msg);
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (!(sender instanceof Player)) return false;
+		Player p = (Player)sender;
+		String cmd = command.getName();
+		if (cmd.equalsIgnoreCase("cenotaphlist")) {
+			if (!hasPerm(p, "cenotaph.cmd.cenotaphlist", p.isOp())) {
+				sendMessage(p, "Permission Denied");
+				return true;
+			}
+			ArrayList<TombBlock> pList = playerTombList.get(p.getName());
+			if (pList == null) {
+				sendMessage(p, "You have no cenotaphs.");
+				return true;
+			}
 			sendMessage(p, "Cenotaph List:");
 			int i = 0;
 			for (TombBlock tomb : pList) {
@@ -439,45 +451,45 @@ public class Cenotaph extends JavaPlugin {
 				int Z = tomb.getBlock().getZ();
 				sendMessage(p, "  " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
 			}
-    		return true;
-    	} else if (cmd.equalsIgnoreCase("cenotaphfind")) {
-    		if (!hasPerm(p, "cenotaph.cmd.cenotaphfind", p.isOp())) {
-    			sendMessage(p, "Permission Denied");
-    			return true;
-    		}
-    		if (args.length != 1) return false;
-    		ArrayList<TombBlock> pList = playerTombList.get(p.getName());
-    		if (pList == null) {
-    			sendMessage(p, "You have no cenotaphs.");
-    			return true;
-    		}
-    		int slot = 0;
-    		try {
-    			slot = Integer.parseInt(args[0]);
-    		} catch (Exception e) {
-    			sendMessage(p, "Invalid cenotaph");
-    			return true;
-    		}
-    		slot -= 1;
-    		if (slot < 0 || slot >= pList.size()) {
-    			sendMessage(p, "Invalid cenotaph");
-    			return true;
-    		}
-    		TombBlock tBlock = pList.get(slot);
-    		double degrees = (getYawTo(tBlock.getBlock().getLocation(), p.getLocation()) + 270) % 360;
-    		//p.setCompassTarget(tBlock.getBlock().getLocation());
-    		sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + getDirection(degrees));
-    		return true;
-    	} else if (cmd.equalsIgnoreCase("cenotaphreset")) {
-    		if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
-    			sendMessage(p, "Permission Denied");
-    			return true;
-    		}
-    		p.setCompassTarget(p.getWorld().getSpawnLocation());
-    		return true;
-    	}
-    	return false;
-    }
+			return true;
+		} else if (cmd.equalsIgnoreCase("cenotaphfind")) {
+			if (!hasPerm(p, "cenotaph.cmd.cenotaphfind", p.isOp())) {
+				sendMessage(p, "Permission Denied");
+				return true;
+			}
+			if (args.length != 1) return false;
+			ArrayList<TombBlock> pList = playerTombList.get(p.getName());
+			if (pList == null) {
+				sendMessage(p, "You have no cenotaphs.");
+				return true;
+			}
+			int slot = 0;
+			try {
+				slot = Integer.parseInt(args[0]);
+			} catch (Exception e) {
+				sendMessage(p, "Invalid cenotaph");
+				return true;
+			}
+			slot -= 1;
+			if (slot < 0 || slot >= pList.size()) {
+				sendMessage(p, "Invalid cenotaph");
+				return true;
+			}
+			TombBlock tBlock = pList.get(slot);
+			double degrees = (getYawTo(tBlock.getBlock().getLocation(), p.getLocation()) + 270) % 360;
+			//p.setCompassTarget(tBlock.getBlock().getLocation());
+			sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + getDirection(degrees));
+			return true;
+		} else if (cmd.equalsIgnoreCase("cenotaphreset")) {
+			if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
+				sendMessage(p, "Permission Denied");
+				return true;
+			}
+			p.setCompassTarget(p.getWorld().getSpawnLocation());
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Gets the Yaw from one location to another in relation to North.
@@ -490,65 +502,65 @@ public class Cenotaph extends JavaPlugin {
 			degrees += 180;
 		return degrees;
 	}
-    
-    /**
-     * Converts a rotation to a cardinal direction name.
-     * Author: sk89q - Original function from CommandBook plugin
-     * @param rot
-     * @return
-     */
-    private static String getDirection(double rot) {
-        if (0 <= rot && rot < 22.5) {
-            return "North";
-        } else if (22.5 <= rot && rot < 67.5) {
-            return "Northeast";
-        } else if (67.5 <= rot && rot < 112.5) {
-            return "East";
-        } else if (112.5 <= rot && rot < 157.5) {
-            return "Southeast";
-        } else if (157.5 <= rot && rot < 202.5) {
-            return "South";
-        } else if (202.5 <= rot && rot < 247.5) {
-            return "Southwest";
-        } else if (247.5 <= rot && rot < 292.5) {
-            return "West";
-        } else if (292.5 <= rot && rot < 337.5) {
-            return "Northwest";
-        } else if (337.5 <= rot && rot < 360.0) {
-            return "North";
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     * 
-     * Print a message to terminal if logEvents is enabled
-     * @param msg
-     * @return
-     * 
-     */
-    private void logEvent(String msg) {
-    	if (!logEvents) return;
-    	log.info("[Cenotaph] " + msg);
-    }
-    
-    private class bListener extends BlockListener {
-    	@Override
-    	public void onBlockBreak(BlockBreakEvent event) {
-    		Block b = event.getBlock();
-    		Player p = event.getPlayer();
-    		if (b.getType() != Material.CHEST && b.getType() != Material.SIGN_POST) return;
 
-    		TombBlock tBlock = tombBlockList.get(b.getLocation());
-    		if (tBlock == null) return;
-    		
-    		if (noDestroy && !hasPerm(p, "cenotaph.admin", p.isOp())) {
-    			logEvent(p.getName() + " tried to destroy cenotaph at " + b.getLocation());
-    			sendMessage(p, "Cenotaph unable to be destroyed");
-    			event.setCancelled(true);
-    			return;
-    		}
+	/**
+	 * Converts a rotation to a cardinal direction name.
+	 * Author: sk89q - Original function from CommandBook plugin
+	 * @param rot
+	 * @return
+	 */
+	private static String getDirection(double rot) {
+		if (0 <= rot && rot < 22.5) {
+			return "North";
+		} else if (22.5 <= rot && rot < 67.5) {
+			return "Northeast";
+		} else if (67.5 <= rot && rot < 112.5) {
+			return "East";
+		} else if (112.5 <= rot && rot < 157.5) {
+			return "Southeast";
+		} else if (157.5 <= rot && rot < 202.5) {
+			return "South";
+		} else if (202.5 <= rot && rot < 247.5) {
+			return "Southwest";
+		} else if (247.5 <= rot && rot < 292.5) {
+			return "West";
+		} else if (292.5 <= rot && rot < 337.5) {
+			return "Northwest";
+		} else if (337.5 <= rot && rot < 360.0) {
+			return "North";
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * 
+	 * Print a message to terminal if logEvents is enabled
+	 * @param msg
+	 * @return
+	 * 
+	 */
+	private void logEvent(String msg) {
+		if (!logEvents) return;
+		log.info("[Cenotaph] " + msg);
+	}
+
+	private class bListener extends BlockListener {
+		@Override
+		public void onBlockBreak(BlockBreakEvent event) {
+			Block b = event.getBlock();
+			Player p = event.getPlayer();
+			if (b.getType() != Material.CHEST && b.getType() != Material.SIGN_POST) return;
+
+			TombBlock tBlock = tombBlockList.get(b.getLocation());
+			if (tBlock == null) return;
+
+			if (noDestroy && !hasPerm(p, "cenotaph.admin", p.isOp())) {
+				logEvent(p.getName() + " tried to destroy cenotaph at " + b.getLocation());
+				sendMessage(p, "Cenotaph unable to be destroyed");
+				event.setCancelled(true);
+				return;
+			}
 
 			if (lwcPlugin != null && lwcEnable && tBlock.getLwcEnabled()) {
 				if (tBlock.getOwner().equals(p.getName()) || hasPerm(p, "cenotaph.admin", p.isOp())) {
@@ -560,27 +572,27 @@ public class Cenotaph extends JavaPlugin {
 			}
 			logEvent(p.getName() + " destroyed cenotaph at " + b.getLocation());
 			removeTomb(tBlock, true);
-    	}
-    }
-    
-    private class pListener extends PlayerListener {
-    	@Override
-    	public void onPlayerInteract(PlayerInteractEvent event) {
-    		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-    		Block b = event.getClickedBlock();
-    		if (b.getType() != Material.SIGN_POST && b.getType() != Material.CHEST) return;
-    		// We'll do quickloot on rightclick of chest if we're going to destroy it anyways
-    		if (b.getType() == Material.CHEST && (!destroyQuickLoot || !noDestroy)) return;
-    		if (!hasPerm(event.getPlayer(), "cenotaph.quickloot", true)) return;
-    		
-    		TombBlock tBlock = tombBlockList.get(b.getLocation());
-    		if (tBlock == null || !(tBlock.getBlock().getState() instanceof Chest)) return;
+		}
+	}
+
+	private class pListener extends PlayerListener {
+		@Override
+		public void onPlayerInteract(PlayerInteractEvent event) {
+			if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+			Block b = event.getClickedBlock();
+			if (b.getType() != Material.SIGN_POST && b.getType() != Material.CHEST) return;
+			// We'll do quickloot on rightclick of chest if we're going to destroy it anyways
+			if (b.getType() == Material.CHEST && (!destroyQuickLoot || !noDestroy)) return;
+			if (!hasPerm(event.getPlayer(), "cenotaph.quickloot", true)) return;
+
+			TombBlock tBlock = tombBlockList.get(b.getLocation());
+			if (tBlock == null || !(tBlock.getBlock().getState() instanceof Chest)) return;
 
 			if (!tBlock.getOwner().equals(event.getPlayer().getName())) return;
-			
+
 			Chest sChest = (Chest)tBlock.getBlock().getState();
 			Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
-			
+
 			ItemStack[] items = sChest.getInventory().getContents();
 			boolean overflow = false;
 			for (int cSlot = 0; cSlot < items.length; cSlot++) {
@@ -597,7 +609,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 			if (lChest != null) {
 				items = lChest.getInventory().getContents();
-				for (int cSlot = 0; cSlot < items.length; cSlot++) {					
+				for (int cSlot = 0; cSlot < items.length; cSlot++) {
 					ItemStack item = items[cSlot];
 					if (item == null) continue;
 					if (item.getType() == Material.AIR) continue;
@@ -610,17 +622,17 @@ public class Cenotaph extends JavaPlugin {
 					lChest.getInventory().clear(cSlot);
 				}
 			}
-			
+
 			if (!overflow) {
 				// We're quicklooting, so no need to resume this interaction
 				event.setUseInteractedBlock(Result.DENY);
 				event.setUseItemInHand(Result.DENY);
 				event.setCancelled(true);
-				
+
 				// Deactivate LWC
 				deactivateLWC(tBlock, true);
 				removeTomb(tBlock, true);
-				
+
 				if (destroyQuickLoot) {
 					if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
 					if (tBlock.getLocketteSign() != null) {
@@ -628,87 +640,87 @@ public class Cenotaph extends JavaPlugin {
 					}
 					tBlock.getBlock().setType(Material.AIR);
 					if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
-					
+
 				}
 			}
-			
+
 			// Manually update inventory for the time being.
 			event.getPlayer().updateInventory();
 			sendMessage(event.getPlayer(), "Cenotaph quicklooted!");
 			logEvent(event.getPlayer() + " quicklooted cenotaph at " + tBlock.getBlock().getLocation());
 		}
-    }
-	
+	}
+
 	private class eListener extends EntityListener {
-		
-        @Override
-        public void onEntityDeath(EntityDeathEvent event ) {
-        	if (!(event.getEntity() instanceof Player)) return;
-        	Player p = (Player)event.getEntity();
-        	
-        	if (!hasPerm(p, "cenotaph.use", true)) return;
-        	
-        	logEvent(p.getName() + " died.");
-        	
-        	if (event.getDrops().size() == 0) {
-        		sendMessage(p, "Inventory Empty.");
-        		logEvent(p.getName() + " inventory empty.");
-        		return;
-        	}
-        	
-        	// Get the current player location.
-        	Location loc = p.getLocation();
-        	Block block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        	
-        	// If we run into something we don't want to destroy, go one up.
-        	if (	block.getType() == Material.STEP || 
-        			block.getType() == Material.TORCH ||
-        			block.getType() == Material.REDSTONE_WIRE || 
-        			block.getType() == Material.RAILS || 
-        			block.getType() == Material.STONE_PLATE || 
-        			block.getType() == Material.WOOD_PLATE ||
-        			block.getType() == Material.REDSTONE_TORCH_ON ||
-        			block.getType() == Material.REDSTONE_TORCH_OFF ||
-        			block.getType() == Material.CAKE_BLOCK) {
-        		block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() + 1, loc.getBlockZ());
-        	}
+
+		@Override
+		public void onEntityDeath(EntityDeathEvent event ) {
+			if (!(event.getEntity() instanceof Player)) return;
+			Player p = (Player)event.getEntity();
+
+			if (!hasPerm(p, "cenotaph.use", true)) return;
+
+			logEvent(p.getName() + " died.");
+
+			if (event.getDrops().size() == 0) {
+				sendMessage(p, "Inventory Empty.");
+				logEvent(p.getName() + " inventory empty.");
+				return;
+			}
+
+			// Get the current player location.
+			Location loc = p.getLocation();
+			Block block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+
+			// If we run into something we don't want to destroy, go one up.
+			if (	block.getType() == Material.STEP || 
+					block.getType() == Material.TORCH ||
+					block.getType() == Material.REDSTONE_WIRE || 
+					block.getType() == Material.RAILS || 
+					block.getType() == Material.STONE_PLATE || 
+					block.getType() == Material.WOOD_PLATE ||
+					block.getType() == Material.REDSTONE_TORCH_ON ||
+					block.getType() == Material.REDSTONE_TORCH_OFF ||
+					block.getType() == Material.CAKE_BLOCK) {
+				block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() + 1, loc.getBlockZ());
+			}
 
 			// Check if the player has a chest.
-        	int pChestCount = 0;
-        	int pSignCount = 0;
-    		for (ItemStack item : event.getDrops()) {
-    			if (item == null) continue;
-    			if (item.getType() == Material.CHEST) pChestCount += item.getAmount();
-    			if (item.getType() == Material.SIGN) pSignCount += item.getAmount();
-    		}
-    		
+			int pChestCount = 0;
+			int pSignCount = 0;
+			for (ItemStack item : event.getDrops()) {
+				if (item == null) continue;
+				if (item.getType() == Material.CHEST) pChestCount += item.getAmount();
+				if (item.getType() == Material.SIGN) pSignCount += item.getAmount();
+			}
+
 			if (pChestCount == 0 && !hasPerm(p, "cenotaph.freechest", p.isOp())) {
 				sendMessage(p, "No chest found in inventory. Inventory dropped");
 				logEvent(p.getName() + " No chest in inventory.");
 				return;
 			}
-        	
-        	// Check if we can replace the block.
+
+			// Check if we can replace the block.
 			block = findPlace(block);
 			if ( block == null ) {
 				sendMessage(p, "Could not find room for chest. Inventory dropped");
 				logEvent(p.getName() + " Could not find room for chest.");
 				return;
 			}
-			
+
 			// Check if there is a nearby chest
 			if (noInterfere && checkChest(block)) {
 				sendMessage(p, "There is a chest interfering with your cenotaph. Inventory dropped");
 				logEvent(p.getName() + " Chest interfered with cenotaph creation.");
 				return;
 			}
-        	
+
 			int removeChestCount = 1;
 			int removeSign = 0;
-			
+
 			// Do the check for a large chest block here so we can check for interference
 			Block lBlock = findLarge(block);
-			
+
 			// Set the current block to a chest, init some variables for later use.
 			block.setType(Material.CHEST);
 			// We're running into issues with 1.3 where we can't cast to a Chest :(
@@ -738,7 +750,7 @@ public class Cenotaph extends JavaPlugin {
 					}
 				}
 			}
-			
+
 			// Don't remove any chests if they get a free one.
 			if (hasPerm(p, "cenotaph.freechest", p.isOp()))
 				removeChestCount = 0;
@@ -763,10 +775,10 @@ public class Cenotaph extends JavaPlugin {
 			// Don't remove a sign if they get a free one
 			if (hasPerm(p, "cenotaph.freesign", p.isOp()))
 				removeSign = 0;
-			
+
 			// Create a TombBlock for this tombstone
 			TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), (System.currentTimeMillis() / 1000));
-			
+
 			// Protect the chest/sign if LWC is installed.
 			Boolean prot = false;
 			Boolean protLWC = false;
@@ -778,16 +790,16 @@ public class Cenotaph extends JavaPlugin {
 			// Protect the chest with Lockette if installed, enabled, and unprotected.
 			if (hasPerm(p, "cenotaph.lockette", true))
 				prot = protectWithLockette(p, tBlock);
-			
-			
+
+
 			// Add tombstone to list
 			tombList.offer(tBlock);
-			
+
 			// Add tombstone blocks to tombBlockList
 			tombBlockList.put(tBlock.getBlock().getLocation(), tBlock);
 			if (tBlock.getLBlock() != null) tombBlockList.put(tBlock.getLBlock().getLocation(), tBlock);
 			if (tBlock.getSign() != null) tombBlockList.put(tBlock.getSign().getLocation(), tBlock);
-			
+
 			// Add tombstone to player lookup list
 			ArrayList<TombBlock> pList = playerTombList.get(p.getName());
 			if (pList == null) {
@@ -795,9 +807,9 @@ public class Cenotaph extends JavaPlugin {
 				playerTombList.put(p.getName(), pList);
 			}
 			pList.add(tBlock);
-			
-			saveTombList(p.getWorld().getName());
-			
+
+			saveCenotaphList(p.getWorld().getName());
+
 			// Next get the players inventory using the getDrops() method.
 			for (Iterator<ItemStack> iter = event.getDrops().listIterator(); iter.hasNext();) {
 				ItemStack item = iter.next();
@@ -816,7 +828,7 @@ public class Cenotaph extends JavaPlugin {
 						continue;
 					}
 				}
-				
+
 				// Take a sign
 				if (removeSign > 0 && item.getType() == Material.SIGN){
 					item.setAmount(item.getAmount() - 1);
@@ -826,7 +838,7 @@ public class Cenotaph extends JavaPlugin {
 						continue;
 					}
 				}
-				
+
 				// Add items to chest if not full.
 				if (slot < maxSlot) {
 					if (slot >= sChest.getInventory().getSize()) {
@@ -839,7 +851,7 @@ public class Cenotaph extends JavaPlugin {
 					slot++;
 				} else if (removeChestCount == 0) break;
 			}
-			
+
 			// Tell the player how many items went into chest.
 			String msg = "Inventory stored in chest. ";
 			if (event.getDrops().size() > 0)
@@ -852,103 +864,103 @@ public class Cenotaph extends JavaPlugin {
 			}
 			if (prot && !protLWC) {
 				sendMessage(p, "Chest protected with Lockette.");
-				logEvent(p.getName() + " Chest protected with Lockette.");				
+				logEvent(p.getName() + " Chest protected with Lockette.");
 			}
 			if (cenotaphRemove) {
 				sendMessage(p, "Chest will be automatically removed in " + removeTime + "s");
 				logEvent(p.getName() + " Chest will be automatically removed in " + removeTime + "s");
 			}
-        }
-        
-        private void createSign(Block signBlock, Player p) {
-        	String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        	String time = new SimpleDateFormat("hh:mm a").format(new Date());
-        	signBlock.setType(Material.SIGN_POST);
-        	final Sign sign = (Sign)signBlock.getState();
-        	String name = p.getName();
-        	if (name.length() > 15) name = name.substring(0, 15);
-        	sign.setLine(0, name);
-        	sign.setLine(1, "RIP");
-        	sign.setLine(2, date);
-        	sign.setLine(3, time);
+		}
+
+		private void createSign(Block signBlock, Player p) {
+			String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+			String time = new SimpleDateFormat("hh:mm a").format(new Date());
+			signBlock.setType(Material.SIGN_POST);
+			final Sign sign = (Sign)signBlock.getState();
+			String name = p.getName();
+			if (name.length() > 15) name = name.substring(0, 15);
+			sign.setLine(0, name);
+			sign.setLine(1, "RIP");
+			sign.setLine(2, date);
+			sign.setLine(3, time);
 			getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				public void run() {
-		        	sign.update();
+					sign.update();
 				}
 			});
-        }
-        
-        
-        /**
-         * Find a block near the base block to place the tombstone
-         * @param base
-         * @return
-         */
-        Block findPlace(Block base) {
-        	if (canReplace(base.getType())) return base;
-        	int baseX = base.getX();
-        	int baseY = base.getY();
-        	int baseZ = base.getZ();
-        	World w = base.getWorld();
-        	
-        	for (int x = baseX - 1; x < baseX + 1; x++) {
-        		for (int z = baseZ - 1; z < baseZ + 1; z++) {
-        			Block b = w.getBlockAt(x, baseY, z);
-        			if (canReplace(b.getType())) return b;
-        		}
-        	}
-        	
-        	return null;
-        }
-        
-        Block findLarge(Block base) {
-        	// Check all 4 sides for air.
-        	Block exp;
-        	exp = base.getWorld().getBlockAt(base.getX() - 1, base.getY(), base.getZ());
-        	if (canReplace(exp.getType()) && (!noInterfere || !checkChest(exp))) return exp;
-        	exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() - 1);
-        	if (canReplace(exp.getType()) && (!noInterfere || !checkChest(exp))) return exp;
-        	exp = base.getWorld().getBlockAt(base.getX() + 1, base.getY(), base.getZ());
-        	if (canReplace(exp.getType()) && (!noInterfere || !checkChest(exp))) return exp;
-        	exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() + 1);
-        	if (canReplace(exp.getType()) && (!noInterfere || !checkChest(exp))) return exp;
-        	return null;
-        }
-        
-        boolean checkChest(Block base) {
-        	// Check all 4 sides for a chest.
-        	Block exp;
-        	exp = base.getWorld().getBlockAt(base.getX() - 1, base.getY(), base.getZ());
-        	if (exp.getType() == Material.CHEST) return true;
-        	exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() - 1);
-        	if (exp.getType() == Material.CHEST) return true;
-        	exp = base.getWorld().getBlockAt(base.getX() + 1, base.getY(), base.getZ());
-        	if (exp.getType() == Material.CHEST) return true;
-        	exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() + 1);
-        	if (exp.getType() == Material.CHEST) return true;
-        	return false;
-        }
-        
-        Boolean canReplace(Material mat) {
-        	return (mat == Material.AIR || 
-        			mat == Material.SAPLING || 
-        			mat == Material.WATER || 
-        			mat == Material.STATIONARY_WATER || 
-        			mat == Material.LAVA || 
-        			mat == Material.STATIONARY_LAVA || 
-        			mat == Material.YELLOW_FLOWER || 
-        			mat == Material.RED_ROSE || 
-        			mat == Material.BROWN_MUSHROOM || 
-        			mat == Material.RED_MUSHROOM || 
-        			mat == Material.FIRE || 
-        			mat == Material.CROPS || 
-        			mat == Material.SNOW || 
-        			mat == Material.SUGAR_CANE ||
-        			mat == Material.GRAVEL ||
-        			mat == Material.SAND);
-        }
+		}
+
+
+		/**
+		 * Find a block near the base block to place the tombstone
+		 * @param base
+		 * @return
+		 */
+		Block findPlace(Block base) {
+			if (canReplace(base.getType())) return base;
+			int baseX = base.getX();
+			int baseY = base.getY();
+			int baseZ = base.getZ();
+			World w = base.getWorld();
+
+			for (int x = baseX - 1; x < baseX + 1; x++) {
+				for (int z = baseZ - 1; z < baseZ + 1; z++) {
+					Block b = w.getBlockAt(x, baseY, z);
+					if (canReplace(b.getType())) return b;
+				}
+			}
+
+			return null;
+		}
+
+		Block findLarge(Block base) {
+			// Check all 4 sides for air.
+			Block exp;
+			exp = base.getWorld().getBlockAt(base.getX() - 1, base.getY(), base.getZ());
+			if (canReplace(exp.getType()) && (!noInterfere || !checkChest(exp))) return exp;
+			exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() - 1);
+			if (canReplace(exp.getType()) && (!noInterfere || !checkChest(exp))) return exp;
+			exp = base.getWorld().getBlockAt(base.getX() + 1, base.getY(), base.getZ());
+			if (canReplace(exp.getType()) && (!noInterfere || !checkChest(exp))) return exp;
+			exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() + 1);
+			if (canReplace(exp.getType()) && (!noInterfere || !checkChest(exp))) return exp;
+			return null;
+		}
+
+		boolean checkChest(Block base) {
+			// Check all 4 sides for a chest.
+			Block exp;
+			exp = base.getWorld().getBlockAt(base.getX() - 1, base.getY(), base.getZ());
+			if (exp.getType() == Material.CHEST) return true;
+			exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() - 1);
+			if (exp.getType() == Material.CHEST) return true;
+			exp = base.getWorld().getBlockAt(base.getX() + 1, base.getY(), base.getZ());
+			if (exp.getType() == Material.CHEST) return true;
+			exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() + 1);
+			if (exp.getType() == Material.CHEST) return true;
+			return false;
+		}
+
+		Boolean canReplace(Material mat) {
+			return (mat == Material.AIR || 
+					mat == Material.SAPLING || 
+					mat == Material.WATER || 
+					mat == Material.STATIONARY_WATER || 
+					mat == Material.LAVA || 
+					mat == Material.STATIONARY_LAVA || 
+					mat == Material.YELLOW_FLOWER || 
+					mat == Material.RED_ROSE || 
+					mat == Material.BROWN_MUSHROOM || 
+					mat == Material.RED_MUSHROOM || 
+					mat == Material.FIRE || 
+					mat == Material.CROPS || 
+					mat == Material.SNOW || 
+					mat == Material.SUGAR_CANE ||
+					mat == Material.GRAVEL ||
+					mat == Material.SAND);
+		}
 	}
-	
+
 	private class sListener extends ServerListener {
 		@Override
 		public void onPluginEnable(PluginEnableEvent event) {
@@ -968,7 +980,7 @@ public class Cenotaph extends JavaPlugin {
 				}
 			}
 		}
-		
+
 		@Override
 		public void onPluginDisable(PluginDisableEvent event) {
 			if (event.getPlugin() == lwcPlugin) {
@@ -985,13 +997,13 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}
 	}
-	
+
 	private class TombThread extends Thread {
 		public void run() {
 			long cTime = System.currentTimeMillis() / 1000;
 			for (Iterator<TombBlock> iter = tombList.iterator(); iter.hasNext();) {
 				TombBlock tBlock = iter.next();
-				
+
 				if (lwcRemove && tBlock.getLwcEnabled() && lwcPlugin != null) {
 					if (cTime > (tBlock.getTime() + lwcTime)) {
 						// Remove the protection on the block
@@ -1002,7 +1014,7 @@ public class Cenotaph extends JavaPlugin {
 							sendMessage(p, "LWC Protection disabled on your cenotaph!");
 					}
 				}
-				
+
 				// Remove block, drop items on ground (One last free-for-all)
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
 					tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
@@ -1017,7 +1029,7 @@ public class Cenotaph extends JavaPlugin {
 					tBlock.getBlock().setType(Material.AIR);
 					if (tBlock.getLBlock() != null)
 						tBlock.getLBlock().setType(Material.AIR);
-					
+
 					// Remove from tombList
 					iter.remove();
 					removeTomb(tBlock, false);
@@ -1029,7 +1041,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}
 	}
-	
+
 	private class TombBlock {
 		private Block block;
 		private Block lBlock;
