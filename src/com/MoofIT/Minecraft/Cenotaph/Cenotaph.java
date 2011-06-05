@@ -320,7 +320,23 @@ public class Cenotaph extends JavaPlugin {
 
 		signBlock.setType(Material.AIR); //hack to prevent oddness with signs popping out of the ground as of Bukkit 818
 		signBlock.setType(Material.WALL_SIGN);
-		signBlock.setData(tBlock.getBlock().getData());
+
+
+		String facing = getDirection(getYawTo(signBlock.getLocation(),tBlock.getBlock().getLocation()));
+
+		if (facing == "East")
+			signBlock.setData((byte)0x02);
+		else if (facing == "West")
+			signBlock.setData((byte)0x03);
+		else if (facing == "North")
+			signBlock.setData((byte)0x04);
+		else if (facing == "South")
+			signBlock.setData((byte)0x05);
+		else {
+			sendMessage(player, "Error placing Lockette sign! Chest unsecured!");
+			return false;
+		}
+
 		final Sign sign = (Sign)signBlock.getState();
 		String name = player.getName();
 		if (name.length() > 15) name = name.substring(0, 15);
