@@ -312,43 +312,13 @@ public class Cenotaph extends JavaPlugin {
 
 		Block signBlock = null;
 
-		/* Assuming single chest for now, will add in double chest checks and calculations later
-		//modify this to get left or right of chest. need to add in yaw calculation
-		signBlock = tBlock.getBlock();
-		signBlock = signBlock.getWorld().getBlockAt(signBlock.getX() + 1, signBlock.getY(), signBlock.getZ());
-
-		//float yaw;
-		yaw = signBlock.getLocation().getYaw();
-		if (yaw == 0 || yaw == 180) {
-			//north-south face
+		signBlock = findPlace(tBlock.getBlock(),true);
+		if (signBlock == null) {
+			sendMessage(player, "No room for Lockette sign! Chest unsecured!");
+			return false;
 		}
-		else if (yaw == 90 || yaw == 270) {
-			//east-west face
-		}
-		else {
-			//sanity check, search north-south face
-		}
-		//signBlock = 1 to the left
-		/*if (!canReplace(signBlock.getType())) {
-			//signBlock = 1 to the right
-			if (!canReplace(signBlock.getType())) {
-				//fail gracefully, do not protect
-			}
-		}*/
-		int baseX = tBlock.getBlock().getX();
-		int baseY = tBlock.getBlock().getY();
-		int baseZ = tBlock.getBlock().getZ();
-		World w = tBlock.getBlock().getWorld();
 
-		/*for (int x = baseX - 1; x < baseX + 1; x++) {
-			for (int z = baseZ - 1; z < baseZ + 1; z++) {
-				Block b = w.getBlockAt(x, baseY, z);
-				if (b.getType() == Material.AIR)
-					signBlock = b;
-			}
-		}*/
-		signBlock = w.getBlockAt(baseX, baseY, baseZ + 1);
-
+		signBlock.setType(Material.AIR); //hack to prevent oddness with signs popping out of the ground as of Bukkit 818
 		signBlock.setType(Material.WALL_SIGN);
 		signBlock.setData(tBlock.getBlock().getData());
 		final Sign sign = (Sign)signBlock.getState();
@@ -635,9 +605,7 @@ public class Cenotaph extends JavaPlugin {
 
 				if (destroyQuickLoot) {
 					if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
-					if (tBlock.getLocketteSign() != null) {
-						tBlock.getLocketteSign().getBlock().setType(Material.AIR);;
-					}
+					if (tBlock.getLocketteSign() != null) tBlock.getLocketteSign().getBlock().setType(Material.AIR);
 					tBlock.getBlock().setType(Material.AIR);
 					if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
 
@@ -701,7 +669,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			// Check if we can replace the block.
-			block = findPlace(block);
+			block = findPlace(block,false);
 			if ( block == null ) {
 				sendMessage(p, "Could not find room for chest. Inventory dropped");
 				logEvent(p.getName() + " Could not find room for chest.");
@@ -890,29 +858,6 @@ public class Cenotaph extends JavaPlugin {
 			});
 		}
 
-
-		/**
-		 * Find a block near the base block to place the tombstone
-		 * @param base
-		 * @return
-		 */
-		Block findPlace(Block base) {
-			if (canReplace(base.getType())) return base;
-			int baseX = base.getX();
-			int baseY = base.getY();
-			int baseZ = base.getZ();
-			World w = base.getWorld();
-
-			for (int x = baseX - 1; x < baseX + 1; x++) {
-				for (int z = baseZ - 1; z < baseZ + 1; z++) {
-					Block b = w.getBlockAt(x, baseY, z);
-					if (canReplace(b.getType())) return b;
-				}
-			}
-
-			return null;
-		}
-
 		Block findLarge(Block base) {
 			// Check all 4 sides for air.
 			Block exp;
@@ -940,25 +885,64 @@ public class Cenotaph extends JavaPlugin {
 			if (exp.getType() == Material.CHEST) return true;
 			return false;
 		}
+	}
 
-		Boolean canReplace(Material mat) {
-			return (mat == Material.AIR || 
-					mat == Material.SAPLING || 
-					mat == Material.WATER || 
-					mat == Material.STATIONARY_WATER || 
-					mat == Material.LAVA || 
-					mat == Material.STATIONARY_LAVA || 
-					mat == Material.YELLOW_FLOWER || 
-					mat == Material.RED_ROSE || 
-					mat == Material.BROWN_MUSHROOM || 
-					mat == Material.RED_MUSHROOM || 
-					mat == Material.FIRE || 
-					mat == Material.CROPS || 
-					mat == Material.SNOW || 
-					mat == Material.SUGAR_CANE ||
-					mat == Material.GRAVEL ||
-					mat == Material.SAND);
+
+	/**
+	 * Find a block near the base block to place the tombstone
+	 * @param base
+	 * @return
+	 */
+	Block findPlace(Block base, Boolean CardinalSearch) {
+		if (canReplace(base.getType())) return base;
+		int baseX = base.getX();
+		int baseY = base.getY();
+		int baseZ = base.getZ();
+		World w = base.getWorld();
+
+		if (CardinalSearch) {
+			Block b;
+			b = w.getBlockAt(baseX - 1, baseY, baseZ);
+			if (canReplace(b.getType())) return b;
+			b = w.getBlockAt(baseX + 1, baseY, baseZ);
+			if (canReplace(b.getType())) return b;
+			b = w.getBlockAt(baseX, baseY, baseZ - 1);
+			if (canReplace(b.getType())) return b;
+			b = w.getBlockAt(baseX, baseY, baseZ + 1);
+			if (canReplace(b.getType())) return b;
+			b = w.getBlockAt(baseX, baseY, baseZ);
+			if (canReplace(b.getType())) return b;
+
+			return null;
 		}
+
+		for (int x = baseX - 1; x < baseX + 1; x++) {
+			for (int z = baseZ - 1; z < baseZ + 1; z++) {
+				Block b = w.getBlockAt(x, baseY, z);
+				if (canReplace(b.getType())) return b;
+			}
+		}
+
+		return null;
+	}
+
+	Boolean canReplace(Material mat) {
+		return (mat == Material.AIR || 
+				mat == Material.SAPLING || 
+				mat == Material.WATER || 
+				mat == Material.STATIONARY_WATER || 
+				mat == Material.LAVA || 
+				mat == Material.STATIONARY_LAVA || 
+				mat == Material.YELLOW_FLOWER || 
+				mat == Material.RED_ROSE || 
+				mat == Material.BROWN_MUSHROOM || 
+				mat == Material.RED_MUSHROOM || 
+				mat == Material.FIRE || 
+				mat == Material.CROPS || 
+				mat == Material.SNOW || 
+				mat == Material.SUGAR_CANE ||
+				mat == Material.GRAVEL ||
+				mat == Material.SAND);
 	}
 
 	private class sListener extends ServerListener {
@@ -1021,9 +1005,8 @@ public class Cenotaph extends JavaPlugin {
 					if (tBlock.getLwcEnabled()) {
 						deactivateLWC(tBlock, true);
 					}
-					if (tBlock.getLocketteSign() != null) {
-						tBlock.getLocketteSign().setType(Material.AIR);
-					}
+					if (tBlock.getLocketteSign() != null)
+						tBlock.getLocketteSign().getBlock().setType(Material.AIR);
 					if (tBlock.getSign() != null)
 						tBlock.getSign().setType(Material.AIR);
 					tBlock.getBlock().setType(Material.AIR);
