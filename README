@@ -40,19 +40,7 @@ cenotaph.cmd.tombreset - Allow this user to use /tombreset
 =============
  Config
 =============
-lwcEnable - Whether to use LWC if available 
-lwcRemove - Whether to remove LWC after a specific timeout
-lwcPublic - Set to true to set LWC protection to Public instead or removing
-lwcTimeout - How long to wait before disabling LWC on a cenotaph
-LocketteEnable - Whether to use Lockette if available
-tombSign - Whether to place a sign on the cenotaph
-removeTime - How long to wait before destroying a cenotaph
-tombRemove - Whether or not to destroy a cenotaph after a timeout
-playerMessage - Whether or not to show messages to the player
-saveTombList - Whether to save a list of cenotaphs between server reloads
-destroyQuickLoot - Set to true to destroy the chest/sign on quickloot
-noDestroy - Set to true to disallow any player from destroying a cenotaph (Other than quickloot) 
-noInterfere - Set whether or not to stop cenotaph creation next to existing chests (Default true)
+See default config file for options and instructions.
 
 =============
  Credits

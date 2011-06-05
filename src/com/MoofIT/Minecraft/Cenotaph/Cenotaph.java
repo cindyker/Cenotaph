@@ -95,8 +95,8 @@ public class Cenotaph extends JavaPlugin {
 	private boolean lwcEnable = true;
 	private boolean lwcRemove = false;
 	private boolean lwcPublic = false;
-	private boolean tombRemove = false;
-	private boolean tombSign = true;
+	private boolean cenotaphRemove = false;
+	private boolean cenotaphSign = true;
 	private boolean pMessage = true;
 	private boolean saveTombList = true;
 	private boolean destroyQuickLoot = false;
@@ -130,44 +130,44 @@ public class Cenotaph extends JavaPlugin {
         	loadTombList(w.getName());
         
         // Start removal timer. Run every 30 seconds (20 ticks per second)
-        if (lwcRemove || tombRemove)
+        if (lwcRemove || cenotaphRemove)
         	getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(), 0L, 100L);
 	}
 	
 	public void reloadConfig() {
     	config.load();
-    	lwcEnable = config.getBoolean("lwcEnable", lwcEnable);
-        lwcTime = config.getInt("lwcTimeout", lwcTime);
-        lwcRemove = config.getBoolean("lwcRemove", lwcRemove);
-        lwcPublic = config.getBoolean("lwcPublic", lwcPublic);
-        tombSign = config.getBoolean("tombSign", tombSign);
-        removeTime = config.getInt("removeTime", removeTime);
-        tombRemove = config.getBoolean("tombRemove", tombRemove);
-        pMessage = config.getBoolean("playerMessage", pMessage);
-        saveTombList = config.getBoolean("saveTombList", saveTombList);
-        destroyQuickLoot = config.getBoolean("destroyQuickLoot", destroyQuickLoot);
-        noDestroy = config.getBoolean("noDestroy", noDestroy);
-        noInterfere = config.getBoolean("noInterfere", noInterfere);
-        logEvents = config.getBoolean("logEvents", logEvents);
-        LocketteEnable = config.getBoolean("LocketteEnable", LocketteEnable);
+    	lwcEnable = config.getBoolean("Protection.lwcEnable", lwcEnable);
+        lwcTime = config.getInt("Protection.lwcTimeout", lwcTime);
+        lwcRemove = config.getBoolean("Protection.lwcRemove", lwcRemove);
+        lwcPublic = config.getBoolean("Protection.lwcPublic", lwcPublic);
+        cenotaphSign = config.getBoolean("Core.cenotaphSign", cenotaphSign);
+        removeTime = config.getInt("Removal.removeTime", removeTime);
+        cenotaphRemove = config.getBoolean("Removal.cenotaphRemove", cenotaphRemove);
+        pMessage = config.getBoolean("Core.playerMessage", pMessage);
+        saveTombList = config.getBoolean("Core.saveTombList", saveTombList);
+        destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
+        noDestroy = config.getBoolean("Core.noDestroy", noDestroy);
+        noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
+        logEvents = config.getBoolean("Core.logEvents", logEvents);
+        LocketteEnable = config.getBoolean("Protection.LocketteEnable", LocketteEnable);
         saveConfig();
     }
 	
 	public void saveConfig() {
-		config.setProperty("lwcEnable", lwcEnable);
-		config.setProperty("lwcTimeout", lwcTime);
-        config.setProperty("lwcRemove", lwcRemove);
-        config.setProperty("lwcPublic", lwcPublic);
-        config.setProperty("tombSign", tombSign);
-        config.setProperty("removeTime", removeTime);
-        config.setProperty("tombRemove", tombRemove);
-        config.setProperty("playerMessage", pMessage);
-        config.setProperty("saveTombList", saveTombList);
-        config.setProperty("destroyQuickLoot", destroyQuickLoot);
-        config.setProperty("noDestroy", noDestroy);
-        config.setProperty("noInterfere", noInterfere);
-        config.setProperty("logEvents", logEvents);
-        config.setProperty("LocketteEnable", LocketteEnable);
+		config.setProperty("Protection.lwcEnable", lwcEnable);
+		config.setProperty("Protection.lwcTimeout", lwcTime);
+        config.setProperty("Protection.lwcRemove", lwcRemove);
+        config.setProperty("Protection.lwcPublic", lwcPublic);
+        config.setProperty("Core.cenotaphSign", cenotaphSign);
+        config.setProperty("Removal.removeTime", removeTime);
+        config.setProperty("Removal.cenotaphRemove", cenotaphRemove);
+        config.setProperty("Core.playerMessage", pMessage);
+        config.setProperty("Core.saveTombList", saveTombList);
+        config.setProperty("Removal.destroyQuickLoot", destroyQuickLoot);
+        config.setProperty("Core.noDestroy", noDestroy);
+        config.setProperty("Core.noInterfere", noInterfere);
+        config.setProperty("Core.logEvents", logEvents);
+        config.setProperty("Core.Protection.LocketteEnable", LocketteEnable);
         config.save();
 	}
 	
@@ -745,7 +745,7 @@ public class Cenotaph extends JavaPlugin {
 
 			// Check if we have signs enabled, if the player can use signs, and if the player has a sign or gets a free sign
 			Block sBlock = null;
-			if (tombSign && hasPerm(p, "cenotaph.sign", true) && 
+			if (cenotaphSign && hasPerm(p, "cenotaph.sign", true) && 
 				(pSignCount > 0 || hasPerm(p, "cenotaph.freesign", p.isOp()))) {
 				// Find a place to put the sign, then place the sign.
 				sBlock = sChest.getWorld().getBlockAt(sChest.getX(), sChest.getY() + 1, sChest.getZ());
@@ -854,7 +854,7 @@ public class Cenotaph extends JavaPlugin {
 				sendMessage(p, "Chest protected with Lockette.");
 				logEvent(p.getName() + " Chest protected with Lockette.");				
 			}
-			if (tombRemove) {
+			if (cenotaphRemove) {
 				sendMessage(p, "Chest will be automatically removed in " + removeTime + "s");
 				logEvent(p.getName() + " Chest will be automatically removed in " + removeTime + "s");
 			}
@@ -1004,7 +1004,7 @@ public class Cenotaph extends JavaPlugin {
 				}
 				
 				// Remove block, drop items on ground (One last free-for-all)
-				if (tombRemove && cTime > (tBlock.getTime() + removeTime)) {
+				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
 					tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
 					if (tBlock.getLwcEnabled()) {
 						deactivateLWC(tBlock, true);
