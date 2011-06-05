@@ -90,20 +90,22 @@ public class Cenotaph extends JavaPlugin {
 	/**
 	 * Configuration options - Defaults
 	 */
-	private int lwcTime = 3600;
-	private int removeTime = 18000;
-	private boolean lwcEnable = true;
-	private boolean lwcRemove = false;
-	private boolean lwcPublic = false;
-	private boolean cenotaphRemove = false;
+	private boolean logEvents = false;
 	private boolean cenotaphSign = true;
+	private boolean noDestroy = false;
 	private boolean pMessage = true;
 	private boolean saveCenotaphList = true;
-	private boolean destroyQuickLoot = false;
-	private boolean noDestroy = false;
 	private boolean noInterfere = true;
-	private boolean logEvents = false;
+
+	private boolean destroyQuickLoot = false;
+	private boolean cenotaphRemove = false;
+	private int removeTime = 18000;
+
 	private boolean LocketteEnable = false;
+	private boolean lwcEnable = true;
+	private boolean lwcRemove = false;
+	private int lwcTime = 3600;
+	private boolean lwcPublic = false;
 
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
