@@ -1,0 +1,37 @@
+Core:
+  #Print messages to terminal if true
+  logEvents: false
+
+  #Place a sign on the cenotaph if true
+  cenotaphSign: true
+
+  #Prevent non-Op players from destroying cenotaphs if true (destroyQuickLoot overrides)
+  noDestroy: true
+
+  #Show status messages to the player if true
+  playerMessage: true
+
+  #Save Cenotaph listing between server reloads if true
+  saveCenotaphList: true
+
+  #Stop Cenotaph creation next to existing chests if true
+  noInterfere: true
+
+Removal:
+  #Destroy cenotaph on player quickloot if true
+  destroyQuickLoot: true
+
+  #Remove cenotaph after removeTime seconds if true
+  cenotaphRemove: true
+  removeTime: 3600
+
+Security:
+  LocketteEnable: true
+  lwcEnable: false
+
+  #Remove LWC protection after lwcTimeout seconds
+  lwcRemove: false
+  lwcTimeout: 3600
+
+  #Set LWC protection to Public instead of removing it after the timeout
+  lwcPublic: false
