@@ -322,8 +322,6 @@ public class Cenotaph extends JavaPlugin {
 		signBlock.setType(Material.WALL_SIGN);
 
 		String facing = getDirection((getYawTo(signBlock.getLocation(),tBlock.getBlock().getLocation()) + 270) % 360);
-		sendMessage(player, "facing: " + facing);
-
 		if (facing == "East")
 			signBlock.setData((byte)0x02);
 		else if (facing == "West")
