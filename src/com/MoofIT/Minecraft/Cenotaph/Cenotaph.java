@@ -321,8 +321,10 @@ public class Cenotaph extends JavaPlugin {
 		signBlock.setType(Material.AIR); //hack to prevent oddness with signs popping out of the ground as of Bukkit 818
 		signBlock.setType(Material.WALL_SIGN);
 
-
-		String facing = getDirection(getYawTo(signBlock.getLocation(),tBlock.getBlock().getLocation()));
+		double degrees = (getYawTo(signBlock.getLocation(),tBlock.getBlock().getLocation()) + 270) % 360;	
+		sendMessage(player, "deg: " + degrees);
+		String facing = getDirection(degrees);
+		sendMessage(player, "facing: " + facing);
 
 		if (facing == "East")
 			signBlock.setData((byte)0x02);
