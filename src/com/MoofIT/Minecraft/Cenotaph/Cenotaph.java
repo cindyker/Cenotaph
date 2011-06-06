@@ -669,6 +669,12 @@ public class Cenotaph extends JavaPlugin {
 				block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() + 1, loc.getBlockZ());
 			}
 
+			if (block.getY() > 126 || block.getY() < 1) {
+				sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped");
+				logEvent(p.getName() + " died in the Void.");
+				return;
+			}
+
 			// Check if the player has a chest.
 			int pChestCount = 0;
 			int pSignCount = 0;
