@@ -23,6 +23,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -96,6 +100,7 @@ public class Cenotaph extends JavaPlugin {
 	private boolean pMessage = true;
 	private boolean saveCenotaphList = true;
 	private boolean noInterfere = true;
+	private boolean versionCheck = true;
 
 	private boolean destroyQuickLoot = false;
 	private boolean cenotaphRemove = false;
@@ -131,6 +136,28 @@ public class Cenotaph extends JavaPlugin {
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
 
+		if (versionCheck) {
+			URL url = null;
+			try {
+				url = new URL("http://www.moofit.com/minecraft/cenotaph.ver");
+				BufferedReader in = null;
+				in = new BufferedReader(new InputStreamReader(url.openStream()));
+				String verFileContents = "";
+				String line;
+				while ((line = in.readLine()) != null) {
+					verFileContents += line; 
+				}
+				in.close();
+				log.info("[Cenotaph] Current version:" + verFileContents);
+			}
+			catch (MalformedURLException ex) {
+				log.info("[Cenotaph] Error accessing update URL.");
+			}
+			catch (IOException ex) {
+				log.info("[Cenotaph] Error checking for update.");
+			}
+		}
+
 		// Start removal timer. Run every 30 seconds (20 ticks per second)
 		if (lwcRemove || cenotaphRemove)
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(), 0L, 100L);
@@ -146,6 +173,7 @@ public class Cenotaph extends JavaPlugin {
 		pMessage = config.getBoolean("Core.playerMessage", pMessage);
 		saveCenotaphList = config.getBoolean("Core.saveCenotaphList", saveCenotaphList);
 		noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
+		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
 
 		//Removal
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -169,6 +197,7 @@ public class Cenotaph extends JavaPlugin {
 		config.setProperty("Core.playerMessage", pMessage);
 		config.setProperty("Core.saveCenotaphList", saveCenotaphList);
 		config.setProperty("Core.noInterfere", noInterfere);
+		config.setProperty("versionCheck", versionCheck);
 
 		//Removal
 		config.setProperty("Removal.destroyQuickLoot", destroyQuickLoot);
