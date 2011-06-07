@@ -117,7 +117,8 @@ public class Cenotaph extends JavaPlugin {
 		log = Logger.getLogger("Minecraft");
 		config = this.getConfiguration();
 
-		log.info(pdfFile.getName() + " v." + pdfFile.getVersion() + " is enabled.");
+		String thisVersion = pdfFile.getVersion();
+		log.info(pdfFile.getName() + " v." + thisVersion + " is enabled.");
 
 		pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
@@ -142,19 +143,24 @@ public class Cenotaph extends JavaPlugin {
 				url = new URL("http://www.moofit.com/minecraft/cenotaph.ver");
 				BufferedReader in = null;
 				in = new BufferedReader(new InputStreamReader(url.openStream()));
-				String verFileContents = "";
+				String newVersion = "";
 				String line;
 				while ((line = in.readLine()) != null) {
-					verFileContents += line; 
+					newVersion += line; 
 				}
 				in.close();
-				log.info("[Cenotaph] Current version:" + verFileContents);
+				if (!newVersion.equals(thisVersion)) {
+					log.warning("[Cenotaph] Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion);
+				}
+				else {
+					log.info("[Cenotaph] Cenotaph is up to date.");
+				}
 			}
 			catch (MalformedURLException ex) {
-				log.info("[Cenotaph] Error accessing update URL.");
+				log.warning("[Cenotaph] Error accessing update URL.");
 			}
 			catch (IOException ex) {
-				log.info("[Cenotaph] Error checking for update.");
+				log.warning("[Cenotaph] Error checking for update.");
 			}
 		}
 
@@ -197,7 +203,7 @@ public class Cenotaph extends JavaPlugin {
 		config.setProperty("Core.playerMessage", pMessage);
 		config.setProperty("Core.saveCenotaphList", saveCenotaphList);
 		config.setProperty("Core.noInterfere", noInterfere);
-		config.setProperty("versionCheck", versionCheck);
+		config.setProperty("Core.versionCheck", versionCheck);
 
 		//Removal
 		config.setProperty("Removal.destroyQuickLoot", destroyQuickLoot);
