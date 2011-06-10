@@ -101,6 +101,7 @@ public class Cenotaph extends JavaPlugin {
 	private boolean saveCenotaphList = true;
 	private boolean noInterfere = true;
 	private boolean versionCheck = true;
+	private boolean voidCheck = true;
 
 	private boolean destroyQuickLoot = false;
 	private boolean cenotaphRemove = false;
@@ -180,6 +181,7 @@ public class Cenotaph extends JavaPlugin {
 		saveCenotaphList = config.getBoolean("Core.saveCenotaphList", saveCenotaphList);
 		noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
 		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
+		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
 
 		//Removal
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -204,6 +206,7 @@ public class Cenotaph extends JavaPlugin {
 		config.setProperty("Core.saveCenotaphList", saveCenotaphList);
 		config.setProperty("Core.noInterfere", noInterfere);
 		config.setProperty("Core.versionCheck", versionCheck);
+		config.setProperty("Core.voidCheck", voidCheck);
 
 		//Removal
 		config.setProperty("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -343,7 +346,7 @@ public class Cenotaph extends JavaPlugin {
 		return true;
 	}
 
-	private Boolean protectWithLockette(Player player, TombBlock tBlock) {
+	private Boolean protectWithLockette(Player player, TombBlock tBlock) { //REF Lockette protection here
 		if (!LocketteEnable) return false;
 		if (LockettePlugin == null) return false;
 
@@ -374,7 +377,7 @@ public class Cenotaph extends JavaPlugin {
 
 		BlockState signBlockState = null;
 		signBlockState = signBlock.getState();
-		final Sign sign = (Sign)signBlockState; //TODO bug here: failure to cast to type sign
+		final Sign sign = (Sign)signBlockState; //FIXME bug here: failure to cast to type sign
 		
 		String name = player.getName();
 		if (name.length() > 15) name = name.substring(0, 15);
@@ -708,7 +711,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			//Don't create the chest if it or its sign would be in the void
-			if ((cenotaphSign && block.getY() > 126) || (!cenotaphSign && block.getY() > 127) || block.getY() < 1) {
+			if (voidCheck && ((cenotaphSign && block.getY() > 126) || (!cenotaphSign && block.getY() > 127) || block.getY() < 1)) {
 				sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped");
 				logEvent(p.getName() + " died in the Void.");
 				return;

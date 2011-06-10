@@ -20,6 +20,11 @@ Core:
     #Check for new versions on startup
     versionCheck: true
 
+    #Cenotaph normally checks to make sure it isn't trying to create a chest in the void.
+    #If you handle or modify the void with another plugin, you can disable that check here.
+    #This option should be true for most servers.
+    voidCheck: true 
+
 Removal:
     #Destroy cenotaph on player quickloot if true
     destroyQuickLoot: true
