@@ -52,6 +52,9 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.4.2]
+  - Option to disable the void check for servers that have other plugins to handle it
+  - Minor code changes
 [Version 1.4.1]
   - Now checks for updates on server startup
 [Version 1.4.0]
