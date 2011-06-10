@@ -372,7 +372,10 @@ public class Cenotaph extends JavaPlugin {
 			return false;
 		}
 
-		final Sign sign = (Sign)signBlock.getState();
+		BlockState signBlockState = null;
+		signBlockState = signBlock.getState();
+		final Sign sign = (Sign)signBlockState; //TODO bug here: failure to cast to type sign
+		
 		String name = player.getName();
 		if (name.length() > 15) name = name.substring(0, 15);
 		sign.setLine(0, "[Private]");
