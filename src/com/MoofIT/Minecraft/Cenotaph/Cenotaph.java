@@ -53,6 +53,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -102,6 +103,7 @@ public class Cenotaph extends JavaPlugin {
 	private boolean noInterfere = true;
 	private boolean versionCheck = true;
 	private boolean voidCheck = true;
+	private boolean creeperProtection = false;
 
 	private boolean destroyQuickLoot = false;
 	private boolean cenotaphRemove = false;
@@ -123,6 +125,7 @@ public class Cenotaph extends JavaPlugin {
 
 		pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
 		// we destroy a block, so we want last say.
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Highest, this);
@@ -182,6 +185,7 @@ public class Cenotaph extends JavaPlugin {
 		noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
 		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
 		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
+		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
 
 		//Removal
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -207,6 +211,7 @@ public class Cenotaph extends JavaPlugin {
 		config.setProperty("Core.noInterfere", noInterfere);
 		config.setProperty("Core.versionCheck", versionCheck);
 		config.setProperty("Core.voidCheck", voidCheck);
+		config.setProperty("Core.creeperProtection", creeperProtection);
 
 		//Removal
 		config.setProperty("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -676,10 +681,24 @@ public class Cenotaph extends JavaPlugin {
 		}
 	}
 
-	private class eListener extends EntityListener {
+	public class eListener extends EntityListener
+	{
+	    @Override
+		public void onEntityExplode(EntityExplodeEvent event)
+		{
+			if (event.isCancelled()) return;
+			if (!creeperProtection) return;
+			for (Block block : event.blockList()) {
+				TombBlock tBlock = tombBlockList.get(block.getLocation());
+				if (tBlock != null) {
+					event.setCancelled(true);
+				}
+			}
+		}
 
 		@Override
-		public void onEntityDeath(EntityDeathEvent event ) {
+		public void onEntityDeath(EntityDeathEvent event)
+		{
 			if (!(event.getEntity() instanceof Player)) return;
 			Player p = (Player)event.getEntity();
 

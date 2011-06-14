@@ -25,6 +25,10 @@ Core:
     #This option should be true for most servers.
     voidCheck: true 
 
+    #If you are not locking your chests with Lockette or LWC but still want them to be
+    #protected against Creeper explosions, enable this.
+    creeperProtection: false
+
 Removal:
     #Destroy cenotaph on player quickloot if true
     destroyQuickLoot: true
