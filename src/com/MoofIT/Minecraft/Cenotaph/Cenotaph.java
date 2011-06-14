@@ -115,6 +115,7 @@ public class Cenotaph extends JavaPlugin {
 	private int lwcTime = 3600;
 	private boolean lwcPublic = false;
 
+
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
 		log = Logger.getLogger("Minecraft");
