@@ -21,12 +21,16 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -115,6 +119,8 @@ public class Cenotaph extends JavaPlugin {
 	private int lwcTime = 3600;
 	private boolean lwcPublic = false;
 
+	private int configVer = 0;
+	private final int configCurrent = 7;
 
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
@@ -138,7 +144,7 @@ public class Cenotaph extends JavaPlugin {
 		LockettePlugin = (Lockette)checkPlugin("Lockette");
 		plugin = this;
 
-		reloadConfig();
+		loadConfig();
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
 
@@ -174,9 +180,30 @@ public class Cenotaph extends JavaPlugin {
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(), 0L, 100L);
 	}
 
-	public void reloadConfig() {
+	public void loadConfig() {
 		config.load();
 
+		configVer = config.getInt("configVer", configVer);
+		if (configVer == 0) {
+			try {
+				log.info("[Cenotaph] Configuration error or no config file found. Downloading default config file...");
+				URL google = new URL("https://raw.github.com/Southpaw018/Cenotaph/master/config.yml");
+				ReadableByteChannel rbc = Channels.newChannel(google.openStream());
+				FileOutputStream fos = new FileOutputStream(this.getDataFolder().getPath() + "/config.yml");
+				fos.getChannel().transferFrom(rbc, 0, 1 << 24);
+			} catch (MalformedURLException ex) {
+				log.warning("[Cenotaph] Error accessing default config file URL: " + ex);
+			} catch (FileNotFoundException ex) {
+				log.warning("[Cenotaph] Error accessing default config file URL: " + ex);
+			} catch (IOException ex) {
+				log.warning("[Cenotaph] Error downloading default config file: " + ex);
+			}
+			
+		}
+		else if (configVer < configCurrent) {
+			log.warning("[Cenotaph] Your config file is out of date! Delete your config and reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
+		}
+		
 		//Core
 		logEvents = config.getBoolean("Core.logEvents", logEvents);
 		cenotaphSign = config.getBoolean("Core.cenotaphSign", cenotaphSign);
@@ -199,34 +226,6 @@ public class Cenotaph extends JavaPlugin {
 		lwcRemove = config.getBoolean("Security.lwcRemove", lwcRemove);
 		lwcTime = config.getInt("Security.lwcTimeout", lwcTime);
 		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
-		saveConfig();
-	}
-
-	public void saveConfig() {
-		//Core
-		config.setProperty("Core.logEvents", logEvents);
-		config.setProperty("Core.cenotaphSign", cenotaphSign);
-		config.setProperty("Core.noDestroy", noDestroy);
-		config.setProperty("Core.playerMessage", pMessage);
-		config.setProperty("Core.saveCenotaphList", saveCenotaphList);
-		config.setProperty("Core.noInterfere", noInterfere);
-		config.setProperty("Core.versionCheck", versionCheck);
-		config.setProperty("Core.voidCheck", voidCheck);
-		config.setProperty("Core.creeperProtection", creeperProtection);
-
-		//Removal
-		config.setProperty("Removal.destroyQuickLoot", destroyQuickLoot);
-		config.setProperty("Removal.cenotaphRemove", cenotaphRemove);
-		config.setProperty("Removal.removeTime", removeTime);
-
-		//Security
-		config.setProperty("Security.LocketteEnable", LocketteEnable);
-		config.setProperty("Security.lwcEnable", lwcEnable);
-		config.setProperty("Security.lwcRemove", lwcRemove);
-		config.setProperty("Security.lwcTimeout", lwcTime);
-		config.setProperty("Security.lwcPublic", lwcPublic);
-
-		config.save();
 	}
 
 	public void loadTombList(String world) {

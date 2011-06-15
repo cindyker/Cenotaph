@@ -52,6 +52,10 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.5.0]
+  - Fix config file handling - no more needless file overwrites
+  - Gracefully handle missing or invalid config files by downloading a fresh commented copy
+  - Create config file versioning system to avoid errors with updates
 [Version 1.4.4]
   - Added config version check
   - Final 1.4 release
