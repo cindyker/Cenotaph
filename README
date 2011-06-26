@@ -52,6 +52,8 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.5.2]
+  - Fix bug causing Cenotaph to throw an error on enable if the folder containing config.yml did not exist
 [Version 1.5.1]
   - Fix bug allowing a free sign if Lockette sign was broken off a chest
 [Version 1.5.0]

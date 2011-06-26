@@ -187,8 +187,11 @@ public class Cenotaph extends JavaPlugin {
 		if (configVer == 0) {
 			try {
 				log.info("[Cenotaph] Configuration error or no config file found. Downloading default config file...");
-				URL google = new URL("https://raw.github.com/Southpaw018/Cenotaph/master/config.yml");
-				ReadableByteChannel rbc = Channels.newChannel(google.openStream());
+				if (!new File(getDataFolder().toString()).exists()) {
+					new File(getDataFolder().toString()).mkdir();
+				}
+				URL config = new URL("https://raw.github.com/Southpaw018/Cenotaph/master/config.yml");
+				ReadableByteChannel rbc = Channels.newChannel(config.openStream());
 				FileOutputStream fos = new FileOutputStream(this.getDataFolder().getPath() + "/config.yml");
 				fos.getChannel().transferFrom(rbc, 0, 1 << 24);
 			} catch (MalformedURLException ex) {
