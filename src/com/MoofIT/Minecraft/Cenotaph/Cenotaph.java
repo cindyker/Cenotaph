@@ -582,6 +582,19 @@ public class Cenotaph extends JavaPlugin {
 		public void onBlockBreak(BlockBreakEvent event) {
 			Block b = event.getBlock();
 			Player p = event.getPlayer();
+
+			if (b.getType() == Material.WALL_SIGN)
+			{
+				org.bukkit.material.Sign sign = (org.bukkit.material.Sign)b.getState().getData();
+				TombBlock tBlock = tombBlockList.get(b.getFace(sign.getAttachedFace()).getLocation());
+				if (tBlock == null) return;
+
+				if (tBlock.getLocketteSign() != null) {
+					tBlock.getLocketteSign().getBlock().setType(Material.AIR);
+				}
+				return;
+			}
+
 			if (b.getType() != Material.CHEST && b.getType() != Material.SIGN_POST) return;
 
 			TombBlock tBlock = tombBlockList.get(b.getLocation());
