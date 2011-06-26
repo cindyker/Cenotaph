@@ -746,8 +746,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			//Don't create the chest if it or its sign would be in the void
-			//TODO: bug here - check not working?
-			if (voidCheck && ((cenotaphSign && block.getY() > 126) || (!cenotaphSign && block.getY() > 127) || block.getY() < 1)) {
+			if (voidCheck && ((cenotaphSign && block.getY() > 126) || (!cenotaphSign && block.getY() > 127) || p.getLocation().getY() < 1)) {
 				sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped");
 				logEvent(p.getName() + " died in the Void.");
 				return;
@@ -940,7 +939,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}
 
-		private void createSign(Block signBlock, Player p) {
+		private void createSign(Block signBlock, Player p) { //TODO custom sign messages!
 			String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			String time = new SimpleDateFormat("hh:mm a").format(new Date());
 			signBlock.setType(Material.SIGN_POST);
