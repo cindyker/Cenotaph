@@ -385,7 +385,7 @@ public class Cenotaph extends JavaPlugin {
 
 		BlockState signBlockState = null;
 		signBlockState = signBlock.getState();
-		final Sign sign = (Sign)signBlockState; //FIXME bug here: failure to cast to type sign
+		final Sign sign = (Sign)signBlockState;
 		
 		String name = player.getName();
 		if (name.length() > 15) name = name.substring(0, 15);
@@ -674,7 +674,7 @@ public class Cenotaph extends JavaPlugin {
 			if (!overflow) {
 				// We're quicklooting, so no need to resume this interaction
 				event.setUseInteractedBlock(Result.DENY);
-				event.setUseItemInHand(Result.DENY);
+				event.setUseItemInHand(Result.DENY); //TODO: Minor bug here - if you're holding a sign, it'll still pop up
 				event.setCancelled(true);
 
 				// Deactivate LWC
@@ -746,6 +746,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			//Don't create the chest if it or its sign would be in the void
+			//TODO: bug here - check not working?
 			if (voidCheck && ((cenotaphSign && block.getY() > 126) || (!cenotaphSign && block.getY() > 127) || block.getY() < 1)) {
 				sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped");
 				logEvent(p.getName() + " died in the Void.");
