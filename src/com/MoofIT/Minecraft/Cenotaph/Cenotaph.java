@@ -99,6 +99,7 @@ public class Cenotaph extends JavaPlugin {
 	/**
 	 * Configuration options - Defaults
 	 */
+	//Core
 	private boolean logEvents = false;
 	private boolean cenotaphSign = true;
 	private boolean noDestroy = false;
@@ -109,12 +110,14 @@ public class Cenotaph extends JavaPlugin {
 	private boolean voidCheck = true;
 	private boolean creeperProtection = false;
 
+	//Removal
 	private boolean destroyQuickLoot = false;
 	private boolean cenotaphRemove = false;
 	private int removeTime = 18000;
 
-	private boolean LocketteEnable = false;
-	private boolean lwcEnable = true;
+	//Security
+	private boolean LocketteEnable = true;
+	private boolean lwcEnable = false;
 	private boolean lwcRemove = false;
 	private int lwcTime = 3600;
 	private boolean lwcPublic = false;
