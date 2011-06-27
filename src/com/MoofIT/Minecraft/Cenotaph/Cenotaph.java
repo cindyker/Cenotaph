@@ -151,7 +151,7 @@ public class Cenotaph extends JavaPlugin {
 		if (versionCheck) {
 			URL url = null;
 			try {
-				url = new URL("http://www.moofit.com/minecraft/cenotaph.ver");
+				url = new URL("http://www.moofit.com/minecraft/cenotaph.ver?v=" + thisVersion);
 				BufferedReader in = null;
 				in = new BufferedReader(new InputStreamReader(url.openStream()));
 				String newVersion = "";
