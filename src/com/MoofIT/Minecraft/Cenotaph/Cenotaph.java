@@ -515,8 +515,8 @@ public class Cenotaph extends JavaPlugin {
 			}
 			TombBlock tBlock = pList.get(slot);
 			double degrees = (getYawTo(tBlock.getBlock().getLocation(), p.getLocation()) + 270) % 360;
-			//p.setCompassTarget(tBlock.getBlock().getLocation());
-			sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + getDirection(degrees));
+			p.setCompassTarget(tBlock.getBlock().getLocation());
+			sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + getDirection(degrees) + ". Your compass has been set to point at its location. Use /cenreset to reset it to your spawn point.");
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenotaphreset")) {
 			if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
