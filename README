@@ -56,7 +56,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
   - Build against Craftbukkit RB953
   - Build against LWC 3.3
   - Build against Permissions 3
-  - asd
+  - Re-enable compass integration
 [Version 1.5.2]
   - Fix bug causing Cenotaph to throw an error on enable if the folder containing config.yml did not exist
   - Fix bug where the Void check was only working if the player died in the Void above the world and not below 
