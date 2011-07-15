@@ -26,7 +26,8 @@ Core:
     voidCheck: true 
 
     #If you are not locking your chests with Lockette or LWC but still want them to be
-    #protected against Creeper explosions, enable this.
+    #protected against Creeper explosions, or you want your chests to be protected even
+    #after they are unlocked, enable this.
     creeperProtection: false
 
     #Each line may be one of any custom string OR:

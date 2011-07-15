@@ -49,13 +49,27 @@ import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Ghast;
+import org.bukkit.entity.Giant;
+import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Spider;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Wolf;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityListener;
@@ -93,6 +107,7 @@ public class Cenotaph extends JavaPlugin {
 	private ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
 	private HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
 	private HashMap<String, ArrayList<TombBlock>> playerTombList = new HashMap<String, ArrayList<TombBlock>>();
+	private HashMap<String, EntityDamageEvent> deathCause = new HashMap<String, EntityDamageEvent>();
 	private Configuration config;
 	private Cenotaph plugin;
 
@@ -109,6 +124,12 @@ public class Cenotaph extends JavaPlugin {
 	private boolean versionCheck = true;
 	private boolean voidCheck = true;
 	private boolean creeperProtection = false;
+	private String signMessage[] = new String[] {
+		"{name}",
+		"RIP",
+		"{date}",
+		"{time}"
+	};
 
 	//Removal
 	private boolean destroyQuickLoot = false;
@@ -136,8 +157,8 @@ public class Cenotaph extends JavaPlugin {
 		pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Monitor, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
-		// we destroy a block, so we want last say.
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Highest, this);
 		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
 		pm.registerEvent(Event.Type.PLUGIN_DISABLE, serverListener, Priority.Monitor, this);
@@ -220,6 +241,7 @@ public class Cenotaph extends JavaPlugin {
 		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
 		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
 		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
+		signMessage = loadSign();
 
 		//Removal
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -324,6 +346,15 @@ public class Cenotaph extends JavaPlugin {
 		for (World w : getServer().getWorlds())
 			saveCenotaphList(w.getName());
 	}
+	private String[] loadSign() {
+		String[] msg = signMessage;
+		msg[0] = config.getString("Core.Sign.Line1", signMessage[0]);
+		msg[1] = config.getString("Core.Sign.Line2", signMessage[1]);
+		msg[2] = config.getString("Core.Sign.Line3", signMessage[2]);
+		msg[3] = config.getString("Core.Sign.Line4", signMessage[3]);
+		return msg;
+	}
+
 
 	/*
 	 * Check if a plugin is loaded/enabled already. Returns the plugin if so, null otherwise
@@ -702,7 +733,19 @@ public class Cenotaph extends JavaPlugin {
 
 	public class eListener extends EntityListener
 	{
-	    @Override
+		@Override
+		public void onEntityDamage(EntityDamageEvent event) {
+			if (event.isCancelled()) return;
+			if (!(event.getEntity() instanceof Player))return;
+
+			Player player = (Player)event.getEntity();
+			// Add them to the list if they're about to die
+			if (player.getHealth() - event.getDamage() <= 0) {
+				deathCause.put(player.getName(), event);
+			}
+		}
+
+		@Override
 		public void onEntityExplode(EntityExplodeEvent event)
 		{
 			if (event.isCancelled()) return;
@@ -942,22 +985,105 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}
 
-		private void createSign(Block signBlock, Player p) { //TODO custom sign messages!
+		private void createSign(Block signBlock, Player p) {
 			String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			String time = new SimpleDateFormat("hh:mm a").format(new Date());
+			String name = p.getName();
+			String reason = "Unknown";
+
+			EntityDamageEvent dmg = deathCause.get(name);
+			if (dmg != null) {
+				deathCause.remove(name);
+				reason = getCause(dmg);
+			}
+
 			signBlock.setType(Material.SIGN_POST);
 			final Sign sign = (Sign)signBlock.getState();
-			String name = p.getName();
-			if (name.length() > 15) name = name.substring(0, 15);
-			sign.setLine(0, name);
-			sign.setLine(1, "RIP");
-			sign.setLine(2, date);
-			sign.setLine(3, time);
+
+			for (int x = 0; x < 4; x++) {
+				String line = signMessage[x];
+				line = line.replaceAll("{name}", name);
+				line = line.replaceAll("{date}", date);
+				line = line.replaceAll("{time}", time);
+				line = line.replaceAll("{reason}", reason);
+
+				if (line.length() > 15) line = line.substring(0, 15);
+				sign.setLine(x, line);
+			}
 			getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				public void run() {
 					sign.update();
 				}
 			});
+		}
+
+		private String getCause(EntityDamageEvent dmg) {
+		     switch (dmg.getCause()) {
+		     case ENTITY_ATTACK:
+		     {
+			     EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
+			     Entity e = event.getDamager();
+			     if (e == null) {
+			    	 return "a Dispenser";
+			     } else if (e instanceof Player) {
+			    	 return ((Player) e).getDisplayName();
+			     } else if (e instanceof PigZombie) {
+			    	 return "a Pig Zombie";
+			     } else if (e instanceof Giant) {
+			    	 return "a Giant";
+			     } else if (e instanceof Zombie) {
+			    	 return "a Zombie";
+			     } else if (e instanceof Skeleton) {
+			    	 return "a Skeleton";
+			     } else if (e instanceof Spider) {
+			    	 return "a Spider";
+			     } else if (e instanceof Creeper) {
+			    	 return "a Creeper";
+			     } else if (e instanceof Ghast) {
+			    	 return "a Ghast";
+			     } else if (e instanceof Slime) {
+			    	 return "a Slime";
+			     } else if (e instanceof Wolf) {
+			    	 return "a Wolf";
+			     } else {
+			    	 return "a Monster";
+			     }
+		     }
+		     case CONTACT:
+		    	 return "a Cactus";
+		     case SUFFOCATION:
+		    	 return "Suffocation";
+		     case FALL:
+		    	 return "a Fall";
+		     case FIRE:
+		    	 return "a Fire";
+		     case FIRE_TICK:
+		    	 return "Burning";
+		     case LAVA:
+		    	 return "Lava";
+		     case DROWNING:
+		    	 return "Drowning";
+		     case BLOCK_EXPLOSION:
+		    	 return "an Explosion";
+		     case ENTITY_EXPLOSION:
+		     {
+			     try {
+						EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
+						Entity e = event.getDamager();
+						if (e instanceof TNTPrimed) return "a TNT Explosion";
+						else if (e instanceof Fireball) return "a Ghast";
+						else return "a Creeper";
+			     } catch (Exception e) {
+			    	 return "an Explosion";
+			     }
+		     }
+		     case VOID:
+		    	 return "the Void";
+		     case LIGHTNING:
+		    	 return "Lightning";
+		     default:
+		    	 return "Unknown";
+		     }
 		}
 
 		Block findLarge(Block base) {

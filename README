@@ -21,6 +21,7 @@ Configurable timeout for destruction of tombstones, works in unloaded chunks as 
 Quickloot support, right click the sign on a tombstone to loot all items in it (Your tombstone only!)
 Place a sign on top of the chest stating the players name and time of death
 The ability to point your compass at your tombstones! (Broken in 1.4)
+Configurable messages on Cenotaph signs
 
 =============
  Permissions
@@ -52,11 +53,13 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.5.4]
+  - Customizable signs (Thanks to Drakia for his death cause code)
 [Version 1.5.3]
   - Build against Craftbukkit RB953
   - Build against LWC 3.3
   - Build against Permissions 3
-  - Re-enable compass integration
+  - Re-enable compass integration (Thanks, Zarius!)
 [Version 1.5.2]
   - Fix bug causing Cenotaph to throw an error on enable if the folder containing config.yml did not exist
   - Fix bug where the Void check was only working if the player died in the Void above the world and not below 
