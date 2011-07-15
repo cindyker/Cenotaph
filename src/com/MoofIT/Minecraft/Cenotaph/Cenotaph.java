@@ -348,10 +348,10 @@ public class Cenotaph extends JavaPlugin {
 	}
 	private String[] loadSign() {
 		String[] msg = signMessage;
-		msg[0] = config.getString("Core.Sign.Line1", signMessage[0]);
-		msg[1] = config.getString("Core.Sign.Line2", signMessage[1]);
-		msg[2] = config.getString("Core.Sign.Line3", signMessage[2]);
-		msg[3] = config.getString("Core.Sign.Line4", signMessage[3]);
+		log.info("[Cenotaph] msg[0] = " + msg[0]);
+		log.info("[Cenotaph] msg[1] = " + msg[1]);
+		log.info("[Cenotaph] msg[2] = " + msg[2]);
+		log.info("[Cenotaph] msg[3] = " + msg[3]);
 		return msg;
 	}
 
@@ -1002,14 +1002,16 @@ public class Cenotaph extends JavaPlugin {
 
 			for (int x = 0; x < 4; x++) {
 				String line = signMessage[x];
-				line = line.replaceAll("{name}", name);
-				line = line.replaceAll("{date}", date);
-				line = line.replaceAll("{time}", time);
-				line = line.replaceAll("{reason}", reason);
+				line = line.replace("{name}", name);
+				line = line.replace("{date}", date);
+				line = line.replace("{time}", time);
+				line = line.replace("{reason}", reason);
+				log.info("[Cenotaph] Death sign var check: line post-replace = " + line);
 
 				if (line.length() > 15) line = line.substring(0, 15);
 				sign.setLine(x, line);
 			}
+
 			getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				public void run() {
 					sign.update();

@@ -30,17 +30,17 @@ Core:
     #after they are unlocked, enable this.
     creeperProtection: false
 
-    #Each line may be one of any custom string OR:
+    #Each line may be one of any custom text OR:
     #{name} for player name
     #{date} for day of death
     #{time} for time of death (server time)
     #{reason} for cause of death
-    #REMEMBER: LINES ARE LIMITED TO 15 CHARACTERS!
+    #REMEMBER: LINES ARE LIMITED TO 15 CHARACTERS, AND DON'T FORGET THE QUOTES!
     Sign:
-        Line1: {name}
-        Line2: RIP
-        Line3: {date}
-        Line4: {time}
+        Line1: "{name}"
+        Line2: "RIP"
+        Line3: "{date}"
+        Line4: "{time}"
 
 Removal:
     #Destroy cenotaph on player quickloot if true
@@ -61,4 +61,4 @@ Security:
     #Set LWC protection to Public instead of removing it after the timeout
     lwcPublic: false
 
-configVer: 8
+configVer: 9
