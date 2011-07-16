@@ -557,6 +557,88 @@ public class Cenotaph extends JavaPlugin {
 			p.setCompassTarget(p.getWorld().getSpawnLocation());
 			return true;
 		}
+		else if (cmd.equalsIgnoreCase("cenotaphadmin")) {
+			if (!hasPerm(p, "cenotaph.admin", p.isOp())) {
+				sendMessage(p, "Permission Denied");
+				return true;				
+			}
+			if (args[0] == "list") {
+				/*TODO tests to run before final commit:
+				 * cenadmin
+				 * cenadmin list
+				 * cenadmin list <player>
+				 * cenadmin find <player>
+				 * cenadmin find <player> <#>
+				 * cenadmin delete <player>
+				 * cenadmin delete <player> <#>  
+				 */
+				if (!hasPerm(p, "cenotaph.admin.list", p.isOp())) {
+					sendMessage(p, "Permission Denied");
+					return true;				
+				}
+				if (args[1] == null) { //TODO make /cenadmin list (no player arg) return list of players with cenotaphs
+					sendMessage(p, "Usage: /cenadmin list <player>");
+					return true;
+				}
+				ArrayList<TombBlock> pList = playerTombList.get(args[1]);
+				if (pList == null) {
+					sendMessage(p, "No cenotaphs found for " + args[1] + ".");
+					return true;
+				}
+				sendMessage(p, "Cenotaph List:");
+				int i = 0;
+				for (TombBlock tomb : pList) {
+					i++;
+					if (tomb.getBlock() == null) continue;
+					int X = tomb.getBlock().getX();
+					int Y = tomb.getBlock().getY();
+					int Z = tomb.getBlock().getZ();
+					sendMessage(p, "  " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
+				}
+				return true;
+			} else if (args[0] == "find") {
+				if (!hasPerm(p, "cenotaph.admin.find", p.isOp())) {
+					sendMessage(p, "Permission Denied");
+					return true;
+				}
+				ArrayList<TombBlock> pList = playerTombList.get(args[1]);
+				if (pList == null) {
+					sendMessage(p, "No cenotaphs found for " + args[1] + ".");
+					return true;
+				}
+				int slot = 0;
+				try {
+					slot = Integer.parseInt(args[2]);
+				} catch (Exception e) {
+					sendMessage(p, "Invalid cenotaph entry.");
+					return true;
+				}
+				slot -= 1;
+				if (slot < 0 || slot >= pList.size()) {
+					sendMessage(p, "Invalid cenotaph entry.");
+					return true;
+				}
+				TombBlock tBlock = pList.get(slot);
+				double degrees = (getYawTo(tBlock.getBlock().getLocation(), p.getLocation()) + 270) % 360;
+				int X = tBlock.getBlock().getX();
+				int Y = tBlock.getBlock().getY();
+				int Z = tBlock.getBlock().getZ();
+				sendMessage(p, args[1] + "'s cenotaph #" + args[2] + " is at " + X + "," + Y + "," + Z + ", to the " + getDirection(degrees) + ".");
+				return true;
+			} else if (args[0] == "remove") {
+				if (!hasPerm(p, "cenotaph.admin.remove", p.isOp())) {
+					sendMessage(p, "Permission Denied");
+					return true;
+				}
+				//TODO admin remove
+			} else {
+				sendMessage(p, "Usage: /cenadmin list <player>");
+				sendMessage(p, "Usage: /cenadmin find <player> <#>");
+				sendMessage(p, "Usage: /cenadmin remove <player> <#>");
+				return true;
+			}				
+			return true;
+		}
 		return false;
 	}
 
