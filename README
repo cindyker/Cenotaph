@@ -34,10 +34,14 @@ cenotaph.lockette - Protect the placed chest if Lockette is enabled
 cenotaph.sign - Whether the player gets a sign on their cenotaph chest
 cenotaph.freesign - Allow the player to get a free sign whether they are carrying one or not.
 cenotaph.quickloot - Whether to allow a player/group to quickloot by right clicking the cenotaph sign.
-cenotaph.admin - Allow this user to destroy other peoples cenotaphs.
 cenotaph.cmd.cenotaphlist - Allow this user to use /cenotaphlist (alias /cenlist)
 cenotaph.cmd.cenotaphfind - Allow this user to use /cenotaphfind (alias /cenfind)
 cenotaph.cmd.cenotaphreset - Allow this user to use /cenotaphreset (alias /cenreset)
+
+cenotaph.admin - Allow this user to physically destroy others' cenotaphs. Also a prerequisite for use of the other admin commands
+cenotaph.admin.list - Allow this user to see all cenotaphs with /cenadmin list <player>
+cenotaph.admin.find - Allow this user to find any cenotaph with /cenadmin find <player> <#>
+cenotaph.admin.remove - Allow this user to destroy any cenotaph with /cenadmin remove <player> <#>
 
 =============
  Config
@@ -53,6 +57,10 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.6.0]
+  - Updated for Craftbukkit RB1000
+  - Fixed customizable signs
+  - Added admin commands
 [Version 1.5.4]
   - Customizable signs (Thanks to Drakia for his death cause code)
 [Version 1.5.3]
@@ -93,6 +101,8 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
  Config file changes
 =============
 
+9: Customizable signs added
+8: <buggy, cancelled release>
 7: configVer added
 6: creeperProtect added
 5: voidCheck added

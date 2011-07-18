@@ -173,30 +173,7 @@ public class Cenotaph extends JavaPlugin {
 			loadTombList(w.getName());
 
 		if (versionCheck) {
-			URL url = null;
-			try {
-				url = new URL("http://www.moofit.com/minecraft/cenotaph.ver?v=" + thisVersion);
-				BufferedReader in = null;
-				in = new BufferedReader(new InputStreamReader(url.openStream()));
-				String newVersion = "";
-				String line;
-				while ((line = in.readLine()) != null) {
-					newVersion += line; 
-				}
-				in.close();
-				if (!newVersion.equals(thisVersion)) {
-					log.warning("[Cenotaph] Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion);
-				}
-				else {
-					log.info("[Cenotaph] Cenotaph is up to date.");
-				}
-			}
-			catch (MalformedURLException ex) {
-				log.warning("[Cenotaph] Error accessing update URL.");
-			}
-			catch (IOException ex) {
-				log.warning("[Cenotaph] Error checking for update.");
-			}
+			versionCheck();
 		}
 
 		// Start removal timer. Run every 30 seconds (20 ticks per second)
@@ -291,7 +268,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 			scanner.close();
 		} catch (IOException e) {
-			Cenotaph.log.info("[Cenotaph] Error loading cenotaph list: " + e);
+			log.info("[Cenotaph] Error loading cenotaph list: " + e);
 		}
 	}
 
@@ -324,7 +301,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 			bw.close();
 		} catch (IOException e) {
-			Cenotaph.log.info("[Cenotaph] Error saving cenotaph list: " + e);
+			log.info("[Cenotaph] Error saving cenotaph list: " + e);
 		}
 	}
 
@@ -348,10 +325,10 @@ public class Cenotaph extends JavaPlugin {
 	}
 	private String[] loadSign() {
 		String[] msg = signMessage;
-		log.info("[Cenotaph] msg[0] = " + msg[0]);
-		log.info("[Cenotaph] msg[1] = " + msg[1]);
-		log.info("[Cenotaph] msg[2] = " + msg[2]);
-		log.info("[Cenotaph] msg[3] = " + msg[3]);
+		msg[0] = config.getString("Core.Sign.Line1", signMessage[0]);
+		msg[1] = config.getString("Core.Sign.Line2", signMessage[1]);
+		msg[2] = config.getString("Core.Sign.Line3", signMessage[2]);
+		msg[3] = config.getString("Core.Sign.Line4", signMessage[3]); 
 		return msg;
 	}
 
@@ -388,7 +365,7 @@ public class Cenotaph extends JavaPlugin {
 		return true;
 	}
 
-	private Boolean protectWithLockette(Player player, TombBlock tBlock) { //REF Lockette protection here
+	private Boolean protectWithLockette(Player player, TombBlock tBlock) {
 		if (!LocketteEnable) return false;
 		if (LockettePlugin == null) return false;
 
@@ -625,6 +602,8 @@ public class Cenotaph extends JavaPlugin {
 				int Z = tBlock.getBlock().getZ();
 				sendMessage(p, args[1] + "'s cenotaph #" + args[2] + " is at " + X + "," + Y + "," + Z + ", to the " + getDirection(degrees) + ".");
 				return true;
+			} else if (args[0] == "verison") {
+				versionCheck();
 			} else if (args[0] == "remove") {
 				if (!hasPerm(p, "cenotaph.admin.remove", p.isOp())) {
 					sendMessage(p, "Permission Denied");
@@ -640,6 +619,34 @@ public class Cenotaph extends JavaPlugin {
 			return true;
 		}
 		return false;
+	}
+
+	public void versionCheck() {
+		String thisVersion = getDescription().getVersion();
+		URL url = null;
+		try {
+			url = new URL("http://www.moofit.com/minecraft/cenotaph.ver?v=" + thisVersion);
+			BufferedReader in = null;
+			in = new BufferedReader(new InputStreamReader(url.openStream()));
+			String newVersion = "";
+			String line;
+			while ((line = in.readLine()) != null) {
+				newVersion += line; 
+			}
+			in.close();
+			if (!newVersion.equals(thisVersion)) {
+				log.warning("[Cenotaph] Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion);
+			}
+			else {
+				log.info("[Cenotaph] Cenotaph is up to date.");
+			}
+		}
+		catch (MalformedURLException ex) {
+			log.warning("[Cenotaph] Error accessing update URL.");
+		}
+		catch (IOException ex) {
+			log.warning("[Cenotaph] Error checking for update.");
+		}
 	}
 
 	/**
@@ -1088,7 +1095,6 @@ public class Cenotaph extends JavaPlugin {
 				line = line.replace("{date}", date);
 				line = line.replace("{time}", time);
 				line = line.replace("{reason}", reason);
-				log.info("[Cenotaph] Death sign var check: line post-replace = " + line);
 
 				if (line.length() > 15) line = line.substring(0, 15);
 				sign.setLine(x, line);
