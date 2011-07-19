@@ -54,11 +54,11 @@ Security:
     LocketteEnable: true
     lwcEnable: false
 
-    #Remove LWC protection after lwcTimeout seconds
-    lwcRemove: false
-    lwcTimeout: 3600
+    #Remove security after securityTimeout seconds
+    securityRemove: false
+    securityTimeout: 3600
 
     #Set LWC protection to Public instead of removing it after the timeout
     lwcPublic: false
 
-configVer: 9
+configVer: 10

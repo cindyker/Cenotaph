@@ -1,6 +1,6 @@
 name: Cenotaph
 main: com.MoofIT.Minecraft.Cenotaph.Cenotaph
-version: 1.6.0
+version: 1.6.1
 description: Dead Man's Chest mod for Bukkit. Forked from Tombstone by Drakia (TheDgtl) 
 author: Southpaw018
 website: http://www.moofit.com
@@ -19,6 +19,10 @@ commands:
     description: Reset your compass to spawn
     usage: /<command>
     aliases: [cenotaphreset]
+  centime:
+    description: Show the time left before your cenotaph unlocks or breaks
+    usage: /<command> <index>
+    aliases: [cenotaphtime]
   cenadmin:
     description: Admin commands for Cenotaph
     usage: See documentation

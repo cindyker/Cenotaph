@@ -35,14 +35,43 @@ cenotaph.lockette - Protect the placed chest if Lockette is enabled
 cenotaph.sign - Whether the player gets a sign on their cenotaph chest
 cenotaph.freesign - Allow the player to get a free sign whether they are carrying one or not.
 cenotaph.quickloot - Whether to allow a player/group to quickloot by right clicking the cenotaph sign.
-cenotaph.cmd.cenotaphlist - Allow this user to use /cenotaphlist (alias /cenlist)
-cenotaph.cmd.cenotaphfind - Allow this user to use /cenotaphfind (alias /cenfind)
-cenotaph.cmd.cenotaphreset - Allow this user to use /cenotaphreset (alias /cenreset)
+cenotaph.cmd.cenotaphlist - Allow this user to use /cenlist
+cenotaph.cmd.cenotaphfind - Allow this user to use /cenfind
+cenotaph.cmd.cenotaphtime - Allow this user to use /centime
+cenotaph.cmd.cenotaphreset - Allow this user to use /cenreset
 
 cenotaph.admin - Allow this user to physically destroy others' cenotaphs. Also a prerequisite for use of the other admin commands
-cenotaph.admin.list - Allow this user to see all cenotaphs with /cenadmin list <player>
-cenotaph.admin.find - Allow this user to find any cenotaph with /cenadmin find <player> <#>
-cenotaph.admin.remove - Allow this user to destroy any cenotaph with /cenadmin remove <player> <#>
+cenotaph.admin.list - Allow this user to see all cenotaphs with /cenadmin list
+cenotaph.admin.find - Allow this user to find any cenotaph with /cenadmin find
+cenotaph.admin.time - Allow this user to check the time left on any cenotaph with /cenadmin time
+cenotaph.admin.remove - Allow this user to destroy any cenotaph with /cenadmin remove
+
+=============
+ Commands
+=============
+User commands:
+  /cenlist
+      Lists your current cenotaphs with index numbers for the other commands.
+  /cenfind <index>
+     Gives more information about a specific cenotaph and sets your compass to point at it.
+  /centime <index>
+      Description: Tells how much time is left before a specific cenotaph unlocks or breaks
+  /cenreset
+      Sets your compass to point to your spawn again after using /cenfind
+
+Admin commands:
+  /cenadmin list
+      Displays all players with cenotaphs.
+  /cenadmin list <player>
+      Displays all cenotaphs for a player with indexes.
+  /cenadmin find <player> <index>
+      Displays additional information about a specific cenotaph (does not set compass like the user version does).
+  /cenadmin time <player> <index>
+      Gives time information about the indicated cenotaph.
+  /cenadmin remove <player> <index>
+      Destroys the indicated cenotaph, dropping its contents on the ground.
+  /cenadmin version
+      Displays the current version of this plugin and checks for a new version
 
 =============
  Config
@@ -58,6 +87,10 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.6.1]
+  - Security config has been generalized (config.yml update)
+  - Lockette signs will now respond to the new securityTimeout (formerly lwcTimeout) config 
+  - New command: centime
 [Version 1.6.0]
   - Updated for Craftbukkit RB1000
   - Fixed customizable signs
@@ -101,7 +134,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Config file changes
 =============
-
+10: Security config generalized
 9: Customizable signs added
 8: <buggy, cancelled release>
 7: configVer added

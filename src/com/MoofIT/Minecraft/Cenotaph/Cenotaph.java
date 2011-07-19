@@ -139,12 +139,12 @@ public class Cenotaph extends JavaPlugin {
 	//Security
 	private boolean LocketteEnable = true;
 	private boolean lwcEnable = false;
-	private boolean lwcRemove = false;
-	private int lwcTime = 3600;
+	private boolean securityRemove = false;
+	private int securityTimeout = 3600;
 	private boolean lwcPublic = false;
 
 	private int configVer = 0;
-	private final int configCurrent = 9;
+	private final int configCurrent = 10;
 
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
@@ -177,7 +177,7 @@ public class Cenotaph extends JavaPlugin {
 		}
 
 		// Start removal timer. Run every 30 seconds (20 ticks per second)
-		if (lwcRemove || cenotaphRemove)
+		if (securityRemove || cenotaphRemove)
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(), 0L, 100L);
 	}
 
@@ -228,8 +228,8 @@ public class Cenotaph extends JavaPlugin {
 		//Security
 		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
 		lwcEnable = config.getBoolean("Security.lwcEnable", lwcEnable);
-		lwcRemove = config.getBoolean("Security.lwcRemove", lwcRemove);
-		lwcTime = config.getInt("Security.lwcTimeout", lwcTime);
+		securityRemove = config.getBoolean("Security.securityRemove", securityRemove);
+		securityTimeout = config.getInt("Security.securityTimeoutout", securityTimeout);
 		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
 	}
 
@@ -477,7 +477,7 @@ public class Cenotaph extends JavaPlugin {
 		if (!(sender instanceof Player)) return false;
 		Player p = (Player)sender;
 		String cmd = command.getName();
-		if (cmd.equalsIgnoreCase("cenotaphlist")) {
+		if (cmd.equalsIgnoreCase("cenlist")) {
 			if (!hasPerm(p, "cenotaph.cmd.cenotaphlist", p.isOp())) {
 				sendMessage(p, "Permission Denied");
 				return true;
@@ -498,7 +498,7 @@ public class Cenotaph extends JavaPlugin {
 				sendMessage(p, "  " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
 			}
 			return true;
-		} else if (cmd.equalsIgnoreCase("cenotaphfind")) {
+		} else if (cmd.equalsIgnoreCase("cenfind")) {
 			if (!hasPerm(p, "cenotaph.cmd.cenotaphfind", p.isOp())) {
 				sendMessage(p, "Permission Denied");
 				return true;
@@ -526,7 +526,20 @@ public class Cenotaph extends JavaPlugin {
 			p.setCompassTarget(tBlock.getBlock().getLocation());
 			sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + getDirection(degrees) + ". Your compass has been set to point at its location. Use /cenreset to reset it to your spawn point.");
 			return true;
-		} else if (cmd.equalsIgnoreCase("cenotaphreset")) {
+		} else if (cmd.equalsIgnoreCase("centime")) {
+			if (!hasPerm(p, "cenotaph.cmd.cenotaphtime", p.isOp())) {
+				sendMessage(p, "Permission Denied");
+				return true;
+			}
+			//TODO centime
+			//get cenotaph
+			//get time from cenotaph
+			//get whether we're unlocking and, if so, time
+			//get whether we destroy and, if so, time
+			//calculate results
+			//display
+			return true;
+		} else if (cmd.equalsIgnoreCase("cenreset")) {
 			if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
 				sendMessage(p, "Permission Denied");
 				return true;
@@ -534,7 +547,7 @@ public class Cenotaph extends JavaPlugin {
 			p.setCompassTarget(p.getWorld().getSpawnLocation());
 			return true;
 		}
-		else if (cmd.equalsIgnoreCase("cenotaphadmin")) {
+		else if (cmd.equalsIgnoreCase("cenadmin")) {
 			if (!hasPerm(p, "cenotaph.admin", p.isOp())) {
 				sendMessage(p, "Permission Denied");
 				return true;
@@ -1094,8 +1107,8 @@ public class Cenotaph extends JavaPlugin {
 			sendMessage(p, msg);
 			logEvent(p.getName() + " " + msg);
 			if (prot && protLWC) {
-				sendMessage(p, "Chest protected with LWC. " + lwcTime + "s before chest is unprotected.");
-				logEvent(p.getName() + " Chest protected with LWC. " + lwcTime + "s before chest is unprotected.");
+				sendMessage(p, "Chest protected with LWC. " + securityTimeout + "s before chest is unprotected.");
+				logEvent(p.getName() + " Chest protected with LWC. " + securityTimeout + "s before chest is unprotected.");
 			}
 			if (prot && !protLWC) {
 				sendMessage(p, "Chest protected with Lockette.");
@@ -1339,14 +1352,26 @@ public class Cenotaph extends JavaPlugin {
 			for (Iterator<TombBlock> iter = tombList.iterator(); iter.hasNext();) {
 				TombBlock tBlock = iter.next();
 
-				if (lwcRemove && tBlock.getLwcEnabled() && lwcPlugin != null) {
-					if (cTime > (tBlock.getTime() + lwcTime)) {
-						// Remove the protection on the block
-						deactivateLWC(tBlock, false);
-						tBlock.setLwcEnabled(false);
-						Player p = getServer().getPlayer(tBlock.getOwner());
-						if (p != null)
-							sendMessage(p, "LWC Protection disabled on your cenotaph!");
+				if (securityRemove) {
+					if (tBlock.getLwcEnabled() && lwcPlugin != null) {
+						if (cTime > (tBlock.getTime() + securityTimeout)) {
+							// Remove the protection on the block
+							deactivateLWC(tBlock, false);
+							tBlock.setLwcEnabled(false);
+							Player p = getServer().getPlayer(tBlock.getOwner());
+							if (p != null)
+								sendMessage(p, "LWC protection disabled on your cenotaph!");
+						}
+					}
+					if (tBlock.getLocketteSign() != null && LockettePlugin != null) {
+						if (cTime > (tBlock.getTime() + securityTimeout)) {
+							// Remove the protection on the block
+							tBlock.getLocketteSign().getBlock().setType(Material.AIR);
+							tBlock.removeLocketteSign();
+							Player p = getServer().getPlayer(tBlock.getOwner());
+							if (p != null)
+								sendMessage(p, "Lockette protection disabled on your cenotaph!");
+						}
 					}
 				}
 
@@ -1442,6 +1467,9 @@ public class Cenotaph extends JavaPlugin {
 		}
 		void setLocketteSign(Sign sign) {
 			this.LocketteSign = sign;
+		}
+		void removeLocketteSign() {
+			this.LocketteSign = null;
 		}
 	}
 }
