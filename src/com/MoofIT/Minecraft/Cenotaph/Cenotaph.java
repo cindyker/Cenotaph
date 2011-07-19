@@ -37,7 +37,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
@@ -554,13 +553,12 @@ public class Cenotaph extends JavaPlugin {
 					return true;				
 				}
 				if (args.length < 2) {
-					Set<String> playerList = playerTombList.keySet();
-					if (playerList.isEmpty()) {
+					if (playerTombList.keySet().isEmpty()) {
 						sendMessage(p, "There are no cenotaphs.");
 						return true;
 					}
 					sendMessage(p, "Players with cenotaphs:");
-					for (String player : playerList) {
+					for (String player : playerTombList.keySet()) {
 						sendMessage(p, player);						
 					}
 					return true;
@@ -1352,9 +1350,6 @@ public class Cenotaph extends JavaPlugin {
 					}
 				}
 
-				// Remove from tombList
-				removeTomb(tBlock, false);
-
 				// Remove block, drop items on ground (One last free-for-all)
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
 					tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
@@ -1369,7 +1364,9 @@ public class Cenotaph extends JavaPlugin {
 					if (tBlock.getLBlock() != null)
 						tBlock.getLBlock().setType(Material.AIR);
 
+					// Remove from tombList
 					iter.remove();
+					removeTomb(tBlock, false);
 
 					Player p = getServer().getPlayer(tBlock.getOwner());
 					if (p != null)
