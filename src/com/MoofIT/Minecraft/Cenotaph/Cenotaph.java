@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
@@ -173,7 +174,7 @@ public class Cenotaph extends JavaPlugin {
 			loadTombList(w.getName());
 
 		if (versionCheck) {
-			versionCheck();
+			versionCheck(true);
 		}
 
 		// Start removal timer. Run every 30 seconds (20 ticks per second)
@@ -537,24 +538,31 @@ public class Cenotaph extends JavaPlugin {
 		else if (cmd.equalsIgnoreCase("cenotaphadmin")) {
 			if (!hasPerm(p, "cenotaph.admin", p.isOp())) {
 				sendMessage(p, "Permission Denied");
-				return true;				
+				return true;
 			}
-			if (args[0] == "list") {
-				/*TODO tests to run before final commit:
-				 * cenadmin
-				 * cenadmin list
-				 * cenadmin list <player>
-				 * cenadmin find <player>
-				 * cenadmin find <player> <#>
-				 * cenadmin delete <player>
-				 * cenadmin delete <player> <#>  
-				 */
+			if (args.length == 0) {
+				sendMessage(p, "Usage: /cenadmin list");
+				sendMessage(p, "Usage: /cenadmin list <playerCaseSensitive>");
+				sendMessage(p, "Usage: /cenadmin find <playerCaseSensitive> <#>");
+				sendMessage(p, "Usage: /cenadmin remove <playerCaseSensitive> <#>");
+				sendMessage(p, "Usage: /cenadmin version");
+				return true;
+			}
+			if (args[0].equalsIgnoreCase("list")) {
 				if (!hasPerm(p, "cenotaph.admin.list", p.isOp())) {
 					sendMessage(p, "Permission Denied");
 					return true;				
 				}
-				if (args[1] == null) { //TODO make /cenadmin list (no player arg) return list of players with cenotaphs
-					sendMessage(p, "Usage: /cenadmin list <player>");
+				if (args.length < 2) {
+					Set<String> playerList = playerTombList.keySet();
+					if (playerList.isEmpty()) {
+						sendMessage(p, "There are no cenotaphs.");
+						return true;
+					}
+					sendMessage(p, "Players with cenotaphs:");
+					for (String player : playerList) {
+						sendMessage(p, player);						
+					}
 					return true;
 				}
 				ArrayList<TombBlock> pList = playerTombList.get(args[1]);
@@ -573,7 +581,7 @@ public class Cenotaph extends JavaPlugin {
 					sendMessage(p, "  " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
 				}
 				return true;
-			} else if (args[0] == "find") {
+			} else if (args[0].equalsIgnoreCase("find")) {
 				if (!hasPerm(p, "cenotaph.admin.find", p.isOp())) {
 					sendMessage(p, "Permission Denied");
 					return true;
@@ -602,18 +610,41 @@ public class Cenotaph extends JavaPlugin {
 				int Z = tBlock.getBlock().getZ();
 				sendMessage(p, args[1] + "'s cenotaph #" + args[2] + " is at " + X + "," + Y + "," + Z + ", to the " + getDirection(degrees) + ".");
 				return true;
-			} else if (args[0] == "verison") {
-				versionCheck();
-			} else if (args[0] == "remove") {
+			} else if (args[0].equalsIgnoreCase("version")) {
+				String message;
+				message = versionCheck(false);
+				sendMessage(p, message);
+			} else if (args[0].equalsIgnoreCase("remove")) {
 				if (!hasPerm(p, "cenotaph.admin.remove", p.isOp())) {
 					sendMessage(p, "Permission Denied");
 					return true;
 				}
-				//TODO admin remove
+				ArrayList<TombBlock> pList = playerTombList.get(args[1]);
+				if (pList == null) {
+					sendMessage(p, "No cenotaphs found for " + args[1] + ".");
+					return true;
+				}
+				int slot = 0;
+				try {
+					slot = Integer.parseInt(args[2]);
+				} catch (Exception e) {
+					sendMessage(p, "Invalid cenotaph entry.");
+					return true;
+				}
+				slot -= 1;
+				if (slot < 0 || slot >= pList.size()) {
+					sendMessage(p, "Invalid cenotaph entry.");
+					return true;
+				}
+				TombBlock tBlock = pList.get(slot);
+				destroyCenotaph(tBlock.getBlock().getLocation());
+				
 			} else {
-				sendMessage(p, "Usage: /cenadmin list <player>");
-				sendMessage(p, "Usage: /cenadmin find <player> <#>");
-				sendMessage(p, "Usage: /cenadmin remove <player> <#>");
+				sendMessage(p, "Usage: /cenadmin list");
+				sendMessage(p, "Usage: /cenadmin list <playerCaseSensitive>");
+				sendMessage(p, "Usage: /cenadmin find <playerCaseSensitive> <#>");
+				sendMessage(p, "Usage: /cenadmin remove <playerCaseSensitive> <#>");
+				sendMessage(p, "Usage: /cenadmin version");
 				return true;
 			}				
 			return true;
@@ -621,7 +652,7 @@ public class Cenotaph extends JavaPlugin {
 		return false;
 	}
 
-	public void versionCheck() {
+	public String versionCheck(Boolean printToLog) {
 		String thisVersion = getDescription().getVersion();
 		URL url = null;
 		try {
@@ -635,17 +666,21 @@ public class Cenotaph extends JavaPlugin {
 			}
 			in.close();
 			if (!newVersion.equals(thisVersion)) {
-				log.warning("[Cenotaph] Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion);
+				if (printToLog) log.warning("[Cenotaph] Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion + ".");
+				return "[Cenotaph] Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion + ".";
 			}
 			else {
-				log.info("[Cenotaph] Cenotaph is up to date.");
+				if (printToLog) log.info("[Cenotaph] Cenotaph is up to date at version " + thisVersion + ".");
+				return "[Cenotaph] Cenotaph is up to date at version " + thisVersion + ".";
 			}
 		}
 		catch (MalformedURLException ex) {
-			log.warning("[Cenotaph] Error accessing update URL.");
+			if (printToLog) log.warning("[Cenotaph] Error accessing update URL.");
+			return "[Cenotaph] Error accessing update URL.";
 		}
 		catch (IOException ex) {
-			log.warning("[Cenotaph] Error checking for update.");
+			if (printToLog) log.warning("[Cenotaph] Error checking for update.");
+			return "[Cenotaph] Error checking for update.";
 		}
 	}
 
@@ -1317,6 +1352,9 @@ public class Cenotaph extends JavaPlugin {
 					}
 				}
 
+				// Remove from tombList
+				removeTomb(tBlock, false);
+
 				// Remove block, drop items on ground (One last free-for-all)
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
 					tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
@@ -1331,9 +1369,7 @@ public class Cenotaph extends JavaPlugin {
 					if (tBlock.getLBlock() != null)
 						tBlock.getLBlock().setType(Material.AIR);
 
-					// Remove from tombList
 					iter.remove();
-					removeTomb(tBlock, false);
 
 					Player p = getServer().getPlayer(tBlock.getOwner());
 					if (p != null)
@@ -1341,6 +1377,23 @@ public class Cenotaph extends JavaPlugin {
 				}
 			}
 		}
+	}
+	public void destroyCenotaph(Location loc) {
+		TombBlock tBlock = tombBlockList.get(loc); 
+
+		tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
+
+		deactivateLWC(tBlock, true);
+		removeTomb(tBlock, false);
+
+		if (tBlock.getLocketteSign() != null) tBlock.getLocketteSign().getBlock().setType(Material.AIR);
+		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
+		tBlock.getBlock().setType(Material.AIR);
+		if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
+
+		Player p = getServer().getPlayer(tBlock.getOwner());
+		if (p != null)
+			sendMessage(p, "Your cenotaph has been destroyed!");
 	}
 
 	private class TombBlock {
