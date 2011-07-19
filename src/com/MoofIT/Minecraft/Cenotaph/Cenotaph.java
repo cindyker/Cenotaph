@@ -145,7 +145,7 @@ public class Cenotaph extends JavaPlugin {
 	private boolean lwcPublic = false;
 
 	private int configVer = 0;
-	private final int configCurrent = 7;
+	private final int configCurrent = 9;
 
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
