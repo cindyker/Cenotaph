@@ -25,5 +25,5 @@ commands:
     aliases: [cenotaphtime]
   cenadmin:
     description: Admin commands for Cenotaph
-    usage: See documentation
+    usage: /<command> for more usage instructions
     aliases: [cenotaphadmin]
