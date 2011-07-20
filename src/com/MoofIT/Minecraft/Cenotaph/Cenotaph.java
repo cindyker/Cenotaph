@@ -229,7 +229,7 @@ public class Cenotaph extends JavaPlugin {
 		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
 		lwcEnable = config.getBoolean("Security.lwcEnable", lwcEnable);
 		securityRemove = config.getBoolean("Security.securityRemove", securityRemove);
-		securityTimeout = config.getInt("Security.securityTimeoutout", securityTimeout);
+		securityTimeout = config.getInt("Security.securityTimeout", securityTimeout);
 		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
 	}
 
@@ -1111,13 +1111,14 @@ public class Cenotaph extends JavaPlugin {
 				logEvent(p.getName() + " Chest protected with LWC. " + securityTimeout + "s before chest is unprotected.");
 			}
 			if (prot && !protLWC) {
-				sendMessage(p, "Chest protected with Lockette.");
+				sendMessage(p, "Chest protected with Lockette. " + securityTimeout + "s before chest is unprotected.");
 				logEvent(p.getName() + " Chest protected with Lockette.");
 			}
 			if (cenotaphRemove) {
 				sendMessage(p, "Chest will be automatically removed in " + removeTime + "s");
 				logEvent(p.getName() + " Chest will be automatically removed in " + removeTime + "s");
 			}
+			
 		}
 
 		private void createSign(Block signBlock, Player p) {
@@ -1352,30 +1353,27 @@ public class Cenotaph extends JavaPlugin {
 			for (Iterator<TombBlock> iter = tombList.iterator(); iter.hasNext();) {
 				TombBlock tBlock = iter.next();
 
+				//Security removal check
 				if (securityRemove) {
-					if (tBlock.getLwcEnabled() && lwcPlugin != null) {
-						if (cTime > (tBlock.getTime() + securityTimeout)) {
-							// Remove the protection on the block
+					Player p = getServer().getPlayer(tBlock.getOwner());
+
+					if (cTime >= (tBlock.getTime() + securityTimeout)) {
+						if (tBlock.getLwcEnabled() && lwcPlugin != null) {
 							deactivateLWC(tBlock, false);
 							tBlock.setLwcEnabled(false);
-							Player p = getServer().getPlayer(tBlock.getOwner());
 							if (p != null)
 								sendMessage(p, "LWC protection disabled on your cenotaph!");
 						}
-					}
-					if (tBlock.getLocketteSign() != null && LockettePlugin != null) {
-						if (cTime > (tBlock.getTime() + securityTimeout)) {
-							// Remove the protection on the block
+						if (tBlock.getLocketteSign() != null && LockettePlugin != null) {
 							tBlock.getLocketteSign().getBlock().setType(Material.AIR);
 							tBlock.removeLocketteSign();
-							Player p = getServer().getPlayer(tBlock.getOwner());
 							if (p != null)
 								sendMessage(p, "Lockette protection disabled on your cenotaph!");
 						}
 					}
 				}
 
-				// Remove block, drop items on ground (One last free-for-all)
+				//Block removal check
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
 					tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
 					if (tBlock.getLwcEnabled()) {
