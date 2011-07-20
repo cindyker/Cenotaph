@@ -531,13 +531,30 @@ public class Cenotaph extends JavaPlugin {
 				sendMessage(p, "Permission Denied");
 				return true;
 			}
-			//TODO centime
-			//get cenotaph
-			//get time from cenotaph
-			//get whether we're unlocking and, if so, time
-			//get whether we destroy and, if so, time
-			//calculate results
-			//display
+			if (args.length != 1) return false;
+			ArrayList<TombBlock> pList = playerTombList.get(p.getName());
+			if (pList == null) {
+				sendMessage(p, "You have no cenotaphs.");
+				return true;
+			}
+			int slot = 0;
+			try {
+				slot = Integer.parseInt(args[0]);
+			} catch (Exception e) {
+				sendMessage(p, "Invalid cenotaph");
+				return true;
+			}
+			slot -= 1;
+			if (slot < 0 || slot >= pList.size()) {
+				sendMessage(p, "Invalid cenotaph");
+				return true;
+			}
+			long cTime = System.currentTimeMillis() / 1000;
+			TombBlock tBlock = pList.get(slot);
+			long secTimeLeft = (tBlock.getTime() + securityTimeout) - cTime;
+			long remTimeLeft = (tBlock.getTime() + removeTime) - cTime;
+			if (securityRemove && secTimeLeft > 0) sendMessage(p, "Security will be removed from your cenotaph in " + secTimeLeft + " seconds.");
+			if (cenotaphRemove & remTimeLeft > 0) sendMessage(p, "Your cenotaph will break in " + remTimeLeft + " seconds.");
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenreset")) {
 			if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
@@ -620,6 +637,36 @@ public class Cenotaph extends JavaPlugin {
 				int Y = tBlock.getBlock().getY();
 				int Z = tBlock.getBlock().getZ();
 				sendMessage(p, args[1] + "'s cenotaph #" + args[2] + " is at " + X + "," + Y + "," + Z + ", to the " + getDirection(degrees) + ".");
+				return true;
+			} else if (args[0].equalsIgnoreCase("time")) {
+				if (!hasPerm(p, "cenotaph.admin.cenotaphtime", p.isOp())) {
+					sendMessage(p, "Permission Denied");
+					return true;
+				}
+				if (args.length != 3) return false;
+				ArrayList<TombBlock> pList = playerTombList.get(args[1]);
+				if (pList == null) {
+					sendMessage(p, "No cenotaphs found for " + args[1] + ".");
+					return true;
+				}
+				int slot = 0;
+				try {
+					slot = Integer.parseInt(args[2]);
+				} catch (Exception e) {
+					sendMessage(p, "Invalid cenotaph entry.");
+					return true;
+				}
+				slot -= 1;
+				if (slot < 0 || slot >= pList.size()) {
+					sendMessage(p, "Invalid cenotaph entry.");
+					return true;
+				}
+				long cTime = System.currentTimeMillis() / 1000;
+				TombBlock tBlock = pList.get(slot);
+				long secTimeLeft = (tBlock.getTime() + securityTimeout) - cTime;
+				long remTimeLeft = (tBlock.getTime() + removeTime) - cTime;
+				if (securityRemove && secTimeLeft > 0) sendMessage(p, "Security removal: " + secTimeLeft + " seconds.");
+				if (cenotaphRemove & remTimeLeft > 0) sendMessage(p, "Cenotaph removal: " + remTimeLeft + " seconds.");
 				return true;
 			} else if (args[0].equalsIgnoreCase("version")) {
 				String message;
