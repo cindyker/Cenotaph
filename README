@@ -87,6 +87,9 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.6.2]
+  - Option to remove cenotaphs once they are empty, regardless of other settings
+  - Option to keep cenotaphs UNTIL they are empty, regardless of other settings
 [Version 1.6.1]
   - Security config has been generalized (config.yml update)
   - Lockette signs will now respond to the new securityTimeout (formerly lwcTimeout) config 
@@ -134,6 +137,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Config file changes
 =============
+11: Add removeWhenEmpty and keepUntilEmpty
 10: Security config generalized
 9: Customizable signs added
 8: <buggy, cancelled release>

@@ -135,6 +135,8 @@ public class Cenotaph extends JavaPlugin {
 	private boolean destroyQuickLoot = false;
 	private boolean cenotaphRemove = false;
 	private int removeTime = 18000;
+	private boolean removeWhenEmpty = false;
+	private boolean keepUntilEmpty = false;
 
 	//Security
 	private boolean LocketteEnable = true;
@@ -144,7 +146,7 @@ public class Cenotaph extends JavaPlugin {
 	private boolean lwcPublic = false;
 
 	private int configVer = 0;
-	private final int configCurrent = 10;
+	private final int configCurrent = 11;
 
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
@@ -224,6 +226,8 @@ public class Cenotaph extends JavaPlugin {
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
 		cenotaphRemove = config.getBoolean("Removal.cenotaphRemove", cenotaphRemove);
 		removeTime = config.getInt("Removal.removeTime", removeTime);
+		removeWhenEmpty = config.getBoolean("Removal.removeWhenEmpty", removeWhenEmpty);
+		keepUntilEmpty = config.getBoolean("Removal.keepUntilEmpty", keepUntilEmpty);
 
 		//Security
 		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
@@ -1399,6 +1403,22 @@ public class Cenotaph extends JavaPlugin {
 			long cTime = System.currentTimeMillis() / 1000;
 			for (Iterator<TombBlock> iter = tombList.iterator(); iter.hasNext();) {
 				TombBlock tBlock = iter.next();
+
+				if (keepUntilEmpty || removeWhenEmpty) {
+					int itemCount = 0;
+					Chest sChest = (Chest)tBlock.getBlock().getState();
+					Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
+
+					if (lChest != null) itemCount += lChest.getInventory().getContents().length;
+					itemCount += sChest.getInventory().getContents().length;
+
+					if (keepUntilEmpty) {
+						if (itemCount > 0) continue;
+					}
+					if (removeWhenEmpty) {
+						if (itemCount == 0) destroyCenotaph(tBlock.getBlock().getLocation());
+					}
+				}
 
 				//Security removal check
 				if (securityRemove) {
