@@ -1,5 +1,5 @@
 Core:
-    #Print messages to terminal if true
+    #Print messages to terminal if true (debug)
     logEvents: false
 
     #Place a sign on the cenotaph if true
@@ -23,7 +23,7 @@ Core:
     #Cenotaph normally checks to make sure it isn't trying to create a chest in the void.
     #If you handle or modify the void with another plugin, you can disable that check here.
     #This option should be true for most servers.
-    voidCheck: true 
+    voidCheck: true
 
     #If you are not locking your chests with Lockette or LWC but still want them to be
     #protected against Creeper explosions, or you want your chests to be protected even

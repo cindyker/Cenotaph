@@ -415,7 +415,7 @@ public class Cenotaph extends JavaPlugin {
 		return true;
 	}
 
-	private void deactivateLWC(TombBlock tBlock, boolean force) {
+	public void deactivateLWC(TombBlock tBlock, boolean force) {
 		if (!lwcEnable) return;
 		if (lwcPlugin == null) return;
 		LWC lwc = lwcPlugin.getLWC();
@@ -442,6 +442,11 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}
 		tBlock.setLwcEnabled(false);
+	}
+	public void deactivateLockette(TombBlock tBlock) {
+		if (tBlock.getLocketteSign() == null) return;
+		tBlock.getLocketteSign().getBlock().setType(Material.AIR);
+		tBlock.removeLocketteSign();
 	}
 
 	private void removeTomb(TombBlock tBlock, boolean removeList) {
@@ -477,7 +482,7 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { //TODO needs major cleanup, move indexing to separate class function
 		if (!(sender instanceof Player)) return false;
 		Player p = (Player)sender;
 		String cmd = command.getName();
@@ -557,8 +562,16 @@ public class Cenotaph extends JavaPlugin {
 			TombBlock tBlock = pList.get(slot);
 			long secTimeLeft = (tBlock.getTime() + securityTimeout) - cTime;
 			long remTimeLeft = (tBlock.getTime() + removeTime) - cTime;
+
 			if (securityRemove && secTimeLeft > 0) sendMessage(p, "Security will be removed from your cenotaph in " + secTimeLeft + " seconds.");
-			if (cenotaphRemove & remTimeLeft > 0) sendMessage(p, "Your cenotaph will break in " + remTimeLeft + " seconds.");
+
+			if (cenotaphRemove & remTimeLeft > 0) sendMessage(p, "Your cenotaph will break in " + remTimeLeft + " seconds");
+			if (removeWhenEmpty && keepUntilEmpty) sendMessage(p, "Break override: Your cenotaph will break when it is emptied, but will not break until then.");
+			else {
+				if (removeWhenEmpty) sendMessage(p, "Break override: Your cenotaph will break when it is emptied.");
+				if (keepUntilEmpty) sendMessage(p, "Break override: Your cenotaph will not break until it is empty.");
+			}
+			
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenreset")) {
 			if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
@@ -671,6 +684,7 @@ public class Cenotaph extends JavaPlugin {
 				long remTimeLeft = (tBlock.getTime() + removeTime) - cTime;
 				if (securityRemove && secTimeLeft > 0) sendMessage(p, "Security removal: " + secTimeLeft + " seconds.");
 				if (cenotaphRemove & remTimeLeft > 0) sendMessage(p, "Cenotaph removal: " + remTimeLeft + " seconds.");
+				if (keepUntilEmpty || removeWhenEmpty) sendMessage(p, "Keep until empty:" + keepUntilEmpty + "; remove when empty: " + removeWhenEmpty);
 				return true;
 			} else if (args[0].equalsIgnoreCase("version")) {
 				String message;
@@ -699,7 +713,7 @@ public class Cenotaph extends JavaPlugin {
 					return true;
 				}
 				TombBlock tBlock = pList.get(slot);
-				destroyCenotaph(tBlock.getBlock().getLocation());
+				destroyCenotaph(tBlock);
 				
 			} else {
 				sendMessage(p, "Usage: /cenadmin list");
@@ -808,14 +822,16 @@ public class Cenotaph extends JavaPlugin {
 
 			if (b.getType() == Material.WALL_SIGN)
 			{
-				org.bukkit.material.Sign sign = (org.bukkit.material.Sign)b.getState().getData();
-				TombBlock tBlock = tombBlockList.get(b.getFace(sign.getAttachedFace()).getLocation());
+				org.bukkit.material.Sign signData = (org.bukkit.material.Sign)b.getState().getData();
+				TombBlock tBlock = tombBlockList.get(b.getFace(signData.getAttachedFace()).getLocation());
 				if (tBlock == null) return;
 
 				if (tBlock.getLocketteSign() != null) {
-					tBlock.getLocketteSign().getBlock().setType(Material.AIR);
+					Sign sign = (Sign)b.getState();
+					event.setCancelled(true);
+					sign.update();
+					return;
 				}
-				return;
 			}
 
 			if (b.getType() != Material.CHEST && b.getType() != Material.SIGN_POST) return;
@@ -897,16 +913,8 @@ public class Cenotaph extends JavaPlugin {
 				event.setUseItemInHand(Result.DENY); //TODO: Minor bug here - if you're holding a sign, it'll still pop up
 				event.setCancelled(true);
 
-				// Deactivate LWC
-				deactivateLWC(tBlock, true);
-				removeTomb(tBlock, true);
-
-				if (destroyQuickLoot) {
-					if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
-					if (tBlock.getLocketteSign() != null) tBlock.getLocketteSign().getBlock().setType(Material.AIR);
-					tBlock.getBlock().setType(Material.AIR);
-					if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
-
+				if (destroyQuickLoot) { 
+					destroyCenotaph(tBlock);
 				}
 			}
 
@@ -1166,10 +1174,14 @@ public class Cenotaph extends JavaPlugin {
 				logEvent(p.getName() + " Chest protected with Lockette.");
 			}
 			if (cenotaphRemove) {
-				sendMessage(p, "Chest will be automatically removed in " + removeTime + "s");
-				logEvent(p.getName() + " Chest will be automatically removed in " + removeTime + "s");
+				sendMessage(p, "Chest will break in " + removeTime + "s unless an override is specified.");
+				logEvent(p.getName() + " Chest will break in " + removeTime + "s");
 			}
-			
+			if (removeWhenEmpty && keepUntilEmpty) sendMessage(p, "Break override: Your cenotaph will break when it is emptied, but will not break until then.");
+			else {
+				if (removeWhenEmpty) sendMessage(p, "Break override: Your cenotaph will break when it is emptied.");
+				if (keepUntilEmpty) sendMessage(p, "Break override: Your cenotaph will not break until it is empty.");
+			}
 		}
 
 		private void createSign(Block signBlock, Player p) {
@@ -1361,6 +1373,18 @@ public class Cenotaph extends JavaPlugin {
 				mat == Material.SAND);
 	}
 
+	public String convertTime(long s) { //TODO implement later
+		long days = s / 86400;
+		int hours = (int)(s % 86400 / 3600);
+		int minutes = (int)(s % 86400 % 3600 / 60);
+		int seconds = (int)(s % 86400 % 3600 % 60);
+		return
+			(days > 1 ? days : "")
+			+ (hours < 10 ? "0" : "") + hours
+			+ ":" + (minutes < 10 ? "0" : "") + minutes
+			+ ":" + (seconds< 10 ? "0" : "") + seconds;
+	}
+
 	private class sListener extends ServerListener {
 		@Override
 		public void onPluginEnable(PluginEnableEvent event) {
@@ -1404,19 +1428,29 @@ public class Cenotaph extends JavaPlugin {
 			for (Iterator<TombBlock> iter = tombList.iterator(); iter.hasNext();) {
 				TombBlock tBlock = iter.next();
 
+				//"empty" option checks
 				if (keepUntilEmpty || removeWhenEmpty) {
-					int itemCount = 0;
-					Chest sChest = (Chest)tBlock.getBlock().getState();
-					Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
+					if (tBlock.getBlock().getState() instanceof Chest) {
+						int itemCount = 0;
+	
+						Chest sChest = (Chest)tBlock.getBlock().getState();
+						Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
+	
+						for (ItemStack item : sChest.getInventory().getContents()) {
+							if (item != null) itemCount += item.getAmount();
+						}
+						if (lChest != null && itemCount == 0) {
+							for (ItemStack item : lChest.getInventory().getContents()) {
+								if (item != null) itemCount += item.getAmount();
+							}
+						}
 
-					if (lChest != null) itemCount += lChest.getInventory().getContents().length;
-					itemCount += sChest.getInventory().getContents().length;
-
-					if (keepUntilEmpty) {
-						if (itemCount > 0) continue;
-					}
-					if (removeWhenEmpty) {
-						if (itemCount == 0) destroyCenotaph(tBlock.getBlock().getLocation());
+						if (keepUntilEmpty) {
+							if (itemCount > 0) continue;
+						}
+						if (removeWhenEmpty) {
+							if (itemCount == 0) destroyCenotaph(tBlock);
+						}
 					}
 				}
 
@@ -1432,8 +1466,7 @@ public class Cenotaph extends JavaPlugin {
 								sendMessage(p, "LWC protection disabled on your cenotaph!");
 						}
 						if (tBlock.getLocketteSign() != null && LockettePlugin != null) {
-							tBlock.getLocketteSign().getBlock().setType(Material.AIR);
-							tBlock.removeLocketteSign();
+							deactivateLockette(tBlock);
 							if (p != null)
 								sendMessage(p, "Lockette protection disabled on your cenotaph!");
 						}
@@ -1442,41 +1475,28 @@ public class Cenotaph extends JavaPlugin {
 
 				//Block removal check
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
-					tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
-					if (tBlock.getLwcEnabled()) {
-						deactivateLWC(tBlock, true);
-					}
-					if (tBlock.getLocketteSign() != null)
-						tBlock.getLocketteSign().getBlock().setType(Material.AIR);
-					if (tBlock.getSign() != null)
-						tBlock.getSign().setType(Material.AIR);
-					tBlock.getBlock().setType(Material.AIR);
-					if (tBlock.getLBlock() != null)
-						tBlock.getLBlock().setType(Material.AIR);
-
-					// Remove from tombList
+					destroyCenotaph(tBlock);
 					iter.remove();
-					removeTomb(tBlock, false);
-
-					Player p = getServer().getPlayer(tBlock.getOwner());
-					if (p != null)
-						sendMessage(p, "Your cenotaph has been destroyed!");
 				}
 			}
 		}
 	}
+
 	public void destroyCenotaph(Location loc) {
 		TombBlock tBlock = tombBlockList.get(loc); 
-
+		destroyCenotaph(tBlock);
+	}
+	public void destroyCenotaph(TombBlock tBlock) {
 		tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
 
 		deactivateLWC(tBlock, true);
-		removeTomb(tBlock, false);
 
-		if (tBlock.getLocketteSign() != null) tBlock.getLocketteSign().getBlock().setType(Material.AIR);
 		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
+		deactivateLockette(tBlock);
 		tBlock.getBlock().setType(Material.AIR);
 		if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
+
+		removeTomb(tBlock, false);
 
 		Player p = getServer().getPlayer(tBlock.getOwner());
 		if (p != null)

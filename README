@@ -35,6 +35,7 @@ cenotaph.lockette - Protect the placed chest if Lockette is enabled
 cenotaph.sign - Whether the player gets a sign on their cenotaph chest
 cenotaph.freesign - Allow the player to get a free sign whether they are carrying one or not.
 cenotaph.quickloot - Whether to allow a player/group to quickloot by right clicking the cenotaph sign.
+
 cenotaph.cmd.cenotaphlist - Allow this user to use /cenlist
 cenotaph.cmd.cenotaphfind - Allow this user to use /cenfind
 cenotaph.cmd.cenotaphtime - Allow this user to use /centime
@@ -90,6 +91,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 [Version 1.6.2]
   - Option to remove cenotaphs once they are empty, regardless of other settings
   - Option to keep cenotaphs UNTIL they are empty, regardless of other settings
+  - Fixed bug allowing players to break into Lockette-protected cenotaphs
 [Version 1.6.1]
   - Security config has been generalized (config.yml update)
   - Lockette signs will now respond to the new securityTimeout (formerly lwcTimeout) config 
