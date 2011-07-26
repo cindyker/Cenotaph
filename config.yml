@@ -51,9 +51,11 @@ Removal:
     removeTime: 3600
 
     #Immediately remove cenotaph once it is empty, overriding all other timeout options
+    #WARNING: THIS IS A PROCESSOR-INTENSIVE OPTION
     removeWhenEmpty: false
 
     #Never remove a cenotaph unless it is empty
+    #WARNING: THIS IS A PROCESSOR-INTENSIVE OPTION
     keepUntilEmpty: false
 
 Security:
