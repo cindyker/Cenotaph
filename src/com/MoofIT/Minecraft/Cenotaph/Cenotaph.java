@@ -548,7 +548,7 @@ public class Cenotaph extends JavaPlugin {
 				int X = tomb.getBlock().getX();
 				int Y = tomb.getBlock().getY();
 				int Z = tomb.getBlock().getZ();
-				sendMessage(p, "" + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
+				sendMessage(p, " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
 			}
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenfind")) {
@@ -667,7 +667,7 @@ public class Cenotaph extends JavaPlugin {
 					int X = tomb.getBlock().getX();
 					int Y = tomb.getBlock().getY();
 					int Z = tomb.getBlock().getZ();
-					sendMessage(p, "" + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
+					sendMessage(p, " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
 				}
 				return true;
 			} else if (args[0].equalsIgnoreCase("find")) {
