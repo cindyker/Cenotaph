@@ -12,11 +12,11 @@ package com.MoofIT.Minecraft.Cenotaph;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.If not, see <http://www.gnu.org/licenses/>.
  */
 
 import java.io.BufferedReader;
@@ -548,7 +548,7 @@ public class Cenotaph extends JavaPlugin {
 				int X = tomb.getBlock().getX();
 				int Y = tomb.getBlock().getY();
 				int Z = tomb.getBlock().getZ();
-				sendMessage(p, "  " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
+				sendMessage(p, "" + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
 			}
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenfind")) {
@@ -667,7 +667,7 @@ public class Cenotaph extends JavaPlugin {
 					int X = tomb.getBlock().getX();
 					int Y = tomb.getBlock().getY();
 					int Z = tomb.getBlock().getZ();
-					sendMessage(p, "  " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
+					sendMessage(p, "" + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
 				}
 				return true;
 			} else if (args[0].equalsIgnoreCase("find")) {
@@ -1262,72 +1262,72 @@ public class Cenotaph extends JavaPlugin {
 		}
 
 		private String getCause(EntityDamageEvent dmg) { //TODO custom death messages heer
-		     switch (dmg.getCause()) {
-		     case ENTITY_ATTACK:
-		     {
-			     EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
-			     Entity e = event.getDamager();
-			     if (e == null) {
-			    	 return "a Dispenser";
-			     } else if (e instanceof Player) {
-			    	 return ((Player) e).getDisplayName();
-			     } else if (e instanceof PigZombie) {
-			    	 return "a Pig Zombie";
-			     } else if (e instanceof Giant) {
-			    	 return "a Giant";
-			     } else if (e instanceof Zombie) {
-			    	 return "a Zombie";
-			     } else if (e instanceof Skeleton) {
-			    	 return "a Skeleton";
-			     } else if (e instanceof Spider) {
-			    	 return "a Spider";
-			     } else if (e instanceof Creeper) {
-			    	 return "a Creeper";
-			     } else if (e instanceof Ghast) {
-			    	 return "a Ghast";
-			     } else if (e instanceof Slime) {
-			    	 return "a Slime";
-			     } else if (e instanceof Wolf) {
-			    	 return "a Wolf";
-			     } else {
-			    	 return "a Monster";
-			     }
-		     }
-		     case CONTACT:
-		    	 return "a Cactus";
-		     case SUFFOCATION:
-		    	 return "Suffocation";
-		     case FALL:
-		    	 return "a Fall";
-		     case FIRE:
-		    	 return "a Fire";
-		     case FIRE_TICK:
-		    	 return "Burning";
-		     case LAVA:
-		    	 return "Lava";
-		     case DROWNING:
-		    	 return "Drowning";
-		     case BLOCK_EXPLOSION:
-		    	 return "an Explosion";
-		     case ENTITY_EXPLOSION:
-		     {
-			     try {
+			switch (dmg.getCause()) {
+				case ENTITY_ATTACK:
+				{
+					EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
+					Entity e = event.getDamager();
+					if (e == null) {
+						return deathMessages.get("Misc.Dispenser").toString();
+					} else if (e instanceof Player) {
+						return ((Player) e).getDisplayName();
+					} else if (e instanceof PigZombie) {
+						return deathMessages.get("Monster.PigZombie").toString();
+					} else if (e instanceof Giant) {
+						return deathMessages.get("Monster.Giant").toString();
+					} else if (e instanceof Zombie) {
+						return deathMessages.get("Monster.Zombie").toString();
+					} else if (e instanceof Skeleton) {
+						return deathMessages.get("Monster.Skeleton").toString();
+					} else if (e instanceof Spider) {
+						return deathMessages.get("Monster.Spider").toString();
+					} else if (e instanceof Creeper) {
+						return deathMessages.get("Monster.Creeper").toString();
+					} else if (e instanceof Ghast) {
+						return deathMessages.get("Monster.Ghast").toString();
+					} else if (e instanceof Slime) {
+						return deathMessages.get("Monster.Slime").toString();
+					} else if (e instanceof Wolf) {
+						return deathMessages.get("Monster.Wolf").toString();
+					} else {
+						return deathMessages.get("Monster.Other").toString();
+					}
+				}
+				case CONTACT:
+					return deathMessages.get("World.Cactus").toString();
+				case SUFFOCATION:
+					return deathMessages.get("World.Suffocation").toString();
+				case FALL:
+					return deathMessages.get("World.Fall").toString();
+				case FIRE:
+					return deathMessages.get("World.Fire").toString();
+				case FIRE_TICK:
+					return deathMessages.get("World.Burning").toString();
+				case LAVA:
+					return deathMessages.get("World.Lava").toString();
+				case DROWNING:
+					return deathMessages.get("World.Drowning").toString();
+				case BLOCK_EXPLOSION:
+					return deathMessages.get("Explosion.Misc").toString();
+				case ENTITY_EXPLOSION:
+				{
+					try {
 						EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
 						Entity e = event.getDamager();
-						if (e instanceof TNTPrimed) return "a TNT Explosion";
-						else if (e instanceof Fireball) return "a Ghast";
-						else return "a Creeper";
-			     } catch (Exception e) {
-			    	 return "an Explosion";
-			     }
-		     }
-		     case VOID:
-		    	 return "the Void";
-		     case LIGHTNING:
-		    	 return "Lightning";
-		     default:
-		    	 return "Unknown";
-		     }
+						if (e instanceof TNTPrimed) return deathMessages.get("Explosion.TNT").toString();
+						else if (e instanceof Fireball) return deathMessages.get("Monster.Ghast").toString();
+						else return deathMessages.get("Monster.Creeper").toString();
+					} catch (Exception e) {
+						return deathMessages.get("Explosion.Misc").toString();
+					}
+				}
+				case VOID:
+					return deathMessages.get("Misc.Void").toString();
+				case LIGHTNING:
+					return deathMessages.get("World.Lightning").toString();
+				default:
+					return deathMessages.get("Misc.Other").toString();
+			}
 		}
 
 		Block findLarge(Block base) {
