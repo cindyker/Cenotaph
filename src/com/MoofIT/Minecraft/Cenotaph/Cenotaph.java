@@ -4,12 +4,12 @@ package com.MoofIT.Minecraft.Cenotaph;
  * Cenotaph - A Dead Man's Chest plugin for Bukkit
  * By Jim Drey (Southpaw018) <moof@moofit.com>
  * Original Copyright (C) 2011 Steven "Drakia" Scott <Drakia@Gmail.com>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -19,13 +19,13 @@ package com.MoofIT.Minecraft.Cenotaph;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
@@ -84,13 +85,13 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
+import org.yi.acru.bukkit.Lockette.Lockette;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
 import com.griefcraft.model.ProtectionTypes;
 import com.nijikokun.bukkit.Permissions.Permissions;
-import org.yi.acru.bukkit.Lockette.Lockette;
 
 public class Cenotaph extends JavaPlugin {
 	private final eListener entityListener = new eListener();
@@ -130,6 +131,8 @@ public class Cenotaph extends JavaPlugin {
 		"{date}",
 		"{time}"
 	};
+	private String dateFormat = "MM/dd/yyyy";
+	private String timeFormat = "hh:mm a";
 
 	//Removal
 	private boolean destroyQuickLoot = false;
@@ -145,8 +148,42 @@ public class Cenotaph extends JavaPlugin {
 	private int securityTimeout = 3600;
 	private boolean lwcPublic = false;
 
+	//DeathMessages
+	private TreeMap<String, Object> deathMessages = new TreeMap<String, Object>() {
+		private static final long serialVersionUID = 1L;
+		{
+			put("Monster.Zombie", "a Zombie");
+			put("Monster.Skeleton", "a Skeleton");
+			put("Monster.Spider", "a Spider");
+			put("Monster.Wolf", "a Wolf");
+			put("Monster.Creeper", "a Creeper");
+			put("Monster.Slime", "a Slime");
+			put("Monster.Ghast", "a Ghast");
+			put("Monster.PigZombie", "a Pig Zombie");
+			put("Monster.Giant", "a Giant");
+			put("Monster.Other", "a Monster");
+	
+			put("World.Cactus", "a Cactus");
+			put("World.Suffocation", "Suffocation");
+			put("World.Fall", "a Fall");
+			put("World.Fire", "a Fire");
+			put("World.Burning", "Burning");
+			put("World.Lava", "Lava");
+			put("World.Drowning", "Drowning");
+			put("World.Lightning", "Lightning");
+	
+			put("Explosion.Misc", "an Explosion");
+			put("Explosion.TNT", "a TNT Explosion");
+	
+			put("Misc.Dispenser", "a Dispenser");
+			put("Misc.Void", "the Void");
+			put("Misc.Other", "Unknown");
+		}
+	};
+
+	//Config versioning
 	private int configVer = 0;
-	private final int configCurrent = 11;
+	private final int configCurrent = 12;
 
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
@@ -178,7 +215,7 @@ public class Cenotaph extends JavaPlugin {
 			versionCheck(true);
 		}
 
-		// Start removal timer. Run every 30 seconds (20 ticks per second)
+		// Start removal timer. Run every 5 seconds (20 ticks per second)
 		if (securityRemove || cenotaphRemove)
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(), 0L, 100L);
 	}
@@ -204,12 +241,12 @@ public class Cenotaph extends JavaPlugin {
 			} catch (IOException ex) {
 				log.warning("[Cenotaph] Error downloading default config file: " + ex);
 			}
-			
+
 		}
 		else if (configVer < configCurrent) {
 			log.warning("[Cenotaph] Your config file is out of date! Delete your config and reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
 		}
-		
+
 		//Core
 		logEvents = config.getBoolean("Core.logEvents", logEvents);
 		cenotaphSign = config.getBoolean("Core.cenotaphSign", cenotaphSign);
@@ -221,6 +258,8 @@ public class Cenotaph extends JavaPlugin {
 		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
 		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
 		signMessage = loadSign();
+		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
+		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
 
 		//Removal
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -235,6 +274,11 @@ public class Cenotaph extends JavaPlugin {
 		securityRemove = config.getBoolean("Security.securityRemove", securityRemove);
 		securityTimeout = config.getInt("Security.securityTimeout", securityTimeout);
 		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
+
+		//DeathMessages
+		deathMessages = (TreeMap<String, Object>)config.getNode("DeathMessages").getAll();
+		log.info(deathMessages.keySet().toString());
+		log.info(deathMessages.values().toString());
 	}
 
 	public void loadTombList(String world) {
@@ -332,7 +376,7 @@ public class Cenotaph extends JavaPlugin {
 		msg[0] = config.getString("Core.Sign.Line1", signMessage[0]);
 		msg[1] = config.getString("Core.Sign.Line2", signMessage[1]);
 		msg[2] = config.getString("Core.Sign.Line3", signMessage[2]);
-		msg[3] = config.getString("Core.Sign.Line4", signMessage[3]); 
+		msg[3] = config.getString("Core.Sign.Line4", signMessage[3]);
 		return msg;
 	}
 
@@ -401,7 +445,7 @@ public class Cenotaph extends JavaPlugin {
 		BlockState signBlockState = null;
 		signBlockState = signBlock.getState();
 		final Sign sign = (Sign)signBlockState;
-		
+
 		String name = player.getName();
 		if (name.length() > 15) name = name.substring(0, 15);
 		sign.setLine(0, "[Private]");
@@ -571,7 +615,7 @@ public class Cenotaph extends JavaPlugin {
 				if (removeWhenEmpty) sendMessage(p, "Break override: Your cenotaph will break when it is emptied.");
 				if (keepUntilEmpty) sendMessage(p, "Break override: Your cenotaph will not break until it is empty.");
 			}
-			
+
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenreset")) {
 			if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
@@ -597,7 +641,7 @@ public class Cenotaph extends JavaPlugin {
 			if (args[0].equalsIgnoreCase("list")) {
 				if (!hasPerm(p, "cenotaph.admin.list", p.isOp())) {
 					sendMessage(p, "Permission Denied");
-					return true;				
+					return true;
 				}
 				if (args.length < 2) {
 					if (playerTombList.keySet().isEmpty()) {
@@ -606,7 +650,7 @@ public class Cenotaph extends JavaPlugin {
 					}
 					sendMessage(p, "Players with cenotaphs:");
 					for (String player : playerTombList.keySet()) {
-						sendMessage(p, player);						
+						sendMessage(p, player);
 					}
 					return true;
 				}
@@ -714,7 +758,7 @@ public class Cenotaph extends JavaPlugin {
 				}
 				TombBlock tBlock = pList.get(slot);
 				destroyCenotaph(tBlock);
-				
+
 			} else {
 				sendMessage(p, "Usage: /cenadmin list");
 				sendMessage(p, "Usage: /cenadmin list <playerCaseSensitive>");
@@ -722,7 +766,7 @@ public class Cenotaph extends JavaPlugin {
 				sendMessage(p, "Usage: /cenadmin remove <playerCaseSensitive> <#>");
 				sendMessage(p, "Usage: /cenadmin version");
 				return true;
-			}				
+			}
 			return true;
 		}
 		return false;
@@ -738,7 +782,7 @@ public class Cenotaph extends JavaPlugin {
 			String newVersion = "";
 			String line;
 			while ((line = in.readLine()) != null) {
-				newVersion += line; 
+				newVersion += line;
 			}
 			in.close();
 			if (!newVersion.equals(thisVersion)) {
@@ -762,7 +806,7 @@ public class Cenotaph extends JavaPlugin {
 
 	/**
 	 * Gets the Yaw from one location to another in relation to North.
-	 * 
+	 *
 	 */
 	public double getYawTo(Location from, Location to) {
 			final int distX = to.getBlockX() - from.getBlockX();
@@ -803,11 +847,11 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	/**
-	 * 
+	 *
 	 * Print a message to terminal if logEvents is enabled
 	 * @param msg
 	 * @return
-	 * 
+	 *
 	 */
 	private void logEvent(String msg) {
 		if (!logEvents) return;
@@ -913,7 +957,7 @@ public class Cenotaph extends JavaPlugin {
 				event.setUseItemInHand(Result.DENY); //TODO: Minor bug here - if you're holding a sign, it'll still pop up
 				event.setCancelled(true);
 
-				if (destroyQuickLoot) { 
+				if (destroyQuickLoot) {
 					destroyCenotaph(tBlock);
 				}
 			}
@@ -973,11 +1017,11 @@ public class Cenotaph extends JavaPlugin {
 			Block block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
 			// If we run into something we don't want to destroy, go one up.
-			if (	block.getType() == Material.STEP || 
+			if (	block.getType() == Material.STEP ||
 					block.getType() == Material.TORCH ||
-					block.getType() == Material.REDSTONE_WIRE || 
-					block.getType() == Material.RAILS || 
-					block.getType() == Material.STONE_PLATE || 
+					block.getType() == Material.REDSTONE_WIRE ||
+					block.getType() == Material.RAILS ||
+					block.getType() == Material.STONE_PLATE ||
 					block.getType() == Material.WOOD_PLATE ||
 					block.getType() == Material.REDSTONE_TORCH_ON ||
 					block.getType() == Material.REDSTONE_TORCH_OFF ||
@@ -1064,7 +1108,7 @@ public class Cenotaph extends JavaPlugin {
 
 			// Check if we have signs enabled, if the player can use signs, and if the player has a sign or gets a free sign
 			Block sBlock = null;
-			if (cenotaphSign && hasPerm(p, "cenotaph.sign", true) && 
+			if (cenotaphSign && hasPerm(p, "cenotaph.sign", true) &&
 				(pSignCount > 0 || hasPerm(p, "cenotaph.freesign", p.isOp()))) {
 				// Find a place to put the sign, then place the sign.
 				sBlock = sChest.getWorld().getBlockAt(sChest.getX(), sChest.getY() + 1, sChest.getZ());
@@ -1185,8 +1229,8 @@ public class Cenotaph extends JavaPlugin {
 		}
 
 		private void createSign(Block signBlock, Player p) {
-			String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-			String time = new SimpleDateFormat("hh:mm a").format(new Date());
+			String date = new SimpleDateFormat(dateFormat).format(new Date());
+			String time = new SimpleDateFormat(timeFormat).format(new Date());
 			String name = p.getName();
 			String reason = "Unknown";
 
@@ -1217,7 +1261,7 @@ public class Cenotaph extends JavaPlugin {
 			});
 		}
 
-		private String getCause(EntityDamageEvent dmg) {
+		private String getCause(EntityDamageEvent dmg) { //TODO custom death messages heer
 		     switch (dmg.getCause()) {
 		     case ENTITY_ATTACK:
 		     {
@@ -1355,19 +1399,19 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	Boolean canReplace(Material mat) {
-		return (mat == Material.AIR || 
-				mat == Material.SAPLING || 
-				mat == Material.WATER || 
-				mat == Material.STATIONARY_WATER || 
-				mat == Material.LAVA || 
-				mat == Material.STATIONARY_LAVA || 
-				mat == Material.YELLOW_FLOWER || 
-				mat == Material.RED_ROSE || 
-				mat == Material.BROWN_MUSHROOM || 
-				mat == Material.RED_MUSHROOM || 
-				mat == Material.FIRE || 
-				mat == Material.CROPS || 
-				mat == Material.SNOW || 
+		return (mat == Material.AIR ||
+				mat == Material.SAPLING ||
+				mat == Material.WATER ||
+				mat == Material.STATIONARY_WATER ||
+				mat == Material.LAVA ||
+				mat == Material.STATIONARY_LAVA ||
+				mat == Material.YELLOW_FLOWER ||
+				mat == Material.RED_ROSE ||
+				mat == Material.BROWN_MUSHROOM ||
+				mat == Material.RED_MUSHROOM ||
+				mat == Material.FIRE ||
+				mat == Material.CROPS ||
+				mat == Material.SNOW ||
 				mat == Material.SUGAR_CANE ||
 				mat == Material.GRAVEL ||
 				mat == Material.SAND);
@@ -1432,10 +1476,10 @@ public class Cenotaph extends JavaPlugin {
 				if (keepUntilEmpty || removeWhenEmpty) {
 					if (tBlock.getBlock().getState() instanceof Chest) {
 						int itemCount = 0;
-	
+
 						Chest sChest = (Chest)tBlock.getBlock().getState();
 						Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
-	
+
 						for (ItemStack item : sChest.getInventory().getContents()) {
 							if (item != null) itemCount += item.getAmount();
 						}
@@ -1475,7 +1519,7 @@ public class Cenotaph extends JavaPlugin {
 
 				//Block removal check
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
-					destroyCenotaph(tBlock);
+					destroyCenotaph(tBlock); //TODO this originally included the only instance of removeTomb(tblock, false). check for bugs caused by the change to always true. 
 					iter.remove();
 				}
 			}
@@ -1483,7 +1527,7 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	public void destroyCenotaph(Location loc) {
-		TombBlock tBlock = tombBlockList.get(loc); 
+		TombBlock tBlock = tombBlockList.get(loc);
 		destroyCenotaph(tBlock);
 	}
 	public void destroyCenotaph(TombBlock tBlock) {
@@ -1496,7 +1540,7 @@ public class Cenotaph extends JavaPlugin {
 		tBlock.getBlock().setType(Material.AIR);
 		if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
 
-		removeTomb(tBlock, false);
+		removeTomb(tBlock, true);
 
 		Player p = getServer().getPlayer(tBlock.getOwner());
 		if (p != null)

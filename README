@@ -88,6 +88,9 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.6.3]
+  - Customizable death messages for signs
+  - Customizable time and date formats for signs 
 [Version 1.6.2]
   - Option to remove cenotaphs once they are empty, regardless of other settings
   - Option to keep cenotaphs UNTIL they are empty, regardless of other settings
@@ -139,6 +142,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Config file changes
 =============
+12: Add DeathMessages plus dateFormat and timeFormat 
 11: Add removeWhenEmpty and keepUntilEmpty
 10: Security config generalized
 9: Customizable signs added
