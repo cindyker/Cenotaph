@@ -479,7 +479,7 @@ public class Cenotaph extends JavaPlugin {
 		if (_block != null) {
 			protection = lwc.findProtection(_block);
 			if (protection != null) {
-				lwc.getPhysicalDatabase().unregisterProtection(protection.getId());
+				protection.remove();
 				// Set to public instead of removing completely
 				if (lwcPublic && !force)
 					lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), ProtectionTypes.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
@@ -500,7 +500,14 @@ public class Cenotaph extends JavaPlugin {
 		if (tBlock.getLBlock() != null) tombBlockList.remove(tBlock.getLBlock().getLocation());
 		if (tBlock.getSign() != null) tombBlockList.remove(tBlock.getSign().getLocation());
 
-		playerTombList.remove(tBlock.getOwner());
+		// Remove just this tomb from tombList
+		ArrayList<TombBlock> tList = playerTombList.get(tBlock.getOwner());
+		if (tList != null) {
+			tList.remove(tBlock);
+			if (tList.size() == 0) {
+				playerTombList.remove(tBlock.getOwner());
+			}
+		}
 
 		if (removeList)
 			tombList.remove(tBlock);
@@ -512,11 +519,11 @@ public class Cenotaph extends JavaPlugin {
 	/*
 	 * Check whether the player has the given permissions.
 	 */
-	public boolean hasPerm(Player player, String perm, boolean def) {
+	public boolean hasPerm(Player player, String perm) {
 		if (permissions != null) {
 			return permissions.getHandler().has(player, perm);
 		} else {
-			return def;
+			return player.hasPermission(perm);
 		}
 	}
 
@@ -531,7 +538,7 @@ public class Cenotaph extends JavaPlugin {
 		Player p = (Player)sender;
 		String cmd = command.getName();
 		if (cmd.equalsIgnoreCase("cenlist")) {
-			if (!hasPerm(p, "cenotaph.cmd.cenotaphlist", p.isOp())) {
+			if (!hasPerm(p, "cenotaph.cmd.cenotaphlist")) {
 				sendMessage(p, "Permission Denied");
 				return true;
 			}
@@ -552,7 +559,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenfind")) {
-			if (!hasPerm(p, "cenotaph.cmd.cenotaphfind", p.isOp())) {
+			if (!hasPerm(p, "cenotaph.cmd.cenotaphfind")) {
 				sendMessage(p, "Permission Denied");
 				return true;
 			}
@@ -580,7 +587,7 @@ public class Cenotaph extends JavaPlugin {
 			sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + getDirection(degrees) + ". Your compass has been set to point at its location. Use /cenreset to reset it to your spawn point.");
 			return true;
 		} else if (cmd.equalsIgnoreCase("centime")) {
-			if (!hasPerm(p, "cenotaph.cmd.cenotaphtime", p.isOp())) {
+			if (!hasPerm(p, "cenotaph.cmd.cenotaphtime")) {
 				sendMessage(p, "Permission Denied");
 				return true;
 			}
@@ -618,7 +625,7 @@ public class Cenotaph extends JavaPlugin {
 
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenreset")) {
-			if (!hasPerm(p, "cenotaph.cmd.cenotaphreset", p.isOp())) {
+			if (!hasPerm(p, "cenotaph.cmd.cenotaphreset")) {
 				sendMessage(p, "Permission Denied");
 				return true;
 			}
@@ -626,7 +633,7 @@ public class Cenotaph extends JavaPlugin {
 			return true;
 		}
 		else if (cmd.equalsIgnoreCase("cenadmin")) {
-			if (!hasPerm(p, "cenotaph.admin", p.isOp())) {
+			if (!hasPerm(p, "cenotaph.admin")) {
 				sendMessage(p, "Permission Denied");
 				return true;
 			}
@@ -639,7 +646,7 @@ public class Cenotaph extends JavaPlugin {
 				return true;
 			}
 			if (args[0].equalsIgnoreCase("list")) {
-				if (!hasPerm(p, "cenotaph.admin.list", p.isOp())) {
+				if (!hasPerm(p, "cenotaph.admin.list")) {
 					sendMessage(p, "Permission Denied");
 					return true;
 				}
@@ -671,7 +678,7 @@ public class Cenotaph extends JavaPlugin {
 				}
 				return true;
 			} else if (args[0].equalsIgnoreCase("find")) {
-				if (!hasPerm(p, "cenotaph.admin.find", p.isOp())) {
+				if (!hasPerm(p, "cenotaph.admin.find")) {
 					sendMessage(p, "Permission Denied");
 					return true;
 				}
@@ -700,7 +707,7 @@ public class Cenotaph extends JavaPlugin {
 				sendMessage(p, args[1] + "'s cenotaph #" + args[2] + " is at " + X + "," + Y + "," + Z + ", to the " + getDirection(degrees) + ".");
 				return true;
 			} else if (args[0].equalsIgnoreCase("time")) {
-				if (!hasPerm(p, "cenotaph.admin.cenotaphtime", p.isOp())) {
+				if (!hasPerm(p, "cenotaph.admin.cenotaphtime")) {
 					sendMessage(p, "Permission Denied");
 					return true;
 				}
@@ -735,7 +742,7 @@ public class Cenotaph extends JavaPlugin {
 				message = versionCheck(false);
 				sendMessage(p, message);
 			} else if (args[0].equalsIgnoreCase("remove")) {
-				if (!hasPerm(p, "cenotaph.admin.remove", p.isOp())) {
+				if (!hasPerm(p, "cenotaph.admin.remove")) {
 					sendMessage(p, "Permission Denied");
 					return true;
 				}
@@ -867,7 +874,7 @@ public class Cenotaph extends JavaPlugin {
 			if (b.getType() == Material.WALL_SIGN)
 			{
 				org.bukkit.material.Sign signData = (org.bukkit.material.Sign)b.getState().getData();
-				TombBlock tBlock = tombBlockList.get(b.getFace(signData.getAttachedFace()).getLocation());
+				TombBlock tBlock = tombBlockList.get(b.getRelative(signData.getAttachedFace()).getLocation());
 				if (tBlock == null) return;
 
 				if (tBlock.getLocketteSign() != null) {
@@ -883,7 +890,7 @@ public class Cenotaph extends JavaPlugin {
 			TombBlock tBlock = tombBlockList.get(b.getLocation());
 			if (tBlock == null) return;
 
-			if (noDestroy && !hasPerm(p, "cenotaph.admin", p.isOp())) {
+			if (noDestroy && !hasPerm(p, "cenotaph.admin")) {
 				logEvent(p.getName() + " tried to destroy cenotaph at " + b.getLocation());
 				sendMessage(p, "Cenotaph unable to be destroyed");
 				event.setCancelled(true);
@@ -891,7 +898,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			if (lwcPlugin != null && lwcEnable && tBlock.getLwcEnabled()) {
-				if (tBlock.getOwner().equals(p.getName()) || hasPerm(p, "cenotaph.admin", p.isOp())) {
+				if (tBlock.getOwner().equals(p.getName()) || hasPerm(p, "cenotaph.admin")) {
 					deactivateLWC(tBlock, true);
 				} else {
 					event.setCancelled(true);
@@ -911,7 +918,7 @@ public class Cenotaph extends JavaPlugin {
 			if (b.getType() != Material.SIGN_POST && b.getType() != Material.CHEST) return;
 			// We'll do quickloot on rightclick of chest if we're going to destroy it anyways
 			if (b.getType() == Material.CHEST && (!destroyQuickLoot || !noDestroy)) return;
-			if (!hasPerm(event.getPlayer(), "cenotaph.quickloot", true)) return;
+			if (!hasPerm(event.getPlayer(), "cenotaph.quickloot")) return;
 
 			TombBlock tBlock = tombBlockList.get(b.getLocation());
 			if (tBlock == null || !(tBlock.getBlock().getState() instanceof Chest)) return;
@@ -1002,7 +1009,7 @@ public class Cenotaph extends JavaPlugin {
 			if (!(event.getEntity() instanceof Player)) return;
 			Player p = (Player)event.getEntity();
 
-			if (!hasPerm(p, "cenotaph.use", true)) return;
+			if (!hasPerm(p, "cenotaph.use")) return;
 
 			logEvent(p.getName() + " died.");
 
@@ -1045,7 +1052,7 @@ public class Cenotaph extends JavaPlugin {
 				if (item.getType() == Material.SIGN) pSignCount += item.getAmount();
 			}
 
-			if (pChestCount == 0 && !hasPerm(p, "cenotaph.freechest", p.isOp())) {
+			if (pChestCount == 0 && !hasPerm(p, "cenotaph.freechest")) {
 				sendMessage(p, "No chest found in inventory. Inventory dropped");
 				logEvent(p.getName() + " No chest in inventory.");
 				return;
@@ -1089,10 +1096,10 @@ public class Cenotaph extends JavaPlugin {
 			// Check if they need a large chest.
 			if (event.getDrops().size() > maxSlot) {
 				// If they are allowed spawn a large chest to catch their entire inventory.
-				if (lBlock != null && hasPerm(p, "cenotaph.large", p.isOp())) {
+				if (lBlock != null && hasPerm(p, "cenotaph.large")) {
 					removeChestCount = 2;
 					// Check if the player has enough chests
-					if (pChestCount >= removeChestCount || hasPerm(p, "cenotaph.freechest", p.isOp())) {
+					if (pChestCount >= removeChestCount || hasPerm(p, "cenotaph.freechest")) {
 						lBlock.setType(Material.CHEST);
 						lChest = (Chest)lBlock.getState();
 						maxSlot = maxSlot * 2;
@@ -1103,13 +1110,13 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			// Don't remove any chests if they get a free one.
-			if (hasPerm(p, "cenotaph.freechest", p.isOp()))
+			if (hasPerm(p, "cenotaph.freechest"))
 				removeChestCount = 0;
 
 			// Check if we have signs enabled, if the player can use signs, and if the player has a sign or gets a free sign
 			Block sBlock = null;
-			if (cenotaphSign && hasPerm(p, "cenotaph.sign", true) &&
-				(pSignCount > 0 || hasPerm(p, "cenotaph.freesign", p.isOp()))) {
+			if (cenotaphSign && hasPerm(p, "cenotaph.sign") &&
+				(pSignCount > 0 || hasPerm(p, "cenotaph.freesign"))) {
 				// Find a place to put the sign, then place the sign.
 				sBlock = sChest.getWorld().getBlockAt(sChest.getX(), sChest.getY() + 1, sChest.getZ());
 				if (canReplace(sBlock.getType())) {
@@ -1124,7 +1131,7 @@ public class Cenotaph extends JavaPlugin {
 				}
 			}
 			// Don't remove a sign if they get a free one
-			if (hasPerm(p, "cenotaph.freesign", p.isOp()))
+			if (hasPerm(p, "cenotaph.freesign"))
 				removeSign = 0;
 
 			// Create a TombBlock for this tombstone
@@ -1133,13 +1140,13 @@ public class Cenotaph extends JavaPlugin {
 			// Protect the chest/sign if LWC is installed.
 			Boolean prot = false;
 			Boolean protLWC = false;
-			if (hasPerm(p, "cenotaph.lwc", true))
+			if (hasPerm(p, "cenotaph.lwc"))
 				prot = activateLWC(p, tBlock);
 			tBlock.setLwcEnabled(prot);
 			if (prot) protLWC = true;
 
 			// Protect the chest with Lockette if installed, enabled, and unprotected.
-			if (hasPerm(p, "cenotaph.lockette", true))
+			if (hasPerm(p, "cenotaph.lockette"))
 				prot = protectWithLockette(p, tBlock);
 
 
@@ -1527,8 +1534,7 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	public void destroyCenotaph(Location loc) {
-		TombBlock tBlock = tombBlockList.get(loc);
-		destroyCenotaph(tBlock);
+		destroyCenotaph(tombBlockList.get(loc));
 	}
 	public void destroyCenotaph(TombBlock tBlock) {
 		tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());

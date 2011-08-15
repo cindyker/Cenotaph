@@ -88,6 +88,12 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.6.4]
+  - Add Bukkit Superperms
+  - Remove deprecated Bukkit method getFace()
+  - Merging some of Drakia's recent Tombstone fixes
+    - Fix clearing of player's cenotaph list on quickloot
+    - Fix LWC API error
 [Version 1.6.3]
   - Customizable death messages for signs
   - Customizable time and date formats for signs 
