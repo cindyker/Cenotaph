@@ -277,8 +277,6 @@ public class Cenotaph extends JavaPlugin {
 
 		//DeathMessages
 		deathMessages = (TreeMap<String, Object>)config.getNode("DeathMessages").getAll();
-		log.info(deathMessages.keySet().toString());
-		log.info(deathMessages.values().toString());
 	}
 
 	public void loadTombList(String world) {
