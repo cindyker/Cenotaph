@@ -792,20 +792,20 @@ public class Cenotaph extends JavaPlugin {
 			in.close();
 			if (!newVersion.equals(thisVersion)) {
 				if (printToLog) log.warning("[Cenotaph] Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion + ".");
-				return "[Cenotaph] Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion + ".";
+				return "Cenotaph is out of date! This version: " + thisVersion + "; latest version: " + newVersion + ".";
 			}
 			else {
 				if (printToLog) log.info("[Cenotaph] Cenotaph is up to date at version " + thisVersion + ".");
-				return "[Cenotaph] Cenotaph is up to date at version " + thisVersion + ".";
+				return "Cenotaph is up to date at version " + thisVersion + ".";
 			}
 		}
 		catch (MalformedURLException ex) {
 			if (printToLog) log.warning("[Cenotaph] Error accessing update URL.");
-			return "[Cenotaph] Error accessing update URL.";
+			return "Error accessing update URL.";
 		}
 		catch (IOException ex) {
 			if (printToLog) log.warning("[Cenotaph] Error checking for update.");
-			return "[Cenotaph] Error checking for update.";
+			return "Error checking for update.";
 		}
 	}
 
@@ -1499,6 +1499,7 @@ public class Cenotaph extends JavaPlugin {
 						}
 						if (removeWhenEmpty) {
 							if (itemCount == 0) destroyCenotaph(tBlock);
+							iter.remove(); //TODO bugcheck on this addition
 						}
 					}
 				}
