@@ -89,7 +89,8 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
  Changes
 =============
 [Version 1.6.5]
-  - 
+  - Fixed a few additional bugs
+  - Fixed load error with Spout under CB1060
 [Version 1.6.4]
   - Add Bukkit Superperms
   - Remove deprecated Bukkit method getFace()
