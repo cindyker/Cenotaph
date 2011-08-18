@@ -85,13 +85,14 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
-import org.yi.acru.bukkit.Lockette.Lockette;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
 import com.griefcraft.model.ProtectionTypes;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import org.yi.acru.bukkit.Lockette.Lockette;
+import me.escapeNT.pail.Pail;
 
 public class Cenotaph extends JavaPlugin {
 	private final eListener entityListener = new eListener();
@@ -104,6 +105,8 @@ public class Cenotaph extends JavaPlugin {
 	private Permissions permissions = null;
 	private LWCPlugin lwcPlugin = null;
 	private Lockette LockettePlugin = null;
+	private Pail pail = null;
+	private PailInterface PailInterface = null;
 
 	private ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
 	private HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
@@ -205,6 +208,7 @@ public class Cenotaph extends JavaPlugin {
 		permissions = (Permissions)checkPlugin("Permissions");
 		lwcPlugin = (LWCPlugin)checkPlugin("LWC");
 		LockettePlugin = (Lockette)checkPlugin("Lockette");
+		//pail = (Pail)checkPlugin("Pail");
 		plugin = this;
 
 		loadConfig();
@@ -214,6 +218,8 @@ public class Cenotaph extends JavaPlugin {
 		if (versionCheck) {
 			versionCheck(true);
 		}
+
+		//loadPail();
 
 		// Start removal timer. Run every 5 seconds (20 ticks per second)
 		if (securityRemove || cenotaphRemove)
@@ -319,6 +325,10 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	public void saveCenotaphList(String world) {
+		if (pail != null) {
+			//PailInterface.updateCenotaphList();			
+		}
+		
 		if (!saveCenotaphList) return;
 		try {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
@@ -1266,7 +1276,7 @@ public class Cenotaph extends JavaPlugin {
 			});
 		}
 
-		private String getCause(EntityDamageEvent dmg) { //TODO custom death messages heer
+		private String getCause(EntityDamageEvent dmg) {
 			switch (dmg.getCause()) {
 				case ENTITY_ATTACK:
 				{
@@ -1452,6 +1462,11 @@ public class Cenotaph extends JavaPlugin {
 					LockettePlugin = (Lockette)checkPlugin(event.getPlugin());
 				}
 			}
+			/*if (pail == null) {
+				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Pail")) {
+					pail = (Pail)checkPlugin(event.getPlugin());
+				}
+			}*/
 		}
 
 		@Override
@@ -1468,7 +1483,17 @@ public class Cenotaph extends JavaPlugin {
 				log.info("[Cenotaph] Lockette plugin lost.");
 				permissions = null;
 			}
+			/*if (event.getPlugin() == pail) {
+				log.info("[Cenotaph] Pail plugin lost.");
+				pail = null;
+			}*/
 		}
+	}
+
+	private void loadPail() {
+		if (pail == null) return;
+		PailInterface = new PailInterface(plugin);
+		pail.loadInterfaceComponent("Cenotaph", PailInterface);
 	}
 
 	private class TombThread extends Thread {
@@ -1552,7 +1577,7 @@ public class Cenotaph extends JavaPlugin {
 			sendMessage(p, "Your cenotaph has been destroyed!");
 	}
 
-	private class TombBlock {
+	public class TombBlock {
 		private Block block;
 		private Block lBlock;
 		private Block sign;
@@ -1605,5 +1630,8 @@ public class Cenotaph extends JavaPlugin {
 		void removeLocketteSign() {
 			this.LocketteSign = null;
 		}
+	}
+	public HashMap<String, ArrayList<TombBlock>> getCenotaphList() {
+		return playerTombList;
 	}
 }
