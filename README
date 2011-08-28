@@ -88,6 +88,11 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 1.6.6]
+  - Fixed NullPointerException when using defaults for deathMessages instead of the values in the config file
+  - Added config check to /cenadmin version
+  - Fixed bug with break messages always displaying at original timeout when quicklooted
+  
 [Version 1.6.5]
   - Fixed a few additional bugs
   - Fixed load error with Spout under CB1060

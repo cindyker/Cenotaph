@@ -208,7 +208,7 @@ public class Cenotaph extends JavaPlugin {
 		permissions = (Permissions)checkPlugin("Permissions");
 		lwcPlugin = (LWCPlugin)checkPlugin("LWC");
 		LockettePlugin = (Lockette)checkPlugin("Lockette");
-		//pail = (Pail)checkPlugin("Pail");
+		pail = (Pail)checkPlugin("Pail");
 		plugin = this;
 
 		loadConfig();
@@ -282,7 +282,11 @@ public class Cenotaph extends JavaPlugin {
 		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
 
 		//DeathMessages
-		deathMessages = (TreeMap<String, Object>)config.getNode("DeathMessages").getAll();
+		try {
+			deathMessages = (TreeMap<String, Object>)config.getNode("DeathMessages").getAll();
+		} catch (NullPointerException e) {
+			log.warning("[Cenotaph] Configuration failure while loading deathMessages. Using defaults.");
+		}
 	}
 
 	public void loadTombList(String world) {
@@ -749,6 +753,16 @@ public class Cenotaph extends JavaPlugin {
 				String message;
 				message = versionCheck(false);
 				sendMessage(p, message);
+
+				if (configVer == 0) {
+					sendMessage(p, "Using default config.");
+				}
+				else if (configVer < configCurrent) {
+					sendMessage(p, "Your config file is out of date.");
+				}
+				else if (configVer == configCurrent) {
+					sendMessage(p, "Your config file is up to date.");
+				}
 			} else if (args[0].equalsIgnoreCase("remove")) {
 				if (!hasPerm(p, "cenotaph.admin.remove")) {
 					sendMessage(p, "Permission Denied");
@@ -1462,11 +1476,11 @@ public class Cenotaph extends JavaPlugin {
 					LockettePlugin = (Lockette)checkPlugin(event.getPlugin());
 				}
 			}
-			/*if (pail == null) {
+			if (pail == null) {
 				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Pail")) {
 					pail = (Pail)checkPlugin(event.getPlugin());
 				}
-			}*/
+			}
 		}
 
 		@Override
@@ -1483,10 +1497,10 @@ public class Cenotaph extends JavaPlugin {
 				log.info("[Cenotaph] Lockette plugin lost.");
 				permissions = null;
 			}
-			/*if (event.getPlugin() == pail) {
+			if (event.getPlugin() == pail) {
 				log.info("[Cenotaph] Pail plugin lost.");
 				pail = null;
-			}*/
+			}
 		}
 	}
 
