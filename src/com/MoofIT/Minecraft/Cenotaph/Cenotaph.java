@@ -92,7 +92,20 @@ import com.griefcraft.model.Protection;
 import com.griefcraft.model.ProtectionTypes;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import org.yi.acru.bukkit.Lockette.Lockette;
-import me.escapeNT.pail.Pail;
+
+/*
+TODO 1.6.7 release
+	- put in new LWC API
+	- add option for lockette sign carry
+	- add option to disable in worlds
+	- fix destroy message on quickloot
+	- fix lockette not being deactivated on some servers
+TODO 1.7 release
+	- deadbolt support
+	- code refactor
+	- register integration
+	- cenotaph payment
+*/ 
 
 public class Cenotaph extends JavaPlugin {
 	private final eListener entityListener = new eListener();
@@ -105,8 +118,6 @@ public class Cenotaph extends JavaPlugin {
 	private Permissions permissions = null;
 	private LWCPlugin lwcPlugin = null;
 	private Lockette LockettePlugin = null;
-	private Pail pail = null;
-	private PailInterface PailInterface = null;
 
 	private ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
 	private HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
@@ -208,7 +219,6 @@ public class Cenotaph extends JavaPlugin {
 		permissions = (Permissions)checkPlugin("Permissions");
 		lwcPlugin = (LWCPlugin)checkPlugin("LWC");
 		LockettePlugin = (Lockette)checkPlugin("Lockette");
-		pail = (Pail)checkPlugin("Pail");
 		plugin = this;
 
 		loadConfig();
@@ -218,8 +228,6 @@ public class Cenotaph extends JavaPlugin {
 		if (versionCheck) {
 			versionCheck(true);
 		}
-
-		//loadPail();
 
 		// Start removal timer. Run every 5 seconds (20 ticks per second)
 		if (securityRemove || cenotaphRemove)
@@ -329,10 +337,6 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	public void saveCenotaphList(String world) {
-		if (pail != null) {
-			//PailInterface.updateCenotaphList();			
-		}
-		
 		if (!saveCenotaphList) return;
 		try {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
@@ -1476,11 +1480,6 @@ public class Cenotaph extends JavaPlugin {
 					LockettePlugin = (Lockette)checkPlugin(event.getPlugin());
 				}
 			}
-			if (pail == null) {
-				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Pail")) {
-					pail = (Pail)checkPlugin(event.getPlugin());
-				}
-			}
 		}
 
 		@Override
@@ -1497,17 +1496,7 @@ public class Cenotaph extends JavaPlugin {
 				log.info("[Cenotaph] Lockette plugin lost.");
 				permissions = null;
 			}
-			if (event.getPlugin() == pail) {
-				log.info("[Cenotaph] Pail plugin lost.");
-				pail = null;
-			}
 		}
-	}
-
-	private void loadPail() {
-		if (pail == null) return;
-		PailInterface = new PailInterface(plugin);
-		pail.loadInterfaceComponent("Cenotaph", PailInterface);
 	}
 
 	private class TombThread extends Thread {
