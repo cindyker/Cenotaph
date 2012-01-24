@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -50,6 +51,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
@@ -63,44 +65,42 @@ import org.bukkit.entity.Spider;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.ServerListener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
-import com.griefcraft.model.ProtectionTypes;
-import com.nijikokun.bukkit.Permissions.Permissions;
 import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
-TODO 1.6.7 release
+TODO 2.0 release
+	- clean up all deprecated classes
+	- fix bugs
+	- convert to new default configuration methods
+TODO 2.1 release
 	- put in new LWC API
 	- add option for lockette sign carry
 	- add option to disable in worlds
 	- fix destroy message on quickloot
 	- fix lockette not being deactivated on some servers
-TODO 1.7 release
+TODO 2.2 release
 	- deadbolt support
 	- code refactor
 	- register integration
@@ -115,7 +115,6 @@ public class Cenotaph extends JavaPlugin {
 	public static Logger log;
 	PluginManager pm;
 
-	private Permissions permissions = null;
 	private LWCPlugin lwcPlugin = null;
 	private Lockette LockettePlugin = null;
 
@@ -123,8 +122,9 @@ public class Cenotaph extends JavaPlugin {
 	private HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
 	private HashMap<String, ArrayList<TombBlock>> playerTombList = new HashMap<String, ArrayList<TombBlock>>();
 	private HashMap<String, EntityDamageEvent> deathCause = new HashMap<String, EntityDamageEvent>();
-	private Configuration config;
+	private FileConfiguration config;
 	private Cenotaph plugin;
+
 
 	/**
 	 * Configuration options - Defaults
@@ -163,7 +163,7 @@ public class Cenotaph extends JavaPlugin {
 	private boolean lwcPublic = false;
 
 	//DeathMessages
-	private TreeMap<String, Object> deathMessages = new TreeMap<String, Object>() {
+	private Map<String, Object> deathMessages = new TreeMap<String, Object>() {
 		private static final long serialVersionUID = 1L;
 		{
 			put("Monster.Zombie", "a Zombie");
@@ -202,21 +202,18 @@ public class Cenotaph extends JavaPlugin {
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
 		log = Logger.getLogger("Minecraft");
-		config = this.getConfiguration();
+		config = this.getConfig();
 
 		String thisVersion = pdfFile.getVersion();
 		log.info(pdfFile.getName() + " v." + thisVersion + " is enabled.");
 
 		pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Monitor, this);
-		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Highest, this);
-		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
-		pm.registerEvent(Event.Type.PLUGIN_DISABLE, serverListener, Priority.Monitor, this);
 
-		permissions = (Permissions)checkPlugin("Permissions");
+		pm.registerEvents(entityListener,this);
+		pm.registerEvents(blockListener,this);
+		pm.registerEvents(playerListener,this);
+		pm.registerEvents(serverListener,this);
+
 		lwcPlugin = (LWCPlugin)checkPlugin("LWC");
 		LockettePlugin = (Lockette)checkPlugin("Lockette");
 		plugin = this;
@@ -235,8 +232,6 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	public void loadConfig() {
-		config.load();
-
 		configVer = config.getInt("configVer", configVer);
 		if (configVer == 0) {
 			try {
@@ -291,7 +286,11 @@ public class Cenotaph extends JavaPlugin {
 
 		//DeathMessages
 		try {
-			deathMessages = (TreeMap<String, Object>)config.getNode("DeathMessages").getAll();
+			deathMessages = config.getConfigurationSection("DeathMessages").getValues(true);
+			/*for (String key : config.getConfigurationSection("DeathMessages").getKeys(false))
+			{
+				deathMessages.put(key, config.getString("DeathMessages." + key));
+			}*/
 		} catch (NullPointerException e) {
 			log.warning("[Cenotaph] Configuration failure while loading deathMessages. Using defaults.");
 		}
@@ -421,9 +420,9 @@ public class Cenotaph extends JavaPlugin {
 		// Register the chest + sign as private
 		Block block = tBlock.getBlock();
 		Block sign = tBlock.getSign();
-		lwc.getPhysicalDatabase().registerProtection(block.getTypeId(), ProtectionTypes.PRIVATE, block.getWorld().getName(), player.getName(), "", block.getX(), block.getY(), block.getZ());
+		lwc.getPhysicalDatabase().registerProtection(block.getTypeId(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", block.getX(), block.getY(), block.getZ());
 		if (sign != null)
-			lwc.getPhysicalDatabase().registerProtection(sign.getTypeId(), ProtectionTypes.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
+			lwc.getPhysicalDatabase().registerProtection(sign.getTypeId(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
 
 		tBlock.setLwcEnabled(true);
 		return true;
@@ -484,10 +483,10 @@ public class Cenotaph extends JavaPlugin {
 		Block _block = tBlock.getBlock();
 		Protection protection = lwc.findProtection(_block);
 		if (protection != null) {
-			lwc.getPhysicalDatabase().unregisterProtection(protection.getId());
+			lwc.getPhysicalDatabase().removeProtection(protection.getId());
 			//Set to public instead of removing completely
 			if (lwcPublic && !force)
-				lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), ProtectionTypes.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
+				lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 		}
 
 		// Remove the protection on the sign
@@ -498,7 +497,7 @@ public class Cenotaph extends JavaPlugin {
 				protection.remove();
 				// Set to public instead of removing completely
 				if (lwcPublic && !force)
-					lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), ProtectionTypes.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
+					lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 			}
 		}
 		tBlock.setLwcEnabled(false);
@@ -536,11 +535,7 @@ public class Cenotaph extends JavaPlugin {
 	 * Check whether the player has the given permissions.
 	 */
 	public boolean hasPerm(Player player, String perm) {
-		if (permissions != null) {
-			return permissions.getHandler().has(player, perm);
-		} else {
-			return player.hasPermission(perm);
-		}
+		return player.hasPermission(perm);
 	}
 
 	public void sendMessage(Player p, String msg) {
@@ -891,8 +886,8 @@ public class Cenotaph extends JavaPlugin {
 		log.info("[Cenotaph] " + msg);
 	}
 
-	private class bListener extends BlockListener {
-		@Override
+	public class bListener implements Listener {
+		@EventHandler
 		public void onBlockBreak(BlockBreakEvent event) {
 			Block b = event.getBlock();
 			Player p = event.getPlayer();
@@ -936,8 +931,8 @@ public class Cenotaph extends JavaPlugin {
 		}
 	}
 
-	private class pListener extends PlayerListener {
-		@Override
+	public class pListener implements Listener {
+		@EventHandler(priority = EventPriority.HIGHEST)
 		public void onPlayerInteract(PlayerInteractEvent event) {
 			if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 			Block b = event.getClickedBlock();
@@ -1002,9 +997,9 @@ public class Cenotaph extends JavaPlugin {
 		}
 	}
 
-	public class eListener extends EntityListener
+	public class eListener implements Listener
 	{
-		@Override
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onEntityDamage(EntityDamageEvent event) {
 			if (event.isCancelled()) return;
 			if (!(event.getEntity() instanceof Player))return;
@@ -1016,7 +1011,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}
 
-		@Override
+		@EventHandler
 		public void onEntityExplode(EntityExplodeEvent event)
 		{
 			if (event.isCancelled()) return;
@@ -1029,7 +1024,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}
 
-		@Override
+		@EventHandler
 		public void onEntityDeath(EntityDeathEvent event)
 		{
 			if (!(event.getEntity() instanceof Player)) return;
@@ -1462,17 +1457,12 @@ public class Cenotaph extends JavaPlugin {
 			+ ":" + (seconds< 10 ? "0" : "") + seconds;
 	}
 
-	private class sListener extends ServerListener {
-		@Override
+	public class sListener implements Listener {
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPluginEnable(PluginEnableEvent event) {
 			if (lwcPlugin == null) {
 				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("LWC")) {
 					lwcPlugin = (LWCPlugin)checkPlugin(event.getPlugin());
-				}
-			}
-			if (permissions == null) {
-				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")) {
-					permissions = (Permissions)checkPlugin(event.getPlugin());
 				}
 			}
 			if (LockettePlugin == null) {
@@ -1482,19 +1472,15 @@ public class Cenotaph extends JavaPlugin {
 			}
 		}
 
-		@Override
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPluginDisable(PluginDisableEvent event) {
 			if (event.getPlugin() == lwcPlugin) {
 				log.info("[Cenotaph] LWC plugin lost.");
 				lwcPlugin = null;
 			}
-			if (event.getPlugin() == permissions) {
-				log.info("[Cenotaph] Permissions plugin lost.");
-				permissions = null;
-			}
 			if (event.getPlugin() == LockettePlugin) {
 				log.info("[Cenotaph] Lockette plugin lost.");
-				permissions = null;
+				LockettePlugin = null;
 			}
 		}
 	}
@@ -1564,6 +1550,7 @@ public class Cenotaph extends JavaPlugin {
 		destroyCenotaph(tombBlockList.get(loc));
 	}
 	public void destroyCenotaph(TombBlock tBlock) {
+		log.info("[Cenotaph][Debug] destroyCenotaph called");
 		tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
 
 		deactivateLWC(tBlock, true);
