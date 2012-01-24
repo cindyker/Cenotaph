@@ -202,7 +202,6 @@ public class Cenotaph extends JavaPlugin {
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
 		log = Logger.getLogger("Minecraft");
-		config = this.getConfig();
 
 		String thisVersion = pdfFile.getVersion();
 		log.info(pdfFile.getName() + " v." + thisVersion + " is enabled.");
@@ -232,6 +231,9 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	public void loadConfig() {
+		this.reloadConfig();
+		config = this.getConfig();
+
 		configVer = config.getInt("configVer", configVer);
 		if (configVer == 0) {
 			try {
@@ -654,6 +656,7 @@ public class Cenotaph extends JavaPlugin {
 				sendMessage(p, "Usage: /cenadmin find <playerCaseSensitive> <#>");
 				sendMessage(p, "Usage: /cenadmin remove <playerCaseSensitive> <#>");
 				sendMessage(p, "Usage: /cenadmin version");
+				sendMessage(p, "Usage: /cenadmin reload");
 				return true;
 			}
 			if (args[0].equalsIgnoreCase("list")) {
@@ -786,7 +789,13 @@ public class Cenotaph extends JavaPlugin {
 				}
 				TombBlock tBlock = pList.get(slot);
 				destroyCenotaph(tBlock);
-
+			} else if (args[0].equalsIgnoreCase("reload")) {
+				if (!hasPerm(p, "cenotaph.admin.reload")) {
+					sendMessage(p, "Permission Denied");
+					return true;
+				}
+				loadConfig();
+				sendMessage(p, "Configuration reloaded from file.");
 			} else {
 				sendMessage(p, "Usage: /cenadmin list");
 				sendMessage(p, "Usage: /cenadmin list <playerCaseSensitive>");
@@ -1550,7 +1559,6 @@ public class Cenotaph extends JavaPlugin {
 		destroyCenotaph(tombBlockList.get(loc));
 	}
 	public void destroyCenotaph(TombBlock tBlock) {
-		log.info("[Cenotaph][Debug] destroyCenotaph called");
 		tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
 
 		deactivateLWC(tBlock, true);
