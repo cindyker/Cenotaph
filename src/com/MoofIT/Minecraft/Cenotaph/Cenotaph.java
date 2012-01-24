@@ -90,18 +90,12 @@ import com.griefcraft.model.Protection;
 import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
-TODO 2.0 release
-	- clean up all deprecated classes
-	- fix bugs
-	- convert to new default configuration methods
 TODO 2.1 release
-	- put in new LWC API
 	- add option for lockette sign carry
 	- add option to disable in worlds
 	- fix destroy message on quickloot
 	- fix lockette not being deactivated on some servers
 TODO 2.2 release
-	- deadbolt support
 	- code refactor
 	- register integration
 	- cenotaph payment

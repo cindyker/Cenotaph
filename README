@@ -46,6 +46,7 @@ cenotaph.admin.list - Allow this user to see all cenotaphs with /cenadmin list
 cenotaph.admin.find - Allow this user to find any cenotaph with /cenadmin find
 cenotaph.admin.time - Allow this user to check the time left on any cenotaph with /cenadmin time
 cenotaph.admin.remove - Allow this user to destroy any cenotaph with /cenadmin remove
+cenotaph.admin.reload - Allow this user to reload Cenotaph's configuration from config.yml
 
 =============
  Commands
@@ -88,6 +89,12 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 2.0]
+  - Updated listeners to new Bukkit API
+  - Updated config to new Bukkit API
+  - Removed support for Nijikokun's old Permissions plugin
+  - Updated to latest LWC API
+  - Added cenadmin reload command
 [Version 1.6.6]
   - Fixed NullPointerException when using defaults for deathMessages instead of the values in the config file
   - Added config check to /cenadmin version
