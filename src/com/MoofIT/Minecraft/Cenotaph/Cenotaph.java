@@ -93,8 +93,8 @@ TODO 2.1 release
 	- add option for lockette sign carry
 	- add option to disable in worlds
 	+ fix destroy message on quickloot
-	- option to base break time on level
-	- some cleanup of old code
+	+ option to base break time on level
+	+ some cleanup of old code
 TODO 2.2 release
 	- code refactor
 	- register integration
@@ -1464,8 +1464,8 @@ public class Cenotaph extends JavaPlugin {
 			+ ":" + (seconds< 10 ? "0" : "") + seconds;
 	}
 
-	public int calculateTimeLeft(TombBlock tBlock) {
-		int result = -1;
+	public String calculateTimeLeft(TombBlock tBlock) {
+		String result = null;
 
 		/*				//if (cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {} 
 				//Block removal check
@@ -1571,8 +1571,10 @@ public class Cenotaph extends JavaPlugin {
 		destroyCenotaph(tombBlockList.get(loc));
 	}
 	public void destroyCenotaph(TombBlock tBlock) {
-		tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
-
+		if (tBlock.getBlock().getChunk().load() == false) {
+			log.severe("[Cenotaph] Error loading world chunk trying to remove cenotaph at " + tBlock.getBlock().getX() + "," + tBlock.getBlock().getY() + "," + tBlock.getBlock().getZ() + " owned by " + tBlock.getOwner() + ".");
+			return;
+		}
 		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
 		deactivateLockette(tBlock);
 		deactivateLWC(tBlock, true);
