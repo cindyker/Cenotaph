@@ -50,6 +50,9 @@ permissions:
   cenotaph.freesign:
     description: Allow the player to get a free sign whether they are carrying one or not.
     default: false
+  cenotaph.freelockettesign:
+    description: Give the player an additional free sign if using Lockette.
+    default: false
 
   cenotaph.lwc:
     description: Protect the placed chest if LWC is enabled

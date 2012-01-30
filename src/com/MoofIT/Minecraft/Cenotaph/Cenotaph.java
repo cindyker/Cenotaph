@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -89,12 +90,6 @@ import com.griefcraft.model.Protection;
 import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
-TODO 2.1 release
-	- add option for lockette sign carry
-	- add option to disable in worlds
-	+ fix destroy message on quickloot
-	+ option to base break time on level
-	+ some cleanup of old code
 TODO 2.2 release
 	- code refactor
 	- register integration
@@ -141,6 +136,8 @@ public class Cenotaph extends JavaPlugin {
 	};
 	private String dateFormat = "MM/dd/yyyy";
 	private String timeFormat = "hh:mm a";
+	private boolean preferCenotaphSign = true;
+	private List<String> disableInWorlds;
 
 	//Removal
 	private boolean destroyQuickLoot = false;
@@ -267,6 +264,8 @@ public class Cenotaph extends JavaPlugin {
 		signMessage = loadSign();
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
+		preferCenotaphSign = config.getBoolean("Core.preferCenotaphSign", preferCenotaphSign);
+		disableInWorlds = config.getStringList("Core.disableInWorlds"); //TODO convert to new config default format 
 
 		//Removal
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -393,7 +392,6 @@ public class Cenotaph extends JavaPlugin {
 		msg[3] = config.getString("Core.Sign.Line4", signMessage[3]);
 		return msg;
 	}
-
 
 	/*
 	 * Check if a plugin is loaded/enabled already. Returns the plugin if so, null otherwise
@@ -1047,6 +1045,12 @@ public class Cenotaph extends JavaPlugin {
 				return;
 			}
 
+			if (disableInWorlds.contains(p.getWorld().getName())) {
+				sendMessage(p,"Cenotaphs are disabled in " + p.getWorld().getName() + ". Inventory dropped.");
+				logEvent(p.getName() + " died in " + p.getWorld().getName() + " and did not receive a cenotaph.");
+			}
+				
+
 			// Get the current player location.
 			Location loc = p.getLocation();
 			Block block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
@@ -1066,7 +1070,7 @@ public class Cenotaph extends JavaPlugin {
 
 			//Don't create the chest if it or its sign would be in the void
 			if (voidCheck && ((cenotaphSign && block.getY() > 126) || (!cenotaphSign && block.getY() > 127) || p.getLocation().getY() < 1)) {
-				sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped");
+				sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped.");
 				logEvent(p.getName() + " died in the Void.");
 				return;
 			}
@@ -1081,7 +1085,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			if (pChestCount == 0 && !hasPerm(p, "cenotaph.freechest")) {
-				sendMessage(p, "No chest found in inventory. Inventory dropped");
+				sendMessage(p, "No chest found in inventory. Inventory dropped.");
 				logEvent(p.getName() + " No chest in inventory.");
 				return;
 			}
@@ -1089,14 +1093,14 @@ public class Cenotaph extends JavaPlugin {
 			// Check if we can replace the block.
 			block = findPlace(block,false);
 			if ( block == null ) {
-				sendMessage(p, "Could not find room for chest. Inventory dropped");
+				sendMessage(p, "Could not find room for chest. Inventory dropped.");
 				logEvent(p.getName() + " Could not find room for chest.");
 				return;
 			}
 
 			// Check if there is a nearby chest
 			if (noInterfere && checkChest(block)) {
-				sendMessage(p, "There is a chest interfering with your cenotaph. Inventory dropped");
+				sendMessage(p, "There is a chest interfering with your cenotaph. Inventory dropped.");
 				logEvent(p.getName() + " Chest interfered with cenotaph creation.");
 				return;
 			}
@@ -1144,7 +1148,7 @@ public class Cenotaph extends JavaPlugin {
 			// Check if we have signs enabled, if the player can use signs, and if the player has a sign or gets a free sign
 			Block sBlock = null;
 			if (cenotaphSign && hasPerm(p, "cenotaph.sign") &&
-				(pSignCount > 0 || hasPerm(p, "cenotaph.freesign"))) {
+				(pSignCount > 0 || hasPerm(p, "cenotaph.freesign"))) { //TODO 2.1: lockette sign removal here
 				// Find a place to put the sign, then place the sign.
 				sBlock = sChest.getWorld().getBlockAt(sChest.getX(), sChest.getY() + 1, sChest.getZ());
 				if (canReplace(sBlock.getType())) {
@@ -1464,7 +1468,7 @@ public class Cenotaph extends JavaPlugin {
 			+ ":" + (seconds< 10 ? "0" : "") + seconds;
 	}
 
-	public String calculateTimeLeft(TombBlock tBlock) {
+	public String calculateTimeLeft(TombBlock tBlock) { //TODO 2.1: time calc
 		String result = null;
 
 		/*				//if (cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {} 
@@ -1534,7 +1538,7 @@ public class Cenotaph extends JavaPlugin {
 						}
 						if (removeWhenEmpty) {
 							if (itemCount == 0) destroyCenotaph(tBlock);
-							iter.remove(); //TODO bugcheck on this addition
+							iter.remove();
 						}
 					}
 				}
@@ -1557,10 +1561,11 @@ public class Cenotaph extends JavaPlugin {
 						}
 					}
 				}
+				//TODO 2.1: level based removal
 				//if (cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {} 
 				//Block removal check
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
-					destroyCenotaph(tBlock); //TODO this originally included the only instance of removeTomb(tblock, false). check for bugs caused by the change to always true. 
+					destroyCenotaph(tBlock); 
 					iter.remove();
 				}
 			}

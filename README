@@ -34,6 +34,7 @@ cenotaph.lwc - Protect the placed chest if LWC is enabled
 cenotaph.lockette - Protect the placed chest if Lockette is enabled
 cenotaph.sign - Whether the player gets a sign on their cenotaph chest
 cenotaph.freesign - Allow the player to get a free sign whether they are carrying one or not.
+cenotaph.freelockettesign - Give the player an additional free sign for Lockette
 cenotaph.quickloot - Whether to allow a player/group to quickloot by right clicking the cenotaph sign.
 
 cenotaph.cmd.cenotaphlist - Allow this user to use /cenlist
@@ -89,6 +90,8 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 2.1]
+  - 
 [Version 2.0]
   - Updated listeners to new Bukkit API
   - Updated config to new Bukkit API
@@ -163,6 +166,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Config file changes
 =============
+13: Add level-based removal options, Lockette sign carry setting, and per-world disabling
 12: Add DeathMessages plus dateFormat and timeFormat 
 11: Add removeWhenEmpty and keepUntilEmpty
 10: Security config generalized

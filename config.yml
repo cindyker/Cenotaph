@@ -46,6 +46,16 @@ Core:
         dateFormat: "MM/dd/yyyy"
         timeFormat: "hh:mm a"
 
+    #If true AND if cenotaph and Lockette signs are both enabled, put the sign on the cenotaph and leave it unlocked if player only has one sign.
+    #If false, lock the cenotaph and leave off its sign.
+    #If both sign carry options are not enabled, has no effect. 
+    preferCenotaphSign: true
+
+    #Disable in the worlds below
+    disableInWorlds:
+        #- world
+        #- world2
+
 Removal:
     #Destroy cenotaph on player quickloot if true
     destroyQuickLoot: true
@@ -107,4 +117,4 @@ DeathMessages:
         Void: "the Void"
         Other: "Unknown"
 
-configVer: 12
+configVer: 13
