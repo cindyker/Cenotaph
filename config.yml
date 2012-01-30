@@ -54,6 +54,10 @@ Removal:
     cenotaphRemove: true
     removeTime: 3600
 
+    #Set cenotaph removal time based on player level, with the above removeTime setting the maximum cap
+    levelBasedRemoval: false
+    levelBasedTime: 60
+
     #Immediately remove cenotaph once it is empty, overriding all other timeout options
     #WARNING: THIS IS A PROCESSOR-INTENSIVE OPTION
     removeWhenEmpty: false

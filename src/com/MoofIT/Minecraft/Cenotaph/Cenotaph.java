@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -93,13 +92,14 @@ import org.yi.acru.bukkit.Lockette.Lockette;
 TODO 2.1 release
 	- add option for lockette sign carry
 	- add option to disable in worlds
-	- fix destroy message on quickloot
-	- fix lockette not being deactivated on some servers
+	+ fix destroy message on quickloot
+	- option to base break time on level
+	- some cleanup of old code
 TODO 2.2 release
 	- code refactor
 	- register integration
 	- cenotaph payment
-*/ 
+*/
 
 public class Cenotaph extends JavaPlugin {
 	private final eListener entityListener = new eListener();
@@ -145,9 +145,11 @@ public class Cenotaph extends JavaPlugin {
 	//Removal
 	private boolean destroyQuickLoot = false;
 	private boolean cenotaphRemove = false;
-	private int removeTime = 18000;
+	private int removeTime = 3600;
 	private boolean removeWhenEmpty = false;
 	private boolean keepUntilEmpty = false;
+	private boolean levelBasedRemoval = false;
+	private int levelBasedTime = 300;
 
 	//Security
 	private boolean LocketteEnable = true;
@@ -157,7 +159,7 @@ public class Cenotaph extends JavaPlugin {
 	private boolean lwcPublic = false;
 
 	//DeathMessages
-	private Map<String, Object> deathMessages = new TreeMap<String, Object>() {
+	private TreeMap<String, Object> deathMessages = new TreeMap<String, Object>() {
 		private static final long serialVersionUID = 1L;
 		{
 			put("Monster.Zombie", "a Zombie");
@@ -272,6 +274,8 @@ public class Cenotaph extends JavaPlugin {
 		removeTime = config.getInt("Removal.removeTime", removeTime);
 		removeWhenEmpty = config.getBoolean("Removal.removeWhenEmpty", removeWhenEmpty);
 		keepUntilEmpty = config.getBoolean("Removal.keepUntilEmpty", keepUntilEmpty);
+		levelBasedRemoval = config.getBoolean("Removal.levelBasedTime", levelBasedRemoval);
+		levelBasedTime = config.getInt("Removal.levelBasedTime", levelBasedTime);
 
 		//Security
 		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
@@ -282,11 +286,7 @@ public class Cenotaph extends JavaPlugin {
 
 		//DeathMessages
 		try {
-			deathMessages = config.getConfigurationSection("DeathMessages").getValues(true);
-			/*for (String key : config.getConfigurationSection("DeathMessages").getKeys(false))
-			{
-				deathMessages.put(key, config.getString("DeathMessages." + key));
-			}*/
+			deathMessages = (TreeMap<String, Object>)config.getConfigurationSection("DeathMessages").getValues(true);
 		} catch (NullPointerException e) {
 			log.warning("[Cenotaph] Configuration failure while loading deathMessages. Using defaults.");
 		}
@@ -301,18 +301,19 @@ public class Cenotaph extends JavaPlugin {
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine().trim();
 				String[] split = line.split(":");
-				//block:lblock:sign:time:name:lwc
+				//block:lblock:sign:owner:level:time:lwc
 				Block block = readBlock(split[0]);
 				Block lBlock = readBlock(split[1]);
 				Block sign = readBlock(split[2]);
 				String owner = split[3];
-				long time = Long.valueOf(split[4]);
-				boolean lwc = Boolean.valueOf(split[5]);
+				int level = Integer.valueOf(split[4]);
+				long time = Long.valueOf(split[5]);
+				boolean lwc = Boolean.valueOf(split[6]);
 				if (block == null || owner == null) {
 					log.info("[Cenotaph] Invalid entry in database " + fh.getName());
 					continue;
 				}
-				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, time, lwc);
+				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, level, time, lwc);
 				tombList.offer(tBlock);
 				// Used for quick tombStone lookup
 				tombBlockList.put(block.getLocation(), tBlock);
@@ -351,6 +352,8 @@ public class Cenotaph extends JavaPlugin {
 				bw.append(":");
 				bw.append(tBlock.getOwner());
 				bw.append(":");
+				bw.append(Integer.toString(tBlock.getOwnerLevel()));
+				bw.append(":");				
 				bw.append(String.valueOf(tBlock.getTime()));
 				bw.append(":");
 				bw.append(String.valueOf(tBlock.getLwcEnabled()));
@@ -982,6 +985,9 @@ public class Cenotaph extends JavaPlugin {
 				}
 			}
 
+			sendMessage(event.getPlayer(), "Cenotaph quicklooted!");
+			logEvent(event.getPlayer() + " quicklooted cenotaph at " + tBlock.getBlock().getLocation());
+
 			if (!overflow) {
 				// We're quicklooting, so no need to resume this interaction
 				event.setUseInteractedBlock(Result.DENY);
@@ -995,8 +1001,6 @@ public class Cenotaph extends JavaPlugin {
 
 			// Manually update inventory for the time being.
 			event.getPlayer().updateInventory();
-			sendMessage(event.getPlayer(), "Cenotaph quicklooted!");
-			logEvent(event.getPlayer() + " quicklooted cenotaph at " + tBlock.getBlock().getLocation());
 		}
 	}
 
@@ -1159,7 +1163,7 @@ public class Cenotaph extends JavaPlugin {
 				removeSign = 0;
 
 			// Create a TombBlock for this tombstone
-			TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), (System.currentTimeMillis() / 1000));
+			TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getLevel(), (System.currentTimeMillis() / 1000));
 
 			// Protect the chest/sign if LWC is installed.
 			Boolean prot = false;
@@ -1460,6 +1464,20 @@ public class Cenotaph extends JavaPlugin {
 			+ ":" + (seconds< 10 ? "0" : "") + seconds;
 	}
 
+	public int calculateTimeLeft(TombBlock tBlock) {
+		int result = -1;
+
+		/*				//if (cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {} 
+				//Block removal check
+				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime))
+										if (keepUntilEmpty) {
+							if (itemCount > 0) continue;
+						}
+						if (removeWhenEmpty) {
+		*/
+		return result;
+	}
+
 	public class sListener implements Listener {
 		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPluginEnable(PluginEnableEvent event) {
@@ -1539,7 +1557,7 @@ public class Cenotaph extends JavaPlugin {
 						}
 					}
 				}
-
+				//if (cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {} 
 				//Block removal check
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
 					destroyCenotaph(tBlock); //TODO this originally included the only instance of removeTomb(tblock, false). check for bugs caused by the change to always true. 
@@ -1555,10 +1573,10 @@ public class Cenotaph extends JavaPlugin {
 	public void destroyCenotaph(TombBlock tBlock) {
 		tBlock.getBlock().getWorld().loadChunk(tBlock.getBlock().getChunk());
 
-		deactivateLWC(tBlock, true);
-
 		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
 		deactivateLockette(tBlock);
+		deactivateLWC(tBlock, true);
+
 		tBlock.getBlock().setType(Material.AIR);
 		if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
 
@@ -1576,22 +1594,27 @@ public class Cenotaph extends JavaPlugin {
 		private Sign LocketteSign;
 		private long time;
 		private String owner;
+		private int ownerLevel;
 		private boolean lwcEnabled = false;
-		TombBlock(Block block, Block lBlock, Block sign, String owner, long time) {
+
+		TombBlock(Block block, Block lBlock, Block sign, String owner, int ownerLevel, long time) {
 			this.block = block;
 			this.lBlock = lBlock;
 			this.sign = sign;
 			this.owner = owner;
+			this.ownerLevel = ownerLevel;
 			this.time = time;
 		}
-		TombBlock(Block block, Block lBlock, Block sign, String owner, long time, boolean lwc) {
+		TombBlock(Block block, Block lBlock, Block sign, String owner, int ownerLevel, long time, boolean lwc) {
 			this.block = block;
 			this.lBlock = lBlock;
 			this.sign = sign;
 			this.owner = owner;
+			this.ownerLevel = ownerLevel;
 			this.time = time;
 			this.lwcEnabled = lwc;
 		}
+		
 		long getTime() {
 			return time;
 		}
@@ -1609,6 +1632,9 @@ public class Cenotaph extends JavaPlugin {
 		}
 		String getOwner() {
 			return owner;
+		}
+		int getOwnerLevel() {
+			return ownerLevel;
 		}
 		boolean getLwcEnabled() {
 			return lwcEnabled;
