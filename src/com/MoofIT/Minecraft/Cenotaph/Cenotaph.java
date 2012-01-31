@@ -233,7 +233,7 @@ public class Cenotaph extends JavaPlugin {
 				log.info("[Cenotaph] Configuration error or no config file found. Downloading default config file...");
 				if (!new File(getDataFolder().toString()).exists()) {
 					new File(getDataFolder().toString()).mkdir();
-				}
+				} //TODO convert below to new default setup
 				URL config = new URL("https://raw.github.com/Southpaw018/Cenotaph/master/config.yml");
 				ReadableByteChannel rbc = Channels.newChannel(config.openStream());
 				FileOutputStream fos = new FileOutputStream(this.getDataFolder().getPath() + "/config.yml");
@@ -248,7 +248,7 @@ public class Cenotaph extends JavaPlugin {
 
 		}
 		else if (configVer < configCurrent) {
-			log.warning("[Cenotaph] Your config file is out of date! Delete your config and reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
+			log.warning("[Cenotaph] Your config file is out of date! Delete your config and /cenadmin reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
 		}
 
 		//Core
@@ -265,7 +265,12 @@ public class Cenotaph extends JavaPlugin {
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
 		preferCenotaphSign = config.getBoolean("Core.preferCenotaphSign", preferCenotaphSign);
-		disableInWorlds = config.getStringList("Core.disableInWorlds"); //TODO convert to new config default format 
+
+		try {
+			disableInWorlds = config.getStringList("Core.disableInWorlds");
+		} catch (NullPointerException e) {
+			log.warning("[Cenotaph] Configuration failure while loading disableInWorlds. Using defaults.");
+		}		
 
 		//Removal
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
