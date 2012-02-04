@@ -22,15 +22,11 @@ package com.MoofIT.Minecraft.Cenotaph;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -136,7 +132,6 @@ public class Cenotaph extends JavaPlugin {
 	};
 	private String dateFormat = "MM/dd/yyyy";
 	private String timeFormat = "hh:mm a";
-	private boolean preferCenotaphSign = true;
 	private List<String> disableInWorlds;
 
 	//Removal
@@ -229,23 +224,8 @@ public class Cenotaph extends JavaPlugin {
 
 		configVer = config.getInt("configVer", configVer);
 		if (configVer == 0) {
-			try {
-				log.info("[Cenotaph] Configuration error or no config file found. Downloading default config file...");
-				if (!new File(getDataFolder().toString()).exists()) {
-					new File(getDataFolder().toString()).mkdir();
-				} //TODO convert below to new default setup
-				URL config = new URL("https://raw.github.com/Southpaw018/Cenotaph/master/config.yml");
-				ReadableByteChannel rbc = Channels.newChannel(config.openStream());
-				FileOutputStream fos = new FileOutputStream(this.getDataFolder().getPath() + "/config.yml");
-				fos.getChannel().transferFrom(rbc, 0, 1 << 24);
-			} catch (MalformedURLException ex) {
-				log.warning("[Cenotaph] Error accessing default config file URL: " + ex);
-			} catch (FileNotFoundException ex) {
-				log.warning("[Cenotaph] Error accessing default config file URL: " + ex);
-			} catch (IOException ex) {
-				log.warning("[Cenotaph] Error downloading default config file: " + ex);
-			}
-
+			log.info("[Cenotaph] Configuration error or no config file found. Generating default config file.");
+			saveDefaultConfig(); //TODO test
 		}
 		else if (configVer < configCurrent) {
 			log.warning("[Cenotaph] Your config file is out of date! Delete your config and /cenadmin reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
@@ -264,7 +244,6 @@ public class Cenotaph extends JavaPlugin {
 		signMessage = loadSign();
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
-		preferCenotaphSign = config.getBoolean("Core.preferCenotaphSign", preferCenotaphSign);
 
 		try {
 			disableInWorlds = config.getStringList("Core.disableInWorlds");
@@ -1050,7 +1029,7 @@ public class Cenotaph extends JavaPlugin {
 				return;
 			}
 
-			if (disableInWorlds.contains(p.getWorld().getName())) {
+			if (disableInWorlds.contains(p.getWorld().getName())) { //TODO test
 				sendMessage(p,"Cenotaphs are disabled in " + p.getWorld().getName() + ". Inventory dropped.");
 				logEvent(p.getName() + " died in " + p.getWorld().getName() + " and did not receive a cenotaph.");
 			}
@@ -1111,7 +1090,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			int removeChestCount = 1;
-			int removeSign = 0;
+			int removeSignCount = 0;
 
 			// Do the check for a large chest block here so we can check for interference
 			Block lBlock = findLarge(block);
@@ -1153,23 +1132,24 @@ public class Cenotaph extends JavaPlugin {
 			// Check if we have signs enabled, if the player can use signs, and if the player has a sign or gets a free sign
 			Block sBlock = null;
 			if (cenotaphSign && hasPerm(p, "cenotaph.sign") &&
-				(pSignCount > 0 || hasPerm(p, "cenotaph.freesign"))) { //TODO 2.1: lockette sign removal here
+				(pSignCount > 0 || hasPerm(p, "cenotaph.freesign"))) {
 				// Find a place to put the sign, then place the sign.
 				sBlock = sChest.getWorld().getBlockAt(sChest.getX(), sChest.getY() + 1, sChest.getZ());
 				if (canReplace(sBlock.getType())) {
 					createSign(sBlock, p);
-					removeSign = 1;
+					removeSignCount += 1;
 				} else if (lChest != null) {
 					sBlock = lChest.getWorld().getBlockAt(lChest.getX(), lChest.getY() + 1, lChest.getZ());
 					if (canReplace(sBlock.getType())) {
 						createSign(sBlock, p);
-						removeSign = 1;
+						removeSignCount += 1;
 					}
 				}
 			}
+
 			// Don't remove a sign if they get a free one
 			if (hasPerm(p, "cenotaph.freesign"))
-				removeSign = 0;
+				removeSignCount -= 1;
 
 			// Create a TombBlock for this tombstone
 			TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getLevel(), (System.currentTimeMillis() / 1000));
@@ -1183,10 +1163,14 @@ public class Cenotaph extends JavaPlugin {
 			if (prot) protLWC = true;
 
 			// Protect the chest with Lockette if installed, enabled, and unprotected.
-			if (hasPerm(p, "cenotaph.lockette"))
-				prot = protectWithLockette(p, tBlock);
-
-
+			if (hasPerm(p, "cenotaph.lockette")) {
+				if (hasPerm(p, "cenotaph.freelockettesign")) {
+					prot = protectWithLockette(p, tBlock);
+				} else if (pSignCount > removeSignCount) { //TODO 2.1: lockette sign removal test
+					removeSignCount += 1;
+					prot = protectWithLockette(p, tBlock);
+				}
+			}
 			// Add tombstone to list
 			tombList.offer(tBlock);
 
@@ -1225,9 +1209,9 @@ public class Cenotaph extends JavaPlugin {
 				}
 
 				// Take a sign
-				if (removeSign > 0 && item.getType() == Material.SIGN){
+				if (removeSignCount > 0 && item.getType() == Material.SIGN){
 					item.setAmount(item.getAmount() - 1);
-					removeSign = 0;
+					removeSignCount -= 1;
 					if (item.getAmount() == 0) {
 						iter.remove();
 						continue;
@@ -1567,6 +1551,7 @@ public class Cenotaph extends JavaPlugin {
 					}
 				}
 				//TODO 2.1: level based removal
+				//TODO test
 				//if (cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {} 
 				//Block removal check
 				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
