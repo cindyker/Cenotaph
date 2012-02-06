@@ -1552,9 +1552,9 @@ public class Cenotaph extends JavaPlugin {
 				}
 				//TODO 2.1: level based removal
 				//TODO test
-				//if (cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {} 
 				//Block removal check
-				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime)) {
+				if ((cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) || 
+				(cenotaphRemove && cTime > (tBlock.getTime() + removeTime))) {
 					destroyCenotaph(tBlock); 
 					iter.remove();
 				}
