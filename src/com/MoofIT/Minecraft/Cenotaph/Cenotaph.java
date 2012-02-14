@@ -227,7 +227,7 @@ public class Cenotaph extends JavaPlugin {
 		if (configVer == 0) {
 			log.info("[Cenotaph] Configuration error or no config file found. Generating default config file.");
 			saveDefaultConfig();
-			this.reloadConfig(); //hack to force good data into configs
+			this.reloadConfig(); //hack to force good data into configs TODO 2.2: proper defaults
 			config = this.getConfig();			
 		}
 		else if (configVer < configCurrent) {
@@ -284,7 +284,7 @@ public class Cenotaph extends JavaPlugin {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
 			if (!fh.exists()) return;
 			Scanner scanner = new Scanner(fh);
-			while (scanner.hasNextLine()) {
+			while (scanner.hasNextLine()) { //TODO handle bad entry cases 
 				String line = scanner.nextLine().trim();
 				String[] split = line.split(":");
 				//block:lblock:sign:owner:level:time:lwc
@@ -292,9 +292,25 @@ public class Cenotaph extends JavaPlugin {
 				Block lBlock = readBlock(split[1]);
 				Block sign = readBlock(split[2]);
 				String owner = split[3];
-				int level = Integer.valueOf(split[4]);
+
+				//hacking in level handling for 2.1 2/14/12. remove in a few months?
+				/*int level = Integer.valueOf(split[4]);
 				long time = Long.valueOf(split[5]);
-				boolean lwc = Boolean.valueOf(split[6]);
+				boolean lwc = Boolean.valueOf(split[6]);*/
+				int level = 0;
+				long time = 0;
+				boolean lwc = false;
+				
+				if (split.length == 6) {
+					level = Integer.valueOf(split[4]);
+					time = Long.valueOf(split[5]);					
+					
+				}
+				else {
+					time = Long.valueOf(split[4]);					
+					lwc = Boolean.valueOf(split[5]);					
+				}
+				//end hack
 				if (block == null || owner == null) {
 					log.info("[Cenotaph] Invalid entry in database " + fh.getName());
 					continue;
@@ -633,7 +649,7 @@ public class Cenotaph extends JavaPlugin {
 				return true;
 			}
 			if (args.length == 0) {
-				sendMessage(p, "Usage: /cenadmin list");
+				sendMessage(p, "Usage: /cenadmin list"); //TODO 2.2 use name matching
 				sendMessage(p, "Usage: /cenadmin list <playerCaseSensitive>");
 				sendMessage(p, "Usage: /cenadmin find <playerCaseSensitive> <#>");
 				sendMessage(p, "Usage: /cenadmin remove <playerCaseSensitive> <#>");
