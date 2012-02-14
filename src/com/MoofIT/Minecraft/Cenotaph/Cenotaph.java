@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
@@ -90,6 +89,8 @@ TODO 2.2 release
 	- code refactor
 	- register integration
 	- cenotaph payment
+	- improved override messages
+	- improved timing messages
 */
 
 public class Cenotaph extends JavaPlugin {
@@ -151,7 +152,7 @@ public class Cenotaph extends JavaPlugin {
 	private boolean lwcPublic = false;
 
 	//DeathMessages
-	private TreeMap<String, Object> deathMessages = new TreeMap<String, Object>() {
+	private HashMap<String, Object> deathMessages = new HashMap<String, Object>() {
 		private static final long serialVersionUID = 1L;
 		{
 			put("Monster.Zombie", "a Zombie");
@@ -225,7 +226,9 @@ public class Cenotaph extends JavaPlugin {
 		configVer = config.getInt("configVer", configVer);
 		if (configVer == 0) {
 			log.info("[Cenotaph] Configuration error or no config file found. Generating default config file.");
-			saveDefaultConfig(); //TODO test
+			saveDefaultConfig();
+			this.reloadConfig(); //hack to force good data into configs
+			config = this.getConfig();			
 		}
 		else if (configVer < configCurrent) {
 			log.warning("[Cenotaph] Your config file is out of date! Delete your config and /cenadmin reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
@@ -257,7 +260,7 @@ public class Cenotaph extends JavaPlugin {
 		removeTime = config.getInt("Removal.removeTime", removeTime);
 		removeWhenEmpty = config.getBoolean("Removal.removeWhenEmpty", removeWhenEmpty);
 		keepUntilEmpty = config.getBoolean("Removal.keepUntilEmpty", keepUntilEmpty);
-		levelBasedRemoval = config.getBoolean("Removal.levelBasedTime", levelBasedRemoval);
+		levelBasedRemoval = config.getBoolean("Removal.levelBasedRemoval", levelBasedRemoval);
 		levelBasedTime = config.getInt("Removal.levelBasedTime", levelBasedTime);
 
 		//Security
@@ -269,7 +272,7 @@ public class Cenotaph extends JavaPlugin {
 
 		//DeathMessages
 		try {
-			deathMessages = (TreeMap<String, Object>)config.getConfigurationSection("DeathMessages").getValues(true);
+			deathMessages = (HashMap<String, Object>)config.getConfigurationSection("DeathMessages").getValues(true);
 		} catch (NullPointerException e) {
 			log.warning("[Cenotaph] Configuration failure while loading deathMessages. Using defaults.");
 		}
@@ -774,6 +777,7 @@ public class Cenotaph extends JavaPlugin {
 					return true;
 				}
 				loadConfig();
+				log.info("[Cenotaph] Configuration reloaded from file.");
 				sendMessage(p, "Configuration reloaded from file.");
 			} else {
 				sendMessage(p, "Usage: /cenadmin list");
@@ -1029,11 +1033,15 @@ public class Cenotaph extends JavaPlugin {
 				return;
 			}
 
-			if (disableInWorlds.contains(p.getWorld().getName())) { //TODO test
-				sendMessage(p,"Cenotaphs are disabled in " + p.getWorld().getName() + ". Inventory dropped.");
-				logEvent(p.getName() + " died in " + p.getWorld().getName() + " and did not receive a cenotaph.");
+			for (String world : disableInWorlds) {
+				String curWorld = p.getWorld().getName();
+				if (world.equalsIgnoreCase(curWorld)) {
+					sendMessage(p,"Cenotaphs are disabled in " + curWorld + ". Inventory dropped.");
+					logEvent(p.getName() + " died in " + curWorld + " and did not receive a cenotaph.");
+					return;
+				}
 			}
-				
+
 
 			// Get the current player location.
 			Location loc = p.getLocation();
@@ -1152,7 +1160,7 @@ public class Cenotaph extends JavaPlugin {
 				removeSignCount -= 1;
 
 			// Create a TombBlock for this tombstone
-			TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getLevel(), (System.currentTimeMillis() / 1000));
+			TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getLevel() + 1, (System.currentTimeMillis() / 1000));
 
 			// Protect the chest/sign if LWC is installed.
 			Boolean prot = false;
@@ -1166,7 +1174,7 @@ public class Cenotaph extends JavaPlugin {
 			if (hasPerm(p, "cenotaph.lockette")) {
 				if (hasPerm(p, "cenotaph.freelockettesign")) {
 					prot = protectWithLockette(p, tBlock);
-				} else if (pSignCount > removeSignCount) { //TODO 2.1: lockette sign removal test
+				} else if (pSignCount > removeSignCount) {
 					removeSignCount += 1;
 					prot = protectWithLockette(p, tBlock);
 				}
@@ -1232,7 +1240,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			// Tell the player how many items went into chest.
-			String msg = "Inventory stored in chest. ";
+			String msg = "Inventory stored in chest. "; //TODO 2.2 clean up this mess
 			if (event.getDrops().size() > 0)
 				msg += event.getDrops().size() + " items wouldn't fit in chest.";
 			sendMessage(p, msg);
@@ -1246,7 +1254,7 @@ public class Cenotaph extends JavaPlugin {
 				logEvent(p.getName() + " Chest protected with Lockette.");
 			}
 			if (cenotaphRemove) {
-				sendMessage(p, "Chest will break in " + removeTime + "s unless an override is specified.");
+				sendMessage(p, "Chest will break in " + (levelBasedRemoval ? Math.min(p.getLevel() + 1 * levelBasedTime,removeTime) : removeTime) + "s unless an override is specified.");
 				logEvent(p.getName() + " Chest will break in " + removeTime + "s");
 			}
 			if (removeWhenEmpty && keepUntilEmpty) sendMessage(p, "Break override: Your cenotaph will break when it is emptied, but will not break until then.");
@@ -1457,20 +1465,6 @@ public class Cenotaph extends JavaPlugin {
 			+ ":" + (seconds< 10 ? "0" : "") + seconds;
 	}
 
-	public String calculateTimeLeft(TombBlock tBlock) { //TODO 2.1: time calc
-		String result = null;
-
-		/*				//if (cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {} 
-				//Block removal check
-				if (cenotaphRemove && cTime > (tBlock.getTime() + removeTime))
-										if (keepUntilEmpty) {
-							if (itemCount > 0) continue;
-						}
-						if (removeWhenEmpty) {
-		*/
-		return result;
-	}
-
 	public class sListener implements Listener {
 		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPluginEnable(PluginEnableEvent event) {
@@ -1550,13 +1544,20 @@ public class Cenotaph extends JavaPlugin {
 						}
 					}
 				}
-				//TODO 2.1: level based removal
-				//TODO test
 				//Block removal check
-				if ((cenotaphRemove && levelBasedRemoval && cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) || 
-				(cenotaphRemove && cTime > (tBlock.getTime() + removeTime))) {
-					destroyCenotaph(tBlock); 
-					iter.remove();
+				if (cenotaphRemove) {
+					if (levelBasedRemoval) {
+						if (cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {
+							destroyCenotaph(tBlock);
+							iter.remove();
+						}
+					}
+					else {
+						if (cTime > (tBlock.getTime() + removeTime)) {
+							destroyCenotaph(tBlock);
+							iter.remove();							
+						}
+					}
 				}
 			}
 		}
