@@ -91,7 +91,9 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
  Changes
 =============
 [Version 2.1]
-  - 
+  - Added option for level-based time removal
+  - Added requirement for Lockette sign to be carried in inventory (free sign permission available)
+  - Added option to disable in specific worlds by name
 [Version 2.0]
   - Updated listeners to new Bukkit API
   - Updated config to new Bukkit API
