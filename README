@@ -91,7 +91,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
  Changes
 =============
 [Version 2.1.1]
-  - Fix issue loading .db cenotaph save files from pre-2.1 versions
+  - Fix issue loading .db save files from pre-2.1 versions (Thanks, Inscrutable)
 [Version 2.1]
   - Added option for level-based time removal
   - Added requirement for Lockette sign to be carried in inventory (free sign permission available)
