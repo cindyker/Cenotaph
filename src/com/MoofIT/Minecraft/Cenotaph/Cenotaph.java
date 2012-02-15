@@ -192,11 +192,9 @@ public class Cenotaph extends JavaPlugin {
 	private final int configCurrent = 12;
 
 	public void onEnable() {
-		PluginDescriptionFile pdfFile = getDescription();
 		log = Logger.getLogger("Minecraft");
 
-		String thisVersion = pdfFile.getVersion();
-		log.info(pdfFile.getName() + " v." + thisVersion + " is enabled.");
+		log.info("Cenotaph " + getDescription().getVersion() + " is enabled.");
 
 		pm = getServer().getPluginManager();
 
