@@ -87,10 +87,13 @@ import org.yi.acru.bukkit.Lockette.Lockette;
 /*
 TODO 2.2 release
 	- code refactor
-	- register integration
-	- cenotaph payment
 	- improved override messages
 	- improved timing messages
+	- towny integration
+TODO 2.3 release
+	- vault integration
+	- cenotaph payment
+	- worldguard integration?
 */
 
 public class Cenotaph extends JavaPlugin {
@@ -302,13 +305,13 @@ public class Cenotaph extends JavaPlugin {
 				boolean lwc = false;
 				
 				if (split.length == 6) {
-					level = Integer.valueOf(split[4]);
-					time = Long.valueOf(split[5]);					
-					
-				}
-				else {
 					time = Long.valueOf(split[4]);					
 					lwc = Boolean.valueOf(split[5]);					
+				}
+				else {
+					level = Integer.valueOf(split[4]);
+					time = Long.valueOf(split[5]);					
+					lwc = Boolean.valueOf(split[6]);
 				}
 				//end hack
 				if (block == null || owner == null) {
