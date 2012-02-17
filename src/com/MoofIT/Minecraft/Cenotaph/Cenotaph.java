@@ -75,7 +75,6 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -1341,7 +1340,7 @@ public class Cenotaph extends JavaPlugin {
 					} else if (e instanceof Slime) {
 						return deathMessages.get("Monster.Slime").toString();
 					} else if (e instanceof Wolf) {
-						return deathMessages.get("Monster.Wolf").toString();
+						return deathMessages.get("Monster.Wolf").toString(); //TODO add new mobs!
 					} else {
 						return deathMessages.get("Monster.Other").toString();
 					}
@@ -1519,7 +1518,7 @@ public class Cenotaph extends JavaPlugin {
 				//"empty" option checks
 				if (keepUntilEmpty || removeWhenEmpty) {
 					if (tBlock.getBlock().getState() instanceof Chest) {
-						int itemCount = 0;
+						int itemCount = 0; //TODO we can improve processing time here by stopping when we find one item
 
 						Chest sChest = (Chest)tBlock.getBlock().getState();
 						Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
