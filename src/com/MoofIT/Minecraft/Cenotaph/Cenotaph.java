@@ -308,10 +308,6 @@ public class Cenotaph extends JavaPlugin {
 				Block sign = readBlock(split[2]);
 				String owner = split[3];
 
-				//hacking in level handling for 2.1 2/14/12. remove in a few months?
-				/*int level = Integer.valueOf(split[4]);
-				long time = Long.valueOf(split[5]);
-				boolean lwc = Boolean.valueOf(split[6]);*/
 				int level = 0;
 				long time = 0;
 				boolean lwc = false;

@@ -90,6 +90,10 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 2.1.2]
+  - Optimized break override options (keepUntilEmpty and breakWhenEmpty)
+  - Add death messages for beta 1.8 monsters (Finally...yikes. Sorry, everyone.)
+  - Work around an error caused by missing or invalid deathMessage entries (Thanks, ffkhrocks)
 [Version 2.1.1]
   - Fix issue loading .db save files from pre-2.1 versions (Thanks, Inscrutable)
 [Version 2.1]
@@ -170,6 +174,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Config file changes
 =============
+14: Add b1.8 monsters
 13: Add level-based removal options, Lockette sign carry setting, and per-world disabling
 12: Add DeathMessages plus dateFormat and timeFormat 
 11: Add removeWhenEmpty and keepUntilEmpty
