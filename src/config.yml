@@ -94,6 +94,13 @@ DeathMessages:
         Ghast: "a Ghast"
         PigZombie: "a Pig Zombie"
         Giant: "a Giant"
+        Blaze: "a Blaze"
+        CaveSpider: "a Cave Spider"
+        EnderDragon: "a Dragon"
+        Enderman: "an Enderman"
+        IronGolem: "an Iron Golem"
+        MagmaCube: "a Magma Cube"
+        Silverfish: "a Siverfish"
         Other: "a Monster"
     World:
         Cactus: "a Cactus"
@@ -112,4 +119,4 @@ DeathMessages:
         Void: "the Void"
         Other: "Unknown"
 
-configVer: 13
+configVer: 14

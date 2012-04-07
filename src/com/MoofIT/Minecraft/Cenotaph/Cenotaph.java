@@ -47,13 +47,20 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Blaze;
+import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
+import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Silverfish;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
@@ -167,6 +174,14 @@ public class Cenotaph extends JavaPlugin {
 			put("Monster.PigZombie", "a Pig Zombie");
 			put("Monster.Giant", "a Giant");
 			put("Monster.Other", "a Monster");
+			put("Monster.Blaze", "a Blaze");
+			put("Monster.CaveSpider", "a Cave Spider");
+			put("Monster.EnderDragon", "a Dragon");
+			put("Monster.Enderman", "an Enderman");
+			put("Monster.IronGolem", "an Iron Golem");
+			put("Monster.MagmaCube", "a Magma Cube");
+			put("Monster.Silverfish", "a Siverfish");
+
 	
 			put("World.Cactus", "a Cactus");
 			put("World.Suffocation", "Suffocation");
@@ -1077,7 +1092,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			//Don't create the chest if it or its sign would be in the void
-			if (voidCheck && ((cenotaphSign && block.getY() > p.getWorld().getMaxHeight() - 1) || (!cenotaphSign && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) { //TODO MC1.2 test if getMaxHeight() is giving the right heights for cenotaph spawning
+			if (voidCheck && ((cenotaphSign && block.getY() > p.getWorld().getMaxHeight() - 1) || (!cenotaphSign && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) {
 				sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped.");
 				logEvent(p.getName() + " died in the Void.");
 				return;
@@ -1341,7 +1356,21 @@ public class Cenotaph extends JavaPlugin {
 						} else if (e instanceof Slime) {
 							return deathMessages.get("Monster.Slime").toString();
 						} else if (e instanceof Wolf) {
-							return deathMessages.get("Monster.Wolf").toString(); //TODO add new mobs!
+							return deathMessages.get("Monster.Wolf").toString();
+						} else if (e instanceof Blaze) { 
+							return deathMessages.get("Monster.Blaze").toString();
+						} else if (e instanceof CaveSpider) {
+							return deathMessages.get("Monster.CaveSpider").toString();
+						} else if (e instanceof EnderDragon) {
+							return deathMessages.get("Monster.EnderDragon").toString();
+						} else if (e instanceof Enderman) { 
+							return deathMessages.get("Monster.Enderman").toString();
+						} else if (e instanceof IronGolem) { 
+							return deathMessages.get("Monster.IronGolem").toString();
+						} else if (e instanceof MagmaCube) { 
+							return deathMessages.get("Monster.MagmaCube").toString();
+						} else if (e instanceof Silverfish) { 
+							return deathMessages.get("Monster.Silverfish").toString();
 						} else {
 							return deathMessages.get("Monster.Other").toString();
 						}
