@@ -1552,31 +1552,29 @@ public class Cenotaph extends JavaPlugin {
 				//"empty" option checks
 				if (keepUntilEmpty || removeWhenEmpty) {
 					if (tBlock.getBlock().getState() instanceof Chest) {
-						int stackCount = 0;
+						boolean isEmpty = true;
 
 						Chest sChest = (Chest)tBlock.getBlock().getState();
 						Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
 
-						/*for (ItemStack item : sChest.getInventory().getContents()) {
-							if (item != null) itemCount += item.getAmount();
+						for (ItemStack item : sChest.getInventory().getContents()) {
+							if (item != null) isEmpty = false;
+							break;
 						}
-						if (lChest != null && itemCount == 0) {
+						if (lChest != null && !isEmpty) {
 							for (ItemStack item : lChest.getInventory().getContents()) {
-								if (item != null) itemCount += item.getAmount();
+								if (item != null) isEmpty = false;
+								break;
 							}
-						}*/
-						//TODO test
-						stackCount += sChest.getInventory().getContents().length;
-						if (lChest != null && stackCount == 0) {
-							stackCount += lChest.getInventory().getContents().length;
 						}
-
 						if (keepUntilEmpty) {
-							if (stackCount > 0) continue;
+							if (!isEmpty) continue;
 						}
 						if (removeWhenEmpty) {
-							if (stackCount == 0) destroyCenotaph(tBlock);
-							iter.remove();
+							if (isEmpty) {
+								destroyCenotaph(tBlock);
+								iter.remove();
+							}
 						}
 					}
 				}
@@ -1610,7 +1608,7 @@ public class Cenotaph extends JavaPlugin {
 					else {
 						if (cTime > (tBlock.getTime() + removeTime)) {
 							destroyCenotaph(tBlock);
-							iter.remove();							
+							iter.remove();
 						}
 					}
 				}
