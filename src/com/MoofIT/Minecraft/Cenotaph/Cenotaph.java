@@ -1077,7 +1077,7 @@ public class Cenotaph extends JavaPlugin {
 			}
 
 			//Don't create the chest if it or its sign would be in the void
-			if (voidCheck && ((cenotaphSign && block.getY() > 126) || (!cenotaphSign && block.getY() > 127) || p.getLocation().getY() < 1)) {
+			if (voidCheck && ((cenotaphSign && block.getY() > p.getWorld().getMaxHeight() - 1) || (!cenotaphSign && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) { //TODO MC1.2 test if getMaxHeight() is giving the right heights for cenotaph spawning
 				sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped.");
 				logEvent(p.getName() + " died in the Void.");
 				return;
@@ -1314,71 +1314,76 @@ public class Cenotaph extends JavaPlugin {
 		}
 
 		private String getCause(EntityDamageEvent dmg) {
-			switch (dmg.getCause()) {
-				case ENTITY_ATTACK:
-				{
-					EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
-					Entity e = event.getDamager();
-					if (e == null) {
-						return deathMessages.get("Misc.Dispenser").toString();
-					} else if (e instanceof Player) {
-						return ((Player) e).getDisplayName();
-					} else if (e instanceof PigZombie) {
-						return deathMessages.get("Monster.PigZombie").toString();
-					} else if (e instanceof Giant) {
-						return deathMessages.get("Monster.Giant").toString();
-					} else if (e instanceof Zombie) {
-						return deathMessages.get("Monster.Zombie").toString();
-					} else if (e instanceof Skeleton) {
-						return deathMessages.get("Monster.Skeleton").toString();
-					} else if (e instanceof Spider) {
-						return deathMessages.get("Monster.Spider").toString();
-					} else if (e instanceof Creeper) {
-						return deathMessages.get("Monster.Creeper").toString();
-					} else if (e instanceof Ghast) {
-						return deathMessages.get("Monster.Ghast").toString();
-					} else if (e instanceof Slime) {
-						return deathMessages.get("Monster.Slime").toString();
-					} else if (e instanceof Wolf) {
-						return deathMessages.get("Monster.Wolf").toString(); //TODO add new mobs!
-					} else {
-						return deathMessages.get("Monster.Other").toString();
-					}
-				}
-				case CONTACT:
-					return deathMessages.get("World.Cactus").toString();
-				case SUFFOCATION:
-					return deathMessages.get("World.Suffocation").toString();
-				case FALL:
-					return deathMessages.get("World.Fall").toString();
-				case FIRE:
-					return deathMessages.get("World.Fire").toString();
-				case FIRE_TICK:
-					return deathMessages.get("World.Burning").toString();
-				case LAVA:
-					return deathMessages.get("World.Lava").toString();
-				case DROWNING:
-					return deathMessages.get("World.Drowning").toString();
-				case BLOCK_EXPLOSION:
-					return deathMessages.get("Explosion.Misc").toString();
-				case ENTITY_EXPLOSION:
-				{
-					try {
+			try {
+				switch (dmg.getCause()) {
+					case ENTITY_ATTACK:
+					{
 						EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
 						Entity e = event.getDamager();
-						if (e instanceof TNTPrimed) return deathMessages.get("Explosion.TNT").toString();
-						else if (e instanceof Fireball) return deathMessages.get("Monster.Ghast").toString();
-						else return deathMessages.get("Monster.Creeper").toString();
-					} catch (Exception e) {
-						return deathMessages.get("Explosion.Misc").toString();
+						if (e == null) {
+							return deathMessages.get("Misc.Dispenser").toString();
+						} else if (e instanceof Player) {
+							return ((Player) e).getDisplayName();
+						} else if (e instanceof PigZombie) {
+							return deathMessages.get("Monster.PigZombie").toString();
+						} else if (e instanceof Giant) {
+							return deathMessages.get("Monster.Giant").toString();
+						} else if (e instanceof Zombie) {
+							return deathMessages.get("Monster.Zombie").toString();
+						} else if (e instanceof Skeleton) {
+							return deathMessages.get("Monster.Skeleton").toString();
+						} else if (e instanceof Spider) {
+							return deathMessages.get("Monster.Spider").toString();
+						} else if (e instanceof Creeper) {
+							return deathMessages.get("Monster.Creeper").toString();
+						} else if (e instanceof Ghast) {
+							return deathMessages.get("Monster.Ghast").toString();
+						} else if (e instanceof Slime) {
+							return deathMessages.get("Monster.Slime").toString();
+						} else if (e instanceof Wolf) {
+							return deathMessages.get("Monster.Wolf").toString(); //TODO add new mobs!
+						} else {
+							return deathMessages.get("Monster.Other").toString();
+						}
 					}
+					case CONTACT:
+						return deathMessages.get("World.Cactus").toString();
+					case SUFFOCATION:
+						return deathMessages.get("World.Suffocation").toString();
+					case FALL:
+						return deathMessages.get("World.Fall").toString();
+					case FIRE:
+						return deathMessages.get("World.Fire").toString();
+					case FIRE_TICK:
+						return deathMessages.get("World.Burning").toString();
+					case LAVA:
+						return deathMessages.get("World.Lava").toString();
+					case DROWNING:
+						return deathMessages.get("World.Drowning").toString();
+					case BLOCK_EXPLOSION:
+						return deathMessages.get("Explosion.Misc").toString();
+					case ENTITY_EXPLOSION:
+					{
+						try {
+							EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
+							Entity e = event.getDamager();
+							if (e instanceof TNTPrimed) return deathMessages.get("Explosion.TNT").toString();
+							else if (e instanceof Fireball) return deathMessages.get("Monster.Ghast").toString();
+							else return deathMessages.get("Monster.Creeper").toString();
+						} catch (Exception e) {
+							return deathMessages.get("Explosion.Misc").toString();
+						}
+					}
+					case VOID:
+						return deathMessages.get("Misc.Void").toString();
+					case LIGHTNING:
+						return deathMessages.get("World.Lightning").toString();
+					default:
+						return deathMessages.get("Misc.Other").toString();
 				}
-				case VOID:
-					return deathMessages.get("Misc.Void").toString();
-				case LIGHTNING:
-					return deathMessages.get("World.Lightning").toString();
-				default:
-					return deathMessages.get("Misc.Other").toString();
+			} catch (NullPointerException e) {
+				log.severe("[Cenotaph] Error processing death cause: " + dmg.getCause().toString());
+				return "&cERROR&0";
 			}
 		}
 
@@ -1518,25 +1523,30 @@ public class Cenotaph extends JavaPlugin {
 				//"empty" option checks
 				if (keepUntilEmpty || removeWhenEmpty) {
 					if (tBlock.getBlock().getState() instanceof Chest) {
-						int itemCount = 0; //TODO we can improve processing time here by stopping when we find one item
+						int stackCount = 0;
 
 						Chest sChest = (Chest)tBlock.getBlock().getState();
 						Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
 
-						for (ItemStack item : sChest.getInventory().getContents()) {
+						/*for (ItemStack item : sChest.getInventory().getContents()) {
 							if (item != null) itemCount += item.getAmount();
 						}
 						if (lChest != null && itemCount == 0) {
 							for (ItemStack item : lChest.getInventory().getContents()) {
 								if (item != null) itemCount += item.getAmount();
 							}
+						}*/
+						//TODO test
+						stackCount += sChest.getInventory().getContents().length;
+						if (lChest != null && stackCount == 0) {
+							stackCount += lChest.getInventory().getContents().length;
 						}
 
 						if (keepUntilEmpty) {
-							if (itemCount > 0) continue;
+							if (stackCount > 0) continue;
 						}
 						if (removeWhenEmpty) {
-							if (itemCount == 0) destroyCenotaph(tBlock);
+							if (stackCount == 0) destroyCenotaph(tBlock);
 							iter.remove();
 						}
 					}
