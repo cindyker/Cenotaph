@@ -772,16 +772,18 @@ public class Cenotaph extends JavaPlugin {
 		}
 	}
 
-	public String convertTime(long s) { //TODO implement later
-		long days = s / 86400;
-		int hours = (int)(s % 86400 / 3600);
-		int minutes = (int)(s % 86400 % 3600 / 60);
-		int seconds = (int)(s % 86400 % 3600 % 60);
-		return
-			(days > 1 ? days : "")
-			+ (hours < 10 ? "0" : "") + hours
-			+ ":" + (minutes < 10 ? "0" : "") + minutes
-			+ ":" + (seconds< 10 ? "0" : "") + seconds;
+	public String convertTime(int s) {
+		String formatted = Integer.toString(s);
+		if (s >= 86400) {
+			formatted = String.format("%d:%d:%02d:%02d", s/86400, (s%86400)/3600, (s%3600)/60, s%60);					
+		}
+		else if (s >= 3600) {
+			formatted = String.format("%d:%02d:%02d", s/3600, (s%3600)/60, (s%60));
+		}
+		else if (s > 60) {
+			formatted = String.format("%02d:%02d", s/60, s%60);
+		}
+		return formatted;
 	}
 
 	public void sendMessage(Player player, String message) {
