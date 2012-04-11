@@ -271,21 +271,10 @@ public class Cenotaph extends JavaPlugin {
 				Block lBlock = readBlock(split[1]);
 				Block sign = readBlock(split[2]);
 				String owner = split[3];
+				int level = Integer.valueOf(split[4]);
+				long time = Long.valueOf(split[5]);
+				boolean lwc = Boolean.valueOf(split[6]);
 
-				int level = 0;
-				long time = 0;
-				boolean lwc = false;
-				
-				if (split.length == 6) {
-					time = Long.valueOf(split[4]);					
-					lwc = Boolean.valueOf(split[5]);					
-				}
-				else {
-					level = Integer.valueOf(split[4]);
-					time = Long.valueOf(split[5]);					
-					lwc = Boolean.valueOf(split[6]);
-				}
-				//end hack
 				if (block == null || owner == null) {
 					log.info("[Cenotaph] Invalid entry in database " + fh.getName());
 					continue;
