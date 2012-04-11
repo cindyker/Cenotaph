@@ -1,15 +1,9 @@
 Core:
-    #Print messages to terminal if true (debug)
-    logEvents: false
-
     #Place a sign on the cenotaph if true
     cenotaphSign: true
 
     #Prevent non-Op players from destroying cenotaphs if true (destroyQuickLoot overrides)
     noDestroy: true
-
-    #Show status messages to the player if true
-    playerMessage: true
 
     #Save Cenotaph listing between server reloads if true
     saveCenotaphList: true
@@ -117,4 +111,4 @@ DeathMessages:
         Void: "the Void"
         Other: "Unknown"
 
-configVer: 14
+configVer: 15
