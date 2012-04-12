@@ -101,6 +101,7 @@ public class Cenotaph extends JavaPlugin {
 	public boolean versionCheck = true;
 	public boolean voidCheck = true;
 	public boolean creeperProtection = false;
+	public boolean shortMessaging = true;
 	public String signMessage[] = new String[] {
 		"{name}",
 		"RIP",
@@ -223,6 +224,7 @@ public class Cenotaph extends JavaPlugin {
 		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
 		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
 		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
+		shortMessaging = config.getBoolean("Core.shortMessaging", shortMessaging);
 		signMessage = loadSign();
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
@@ -515,6 +517,7 @@ public class Cenotaph extends JavaPlugin {
 			long secTimeLeft = (tBlock.getTime() + securityTimeout) - cTime;
 			long remTimeLeft = (tBlock.getTime() + removeTime) - cTime;
 
+			//TODO rework to support shortMessaging
 			if (securityRemove && secTimeLeft > 0) sendMessage(p, "Security will be removed from your cenotaph in " + secTimeLeft + " seconds.");
 
 			if (cenotaphRemove & remTimeLeft > 0) sendMessage(p, "Your cenotaph will break in " + remTimeLeft + " seconds");

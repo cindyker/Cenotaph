@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -289,15 +290,36 @@ public class CenotaphEntityListener implements Listener {
 			} else if (removeChestCount == 0) break;
 		}
 
-		String msg = "Inventory stored in chest. ";
-		if (event.getDrops().size() > 0) msg += event.getDrops().size() + " items wouldn't fit in chest and were dropped. ";
-		if (prot) msg += "Chest protected with " + (protLWC ? "LWC" : "Lockette") + ". " + plugin.convertTime(plugin.securityTimeout) + " before chest is unprotected. ";
-		if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += "Your cenotaph will break when it is emptied, but not until then.";
-		else {
-			if (plugin.removeWhenEmpty) msg += "Your cenotaph will immediately break when it is emptied.";
-			if (plugin.keepUntilEmpty) msg += "Your cenotaph will not break until it is empty.";			
+		String msg = "Error processing Cenotaph message.";
+		if (plugin.shortMessaging) {
+			msg = "Inv stored. ";
+			if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + "Overflow: " + ChatColor.WHITE + event.getDrops().size();
+			if (prot) {
+				msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE + (protLWC ? "LWC" : "Lockette");
+				msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + plugin.convertTime(plugin.securityTimeout);
+			}
+			if (plugin.cenotaphRemove) msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + plugin.convertTime((plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime));
+			if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
+				msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
+				if (plugin.removeWhenEmpty) msg += "Break on empty";
+				if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += "& ";
+				if (plugin.keepUntilEmpty) msg += "Keep until empty";			
+			}
 		}
-		if (plugin.cenotaphRemove) msg += "Chest will break in " + plugin.convertTime((plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime)) + " unless an override is specified. ";
+		else {
+			msg = "Inventory stored in chest. ";
+			if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + "Overflow: " + ChatColor.WHITE + event.getDrops().size() + " items wouldn't fit in chest and were dropped. ";
+			if (prot) {
+				msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE + "Chest protected with " + (protLWC ? "LWC" : "Lockette") + ". ";
+				msg += ChatColor.YELLOW + "Security Timeout: " + ChatColor.WHITE + plugin.convertTime(plugin.securityTimeout) + " before chest is unprotected. ";
+			}
+			if (plugin.cenotaphRemove) msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + plugin.convertTime((plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime));
+			if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
+				msg += ChatColor.YELLOW + "Break Override: " + ChatColor.WHITE;
+				if (plugin.removeWhenEmpty) msg += "Chest will immediately break once empty. ";
+				if (plugin.keepUntilEmpty) msg += "Chest will not break until it is empty.";
+			}
+		}
 		plugin.sendMessage(p, msg);
 	}
 
