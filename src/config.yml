@@ -24,9 +24,6 @@ Core:
     #after they are unlocked, enable this.
     creeperProtection: false
 
-    #Use the new compact player messaging system
-    shortMessaging: true
-
     #Each line may be one of any custom text OR:
     #{name} for player name
     #{date} for day of death
