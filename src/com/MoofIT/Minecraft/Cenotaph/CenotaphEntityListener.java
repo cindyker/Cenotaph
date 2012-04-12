@@ -289,25 +289,16 @@ public class CenotaphEntityListener implements Listener {
 			} else if (removeChestCount == 0) break;
 		}
 
-		// Tell the player how many items went into chest.
-		String msg = "Inventory stored in chest. "; //TODO 2.2 clean up this mess
-		if (event.getDrops().size() > 0)
-			msg += event.getDrops().size() + " items wouldn't fit in chest.";
-		plugin.sendMessage(p, msg);
-		if (prot && protLWC) {
-			plugin.sendMessage(p, "Chest protected with LWC. " + plugin.securityTimeout + "s before chest is unprotected.");
-		}
-		if (prot && !protLWC) {
-			plugin.sendMessage(p, "Chest protected with Lockette. " + plugin.securityTimeout + "s before chest is unprotected.");
-		}
-		if (plugin.cenotaphRemove) {
-			plugin.sendMessage(p, "Chest will break in " + (plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime) + "s unless an override is specified.");
-		}
-		if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) plugin.sendMessage(p, "Break override: Your cenotaph will break when it is emptied, but will not break until then.");
+		String msg = "Inventory stored in chest. ";
+		if (event.getDrops().size() > 0) msg += event.getDrops().size() + " items wouldn't fit in chest and were dropped. ";
+		if (prot) msg += "Chest protected with " + (protLWC ? "LWC" : "Lockette") + ". " + plugin.convertTime(plugin.securityTimeout) + " before chest is unprotected. ";
+		if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += "Your cenotaph will break when it is emptied, but not until then.";
 		else {
-			if (plugin.removeWhenEmpty) plugin.sendMessage(p, "Break override: Your cenotaph will break when it is emptied.");
-			if (plugin.keepUntilEmpty) plugin.sendMessage(p, "Break override: Your cenotaph will not break until it is empty.");
+			if (plugin.removeWhenEmpty) msg += "Your cenotaph will immediately break when it is emptied.";
+			if (plugin.keepUntilEmpty) msg += "Your cenotaph will not break until it is empty.";			
 		}
+		if (plugin.cenotaphRemove) msg += "Chest will break in " + plugin.convertTime((plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime)) + " unless an override is specified. ";
+		plugin.sendMessage(p, msg);
 	}
 
 	private void createSign(Block signBlock, Player p) {
