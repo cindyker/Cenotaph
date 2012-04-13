@@ -86,14 +86,14 @@ public class CenotaphEntityListener implements Listener {
 		if (!p.hasPermission("cenotaph.use")) return;
 
 		if (event.getDrops().size() == 0) {
-			plugin.sendMessage(p, "Inventory Empty.");
+			plugin.sendMessage(p, "Inv empty.");
 			return;
 		}
 
 		for (String world : plugin.disableInWorlds) {
 			String curWorld = p.getWorld().getName();
 			if (world.equalsIgnoreCase(curWorld)) {
-				plugin.sendMessage(p,"Cenotaphs are disabled in " + curWorld + ". Inventory dropped.");
+				plugin.sendMessage(p,"Cenotaph disabled in " + curWorld + ". Inv dropped.");
 				return;
 			}
 		}
@@ -118,7 +118,7 @@ public class CenotaphEntityListener implements Listener {
 
 		//Don't create the chest if it or its sign would be in the void
 		if (plugin.voidCheck && ((plugin.cenotaphSign && block.getY() > p.getWorld().getMaxHeight() - 1) || (!plugin.cenotaphSign && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) {
-			plugin.sendMessage(p, "Your Cenotaph would be in the Void. Inventory dropped.");
+			plugin.sendMessage(p, "Chest would be in the Void. Inv dropped.");
 			return;
 		}
 
@@ -132,20 +132,20 @@ public class CenotaphEntityListener implements Listener {
 		}
 
 		if (pChestCount == 0 && !p.hasPermission("cenotaph.freechest")) {
-			plugin.sendMessage(p, "No chest found in inventory. Inventory dropped.");
+			plugin.sendMessage(p, "No chest! Inv dropped.");
 			return;
 		}
 
 		// Check if we can replace the block.
 		block = findPlace(block,false);
 		if ( block == null ) {
-			plugin.sendMessage(p, "Could not find room for chest. Inventory dropped.");
+			plugin.sendMessage(p, "No room to place chest. Inv dropped.");
 			return;
 		}
 
 		// Check if there is a nearby chest
 		if (plugin.noInterfere && checkChest(block)) {
-			plugin.sendMessage(p, "There is a chest interfering with your cenotaph. Inventory dropped.");
+			plugin.sendMessage(p, "Existing chest interfering with chest placement. Inv dropped.");
 			return;
 		}
 
@@ -160,7 +160,7 @@ public class CenotaphEntityListener implements Listener {
 		// We're running into issues with 1.3 where we can't cast to a Chest :(
 		BlockState state = block.getState();
 		if (!(state instanceof Chest)) {
-			plugin.sendMessage(p, "Could not access chest. Inventory dropped.");
+			plugin.sendMessage(p, "Could not access chest. Inv dropped.");
 			return;
 		}
 		Chest sChest = (Chest)state;
@@ -293,10 +293,12 @@ public class CenotaphEntityListener implements Listener {
 		int breakTime = (plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime); 
 		String msg = "Inv stored. ";
 		if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + "Overflow: " + ChatColor.WHITE + event.getDrops().size() + " ";
+		msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
 		if (prot) {
 			msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE + (protLWC ? "LWC" : "Lockette") + " ";
-			msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove ? plugin.convertTime(plugin.securityTimeout) : "Inf" ) + " ";
+			if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove ? plugin.convertTime(plugin.securityTimeout) : "Inf" ) + " ";
 		}
+		else msg += "None ";
 		if (plugin.cenotaphRemove) msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + plugin.convertTime(breakTime) + " ";
 		if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
 			msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
@@ -348,7 +350,7 @@ public class CenotaphEntityListener implements Listener {
 
 		signBlock = findPlace(tBlock.getBlock(),true);
 		if (signBlock == null) {
-			plugin.sendMessage(player, "No room for Lockette sign! Chest unsecured!");
+			//plugin.sendMessage(player, "No room for Lockette sign! Chest unsecured!");
 			return false;
 		}
 
@@ -365,7 +367,7 @@ public class CenotaphEntityListener implements Listener {
 		else if (facing == "South")
 			signBlock.setData((byte)0x05);
 		else {
-			plugin.sendMessage(player, "Error placing Lockette sign! Chest unsecured!");
+			//plugin.sendMessage(player, "Error placing Lockette sign! Chest unsecured!");
 			return false;
 		}
 
