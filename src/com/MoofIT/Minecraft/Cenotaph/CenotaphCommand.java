@@ -2,6 +2,7 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.util.ArrayList;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -68,7 +69,7 @@ public class CenotaphCommand implements CommandExecutor {
 			p.setCompassTarget(tBlock.getBlock().getLocation());
 			plugin.sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + Cenotaph.getDirection(degrees) + ". Your compass has been set to point at its location. Use /cenreset to reset it to your spawn point.");
 			return true;
-		} else if (cmd.equalsIgnoreCase("centime")) {
+		} else if (cmd.equalsIgnoreCase("ceninfo")) {
 			if (!p.hasPermission("cenotaph.cmd.cenotaphtime")) {
 				plugin.sendMessage(p, "Permission Denied");
 				return true;
@@ -91,21 +92,28 @@ public class CenotaphCommand implements CommandExecutor {
 				plugin.sendMessage(p, "Invalid cenotaph");
 				return true;
 			}
+
 			long cTime = System.currentTimeMillis() / 1000;
 			TombBlock tBlock = pList.get(slot);
-			long secTimeLeft = (tBlock.getTime() + plugin.securityTimeout) - cTime;
-			long remTimeLeft = (tBlock.getTime() + plugin.removeTime) - cTime;
 
-			//TODO rework to support shortMessaging
-			if (plugin.securityRemove && secTimeLeft > 0) plugin.sendMessage(p, "Security will be removed from your cenotaph in " + secTimeLeft + " seconds.");
+			int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime); 
+			int secTimeLeft = (int)((tBlock.getTime() + plugin.securityTimeout) - cTime);
+			int remTimeLeft = (int)((tBlock.getTime() + breakTime) - cTime);
 
-			if (plugin.cenotaphRemove & remTimeLeft > 0) plugin.sendMessage(p, "Your cenotaph will break in " + remTimeLeft + " seconds");
-			if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) plugin.sendMessage(p, "Break override: Your cenotaph will break when it is emptied, but will not break until then.");
-			else {
-				if (plugin.removeWhenEmpty) plugin.sendMessage(p, "Break override: Your cenotaph will break when it is emptied.");
-				if (plugin.keepUntilEmpty) plugin.sendMessage(p, "Break override: Your cenotaph will not break until it is empty.");
+			String msg = ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
+			if (tBlock.getLwcEnabled()) msg += "LWC ";
+			else if (tBlock.getLocketteSign() != null) msg += "Lockette ";
+			else msg += "None ";
+			if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove && !plugin.keepUntilEmpty ? plugin.convertTime(secTimeLeft) : "Inf" ) + " ";
+			msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(remTimeLeft) : "Inf") + " ";
+			if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
+				msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
+				if (plugin.removeWhenEmpty) msg += "Break on empty";
+				if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
+				if (plugin.keepUntilEmpty) msg += "Keep until empty";			
 			}
-
+			
+			plugin.sendMessage(p, msg);
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenreset")) {
 			if (!p.hasPermission("cenotaph.cmd.cenotaphreset")) {

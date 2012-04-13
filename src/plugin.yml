@@ -20,10 +20,10 @@ commands:
     description: Reset your compass to spawn
     usage: /<command>
     aliases: [cenotaphreset]
-  centime:
+  ceninfo:
     description: Show the time left before your cenotaph unlocks or breaks
     usage: /<command> <index>
-    aliases: [cenotaphtime]
+    aliases: [cenotaphinfo,centime,cenotaphtime]
 
   cenadmin:
     description: Admin commands for Cenotaph
