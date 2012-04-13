@@ -776,7 +776,7 @@ public class Cenotaph extends JavaPlugin {
 	public String convertTime(int s) {
 		String formatted = Integer.toString(s);
 		if (s >= 86400) {
-			formatted = String.format("%d:%d:%02d:%02d", s/86400, (s%86400)/3600, (s%3600)/60, s%60);					
+			formatted = String.format("%dd %d:%02d:%02d", s/86400, (s%86400)/3600, (s%3600)/60, s%60);					
 		}
 		else if (s >= 3600) {
 			formatted = String.format("%d:%02d:%02d", s/3600, (s%3600)/60, (s%60));

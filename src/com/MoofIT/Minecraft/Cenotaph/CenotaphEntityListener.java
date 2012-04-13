@@ -296,10 +296,10 @@ public class CenotaphEntityListener implements Listener {
 		msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
 		if (prot) {
 			msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE + (protLWC ? "LWC" : "Lockette") + " ";
-			if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove ? plugin.convertTime(plugin.securityTimeout) : "Inf" ) + " ";
+			if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove && !plugin.keepUntilEmpty ? plugin.convertTime(plugin.securityTimeout) : "Inf" ) + " ";
 		}
 		else msg += "None ";
-		if (plugin.cenotaphRemove) msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + plugin.convertTime(breakTime) + " ";
+		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(breakTime) : "Inf") + " ";
 		if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
 			msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
 			if (plugin.removeWhenEmpty) msg += "Break on empty";
