@@ -295,7 +295,7 @@ public class CenotaphEntityListener implements Listener {
 		if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + "Overflow: " + ChatColor.WHITE + event.getDrops().size() + " ";
 		if (prot) {
 			msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE + (protLWC ? "LWC" : "Lockette") + " ";
-			msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove ? plugin.convertTime(plugin.securityTimeout) : "\u221E" ) + " ";
+			msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove ? plugin.convertTime(plugin.securityTimeout) : "Inf" ) + " ";
 		}
 		if (plugin.cenotaphRemove) msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + plugin.convertTime(breakTime) + " ";
 		if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {

@@ -54,5 +54,7 @@ public class CenotaphBlockListener implements Listener {
 			}
 		}
 		plugin.removeTomb(tBlock, true);
+		Player owner = plugin.getServer().getPlayer(tBlock.getOwner());
+		if (owner != null) plugin.sendMessage(owner, "Your cenotaph has been destroyed by " + p.getName() + "!");
 	}
 }

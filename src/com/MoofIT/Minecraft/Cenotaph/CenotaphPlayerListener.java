@@ -65,8 +65,6 @@ public class CenotaphPlayerListener implements Listener {
 			}
 		}
 
-		plugin.sendMessage(event.getPlayer(), "Cenotaph quicklooted!");
-
 		if (!overflow) {
 			// We're quicklooting, so no need to resume this interaction
 			event.setUseInteractedBlock(Result.DENY);

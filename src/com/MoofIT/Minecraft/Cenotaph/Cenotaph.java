@@ -882,8 +882,7 @@ public class Cenotaph extends JavaPlugin {
 		removeTomb(tBlock, true);
 
 		Player p = getServer().getPlayer(tBlock.getOwner());
-		if (p != null)
-			sendMessage(p, "Your cenotaph has been destroyed!");
+		if (p != null) sendMessage(p, "Your cenotaph has broken.");
 	}
 
 	public HashMap<String, ArrayList<TombBlock>> getCenotaphList() {
