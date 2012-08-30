@@ -18,6 +18,7 @@ public class CenotaphPlayerListener implements Listener {
 		this.plugin = instance;
 	}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
