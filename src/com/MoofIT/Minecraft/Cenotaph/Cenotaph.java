@@ -40,11 +40,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -56,7 +54,7 @@ import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
 TODO 2.2 release
-	- code refactor
+	- function refactor (utility class?)
 	- improved override messages
 	- improved timing messages
 	- dynmap integration
@@ -195,7 +193,7 @@ public class Cenotaph extends JavaPlugin {
 
 		// Start removal timer. Run every 5 seconds (20 ticks per second)
 		if (securityRemove || cenotaphRemove)
-			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(), 0L, 100L);
+			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(this), 0L, 100L);
 	}
 
 	public void loadConfig() {
@@ -521,79 +519,6 @@ public class Cenotaph extends JavaPlugin {
 
 	public void sendMessage(Player player, String message) {
 		player.sendMessage(ChatColor.GOLD + "[Cenotaph] " + ChatColor.WHITE + message);
-	}
-
-	private class TombThread extends Thread {
-		public void run() {
-			long cTime = System.currentTimeMillis() / 1000;
-			for (Iterator<TombBlock> iter = tombList.iterator(); iter.hasNext();) {
-				TombBlock tBlock = iter.next();
-
-				//"empty" option checks
-				if (keepUntilEmpty || removeWhenEmpty) {
-					if (tBlock.getBlock().getState() instanceof Chest) {
-						boolean isEmpty = true;
-
-						Chest sChest = (Chest)tBlock.getBlock().getState();
-						Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
-
-						for (ItemStack item : sChest.getInventory().getContents()) {
-							if (item != null) isEmpty = false;
-							break;
-						}
-						if (lChest != null && !isEmpty) {
-							for (ItemStack item : lChest.getInventory().getContents()) {
-								if (item != null) isEmpty = false;
-								break;
-							}
-						}
-						if (keepUntilEmpty) {
-							if (!isEmpty) continue;
-						}
-						if (removeWhenEmpty) {
-							if (isEmpty) {
-								destroyCenotaph(tBlock);
-								iter.remove();
-							}
-						}
-					}
-				}
-
-				//Security removal check
-				if (securityRemove) {
-					Player p = getServer().getPlayer(tBlock.getOwner());
-
-					if (cTime >= (tBlock.getTime() + securityTimeout)) {
-						if (tBlock.getLwcEnabled() && lwcPlugin != null) {
-							deactivateLWC(tBlock, false);
-							tBlock.setLwcEnabled(false);
-							if (p != null)
-								sendMessage(p, "LWC protection disabled on your cenotaph!");
-						}
-						if (tBlock.getLocketteSign() != null && LockettePlugin != null) {
-							deactivateLockette(tBlock);
-							if (p != null)
-								sendMessage(p, "Lockette protection disabled on your cenotaph!");
-						}
-					}
-				}
-				//Block removal check
-				if (cenotaphRemove) {
-					if (levelBasedRemoval) {
-						if (cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * levelBasedTime, tBlock.getTime() + removeTime)) {
-							destroyCenotaph(tBlock);
-							iter.remove();
-						}
-					}
-					else {
-						if (cTime > (tBlock.getTime() + removeTime)) {
-							destroyCenotaph(tBlock);
-							iter.remove();
-						}
-					}
-				}
-			}
-		}
 	}
 
 	public void destroyCenotaph(Location loc) {
