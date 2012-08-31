@@ -124,18 +124,28 @@ public class CenotaphCommand implements CommandExecutor {
 			return true;
 		}
 		else if (cmd.equalsIgnoreCase("cenadmin")) {
+			String playerName = null;
 			if (!p.hasPermission("cenotaph.admin")) {
 				plugin.sendMessage(p, "Permission Denied");
 				return true;
 			}
 			if (args.length == 0) {
 				plugin.sendMessage(p, "Usage: /cenadmin list"); //TODO 2.2 use name matching
-				plugin.sendMessage(p, "Usage: /cenadmin list <playerCaseSensitive>");
-				plugin.sendMessage(p, "Usage: /cenadmin find <playerCaseSensitive> <#>");
-				plugin.sendMessage(p, "Usage: /cenadmin remove <playerCaseSensitive> <#>");
+				plugin.sendMessage(p, "Usage: /cenadmin list <player>");
+				plugin.sendMessage(p, "Usage: /cenadmin find <player> <#>");
+				plugin.sendMessage(p, "Usage: /cenadmin remove <player> <#>");
 				plugin.sendMessage(p, "Usage: /cenadmin version");
 				plugin.sendMessage(p, "Usage: /cenadmin reload");
 				return true;
+			}
+			if (args.length > 1) {
+				try {
+					playerName = plugin.getServer().getPlayer(args[1]).getName();
+				} catch (NullPointerException e) {
+					plugin.sendMessage(p, "Player" + args[1] + " not found.");
+					return true;
+				}
+				
 			}
 			if (args[0].equalsIgnoreCase("list")) {
 				if (!p.hasPermission("cenotaph.admin.list")) {
@@ -153,9 +163,9 @@ public class CenotaphCommand implements CommandExecutor {
 					}
 					return true;
 				}
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(args[1]);
+				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
 				if (pList == null) {
-					plugin.sendMessage(p, "No cenotaphs found for " + args[1] + ".");
+					plugin.sendMessage(p, "No cenotaphs found for " + playerName + ".");
 					return true;
 				}
 				plugin.sendMessage(p, "Cenotaph List:");
@@ -174,9 +184,9 @@ public class CenotaphCommand implements CommandExecutor {
 					plugin.sendMessage(p, "Permission Denied");
 					return true;
 				}
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(args[1]);
+				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
 				if (pList == null) {
-					plugin.sendMessage(p, "No cenotaphs found for " + args[1] + ".");
+					plugin.sendMessage(p, "No cenotaphs found for " + playerName + ".");
 					return true;
 				}
 				int slot = 0;
@@ -204,9 +214,9 @@ public class CenotaphCommand implements CommandExecutor {
 					return true;
 				}
 				if (args.length != 3) return false;
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(args[1]);
+				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
 				if (pList == null) {
-					plugin.sendMessage(p, "No cenotaphs found for " + args[1] + ".");
+					plugin.sendMessage(p, "No cenotaphs found for " + playerName + ".");
 					return true;
 				}
 				int slot = 0;
@@ -248,9 +258,9 @@ public class CenotaphCommand implements CommandExecutor {
 					plugin.sendMessage(p, "Permission Denied");
 					return true;
 				}
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(args[1]);
+				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
 				if (pList == null) {
-					plugin.sendMessage(p, "No cenotaphs found for " + args[1] + ".");
+					plugin.sendMessage(p, "No cenotaphs found for " + playerName + ".");
 					return true;
 				}
 				int slot = 0;
@@ -277,9 +287,9 @@ public class CenotaphCommand implements CommandExecutor {
 				plugin.sendMessage(p, "Configuration reloaded from file.");
 			} else {
 				plugin.sendMessage(p, "Usage: /cenadmin list");
-				plugin.sendMessage(p, "Usage: /cenadmin list <playerCaseSensitive>");
-				plugin.sendMessage(p, "Usage: /cenadmin find <playerCaseSensitive> <#>");
-				plugin.sendMessage(p, "Usage: /cenadmin remove <playerCaseSensitive> <#>");
+				plugin.sendMessage(p, "Usage: /cenadmin list <player>");
+				plugin.sendMessage(p, "Usage: /cenadmin find <player> <#>");
+				plugin.sendMessage(p, "Usage: /cenadmin remove <player> <#>");
 				plugin.sendMessage(p, "Usage: /cenadmin version");
 				return true;
 			}
