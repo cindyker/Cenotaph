@@ -208,7 +208,7 @@ public class CenotaphCommand implements CommandExecutor {
 				int Z = tBlock.getBlock().getZ();
 				plugin.sendMessage(p, args[1] + "'s cenotaph #" + args[2] + " is at " + X + "," + Y + "," + Z + ", to the " + Cenotaph.getDirection(degrees) + ".");
 				return true;
-			} else if (args[0].equalsIgnoreCase("time")) {
+			} else if (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("time")) {
 				if (!p.hasPermission("cenotaph.admin.cenotaphtime")) {
 					plugin.sendMessage(p, "Permission Denied");
 					return true;
@@ -233,11 +233,25 @@ public class CenotaphCommand implements CommandExecutor {
 				}
 				long cTime = System.currentTimeMillis() / 1000;
 				TombBlock tBlock = pList.get(slot);
-				long secTimeLeft = (tBlock.getTime() + plugin.securityTimeout) - cTime;
-				long remTimeLeft = (tBlock.getTime() + plugin.removeTime) - cTime;
-				if (plugin.securityRemove && secTimeLeft > 0) plugin.sendMessage(p, "Security removal: " + secTimeLeft + " seconds.");
-				if (plugin.cenotaphRemove & remTimeLeft > 0) plugin.sendMessage(p, "Cenotaph removal: " + remTimeLeft + " seconds.");
-				if (plugin.keepUntilEmpty || plugin.removeWhenEmpty) plugin.sendMessage(p, "Keep until empty:" + plugin.keepUntilEmpty + "; remove when empty: " + plugin.removeWhenEmpty);
+
+				int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime); 
+				int secTimeLeft = (int)((tBlock.getTime() + plugin.securityTimeout) - cTime);
+				int remTimeLeft = (int)((tBlock.getTime() + breakTime) - cTime);
+
+				String msg = ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
+				if (tBlock.getLwcEnabled()) msg += "LWC ";
+				else if (tBlock.getLocketteSign() != null) msg += "Lockette ";
+				else msg += "None ";
+				if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove && !plugin.keepUntilEmpty ? plugin.convertTime(secTimeLeft) : "Inf" ) + " ";
+				msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(remTimeLeft) : "Inf") + " ";
+				if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
+					msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
+					if (plugin.removeWhenEmpty) msg += "Break on empty";
+					if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
+					if (plugin.keepUntilEmpty) msg += "Keep until empty";			
+				}
+				
+				plugin.sendMessage(p, msg);
 				return true;
 			} else if (args[0].equalsIgnoreCase("version")) {
 				String message;

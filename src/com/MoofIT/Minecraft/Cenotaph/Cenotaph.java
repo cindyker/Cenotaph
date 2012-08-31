@@ -40,6 +40,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -50,6 +52,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
+import com.sun.corba.se.impl.activation.CommandHandler;
+
 import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
@@ -73,6 +77,7 @@ public class Cenotaph extends JavaPlugin {
 	public final CenotaphBlockListener blockListener = new CenotaphBlockListener(this);
 	public final CenotaphServerListener serverListener = new CenotaphServerListener(this);
 	public final CenotaphPlayerListener playerListener = new CenotaphPlayerListener(this);
+	public final CenotaphCommand commandExec = new CenotaphCommand(this);
 	public static Logger log;
 	PluginManager pm;
 
@@ -354,6 +359,11 @@ public class Cenotaph extends JavaPlugin {
 		msg[2] = config.getString("Core.Sign.Line3", signMessage[2]);
 		msg[3] = config.getString("Core.Sign.Line4", signMessage[3]);
 		return msg;
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		return commandExec.onCommand(sender, command, label, args);
 	}
 
 	/*
