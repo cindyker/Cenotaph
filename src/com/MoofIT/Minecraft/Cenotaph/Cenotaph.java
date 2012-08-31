@@ -52,7 +52,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
-import com.sun.corba.se.impl.activation.CommandHandler;
 
 import org.yi.acru.bukkit.Lockette.Lockette;
 
