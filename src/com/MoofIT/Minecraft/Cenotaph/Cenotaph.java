@@ -149,7 +149,6 @@ public class Cenotaph extends JavaPlugin {
 			put("Monster.MagmaCube", "a Magma Cube");
 			put("Monster.Silverfish", "a Siverfish");
 
-	
 			put("World.Cactus", "a Cactus");
 			put("World.Suffocation", "Suffocation");
 			put("World.Fall", "a Fall");
@@ -158,10 +157,10 @@ public class Cenotaph extends JavaPlugin {
 			put("World.Lava", "Lava");
 			put("World.Drowning", "Drowning");
 			put("World.Lightning", "Lightning");
-	
+
 			put("Explosion.Misc", "an Explosion");
 			put("Explosion.TNT", "a TNT Explosion");
-	
+
 			put("Misc.Dispenser", "a Dispenser");
 			put("Misc.Void", "the Void");
 			put("Misc.Other", "Unknown");
@@ -172,6 +171,7 @@ public class Cenotaph extends JavaPlugin {
 	public int configVer = 0;
 	public final int configCurrent = 12;
 
+	@Override
 	public void onEnable() {
 		log = Logger.getLogger("Minecraft");
 
@@ -209,7 +209,7 @@ public class Cenotaph extends JavaPlugin {
 			log.info("[Cenotaph] Configuration error or no config file found. Generating default config file.");
 			saveDefaultConfig();
 			this.reloadConfig(); //hack to force good data into configs TODO 2.2: proper defaults
-			config = this.getConfig();			
+			config = this.getConfig();
 		}
 		else if (configVer < configCurrent) {
 			log.warning("[Cenotaph] Your config file is out of date! Delete your config and /cenadmin reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
@@ -231,7 +231,7 @@ public class Cenotaph extends JavaPlugin {
 			disableInWorlds = config.getStringList("Core.disableInWorlds");
 		} catch (NullPointerException e) {
 			log.warning("[Cenotaph] Configuration failure while loading disableInWorlds. Using defaults.");
-		}		
+		}
 
 		//Removal
 		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
@@ -263,7 +263,7 @@ public class Cenotaph extends JavaPlugin {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
 			if (!fh.exists()) return;
 			Scanner scanner = new Scanner(fh);
-			while (scanner.hasNextLine()) { //TODO handle bad entry cases 
+			while (scanner.hasNextLine()) { //TODO handle bad entry cases
 				String line = scanner.nextLine().trim();
 				String[] split = line.split(":");
 				//block:lblock:sign:owner:level:time:lwc
@@ -319,7 +319,7 @@ public class Cenotaph extends JavaPlugin {
 				bw.append(tBlock.getOwner());
 				bw.append(":");
 				bw.append(Integer.toString(tBlock.getOwnerLevel()));
-				bw.append(":");				
+				bw.append(":");
 				bw.append(String.valueOf(tBlock.getTime()));
 				bw.append(":");
 				bw.append(String.valueOf(tBlock.getLwcEnabled()));
@@ -347,6 +347,7 @@ public class Cenotaph extends JavaPlugin {
 		return world.getBlockAt(Integer.valueOf(split[1]), Integer.valueOf(split[2]), Integer.valueOf(split[3]));
 	}
 
+	@Override
 	public void onDisable() {
 		for (World w : getServer().getWorlds())
 			saveCenotaphList(w.getName());
@@ -515,7 +516,7 @@ public class Cenotaph extends JavaPlugin {
 	public String convertTime(int s) {
 		String formatted = Integer.toString(s);
 		if (s >= 86400) {
-			formatted = String.format("%dd %d:%02d:%02d", s/86400, (s%86400)/3600, (s%3600)/60, s%60);					
+			formatted = String.format("%dd %d:%02d:%02d", s/86400, (s%86400)/3600, (s%3600)/60, s%60);
 		}
 		else if (s >= 3600) {
 			formatted = String.format("%d:%02d:%02d", s/3600, (s%3600)/60, (s%60));

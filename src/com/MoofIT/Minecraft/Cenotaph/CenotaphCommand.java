@@ -96,7 +96,7 @@ public class CenotaphCommand implements CommandExecutor {
 			long cTime = System.currentTimeMillis() / 1000;
 			TombBlock tBlock = pList.get(slot);
 
-			int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime); 
+			int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime);
 			int secTimeLeft = (int)((tBlock.getTime() + plugin.securityTimeout) - cTime);
 			int remTimeLeft = (int)((tBlock.getTime() + breakTime) - cTime);
 
@@ -110,9 +110,9 @@ public class CenotaphCommand implements CommandExecutor {
 				msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
 				if (plugin.removeWhenEmpty) msg += "Break on empty";
 				if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
-				if (plugin.keepUntilEmpty) msg += "Keep until empty";			
+				if (plugin.keepUntilEmpty) msg += "Keep until empty";
 			}
-			
+
 			plugin.sendMessage(p, msg);
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenreset")) {
@@ -145,7 +145,7 @@ public class CenotaphCommand implements CommandExecutor {
 					plugin.sendMessage(p, "Player" + args[1] + " not found.");
 					return true;
 				}
-				
+
 			}
 			if (args[0].equalsIgnoreCase("list")) {
 				if (!p.hasPermission("cenotaph.admin.list")) {
@@ -234,7 +234,7 @@ public class CenotaphCommand implements CommandExecutor {
 				long cTime = System.currentTimeMillis() / 1000;
 				TombBlock tBlock = pList.get(slot);
 
-				int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime); 
+				int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime);
 				int secTimeLeft = (int)((tBlock.getTime() + plugin.securityTimeout) - cTime);
 				int remTimeLeft = (int)((tBlock.getTime() + breakTime) - cTime);
 
@@ -248,9 +248,9 @@ public class CenotaphCommand implements CommandExecutor {
 					msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
 					if (plugin.removeWhenEmpty) msg += "Break on empty";
 					if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
-					if (plugin.keepUntilEmpty) msg += "Keep until empty";			
+					if (plugin.keepUntilEmpty) msg += "Keep until empty";
 				}
-				
+
 				plugin.sendMessage(p, msg);
 				return true;
 			} else if (args[0].equalsIgnoreCase("version")) {

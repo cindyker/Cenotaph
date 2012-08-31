@@ -30,7 +30,7 @@ public class TombBlock {
 		this.time = time;
 		this.lwcEnabled = lwc;
 	}
-	
+
 	long getTime() {
 		return time;
 	}

@@ -290,7 +290,7 @@ public class CenotaphEntityListener implements Listener {
 			} else if (removeChestCount == 0) break;
 		}
 
-		int breakTime = (plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime); 
+		int breakTime = (plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime);
 		String msg = "Inv stored. ";
 		if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + "Overflow: " + ChatColor.WHITE + event.getDrops().size() + " ";
 		msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
@@ -304,7 +304,7 @@ public class CenotaphEntityListener implements Listener {
 			msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
 			if (plugin.removeWhenEmpty) msg += "Break on empty";
 			if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
-			if (plugin.keepUntilEmpty) msg += "Keep until empty";			
+			if (plugin.keepUntilEmpty) msg += "Keep until empty";
 		}
 		plugin.sendMessage(p, msg);
 	}
@@ -387,7 +387,7 @@ public class CenotaphEntityListener implements Listener {
 		tBlock.setLocketteSign(sign);
 		return true;
 	}
-	
+
 	private Boolean activateLWC(Player player, TombBlock tBlock) {
 		if (!plugin.lwcEnable) return false;
 		if (plugin.lwcPlugin == null) return false;
@@ -433,19 +433,19 @@ public class CenotaphEntityListener implements Listener {
 						return plugin.deathMessages.get("Monster.Slime").toString();
 					} else if (e instanceof Wolf) {
 						return plugin.deathMessages.get("Monster.Wolf").toString();
-					} else if (e instanceof Blaze) { 
+					} else if (e instanceof Blaze) {
 						return plugin.deathMessages.get("Monster.Blaze").toString();
 					} else if (e instanceof CaveSpider) {
 						return plugin.deathMessages.get("Monster.CaveSpider").toString();
 					} else if (e instanceof EnderDragon) {
 						return plugin.deathMessages.get("Monster.EnderDragon").toString();
-					} else if (e instanceof Enderman) { 
+					} else if (e instanceof Enderman) {
 						return plugin.deathMessages.get("Monster.Enderman").toString();
-					} else if (e instanceof IronGolem) { 
+					} else if (e instanceof IronGolem) {
 						return plugin.deathMessages.get("Monster.IronGolem").toString();
-					} else if (e instanceof MagmaCube) { 
+					} else if (e instanceof MagmaCube) {
 						return plugin.deathMessages.get("Monster.MagmaCube").toString();
-					} else if (e instanceof Silverfish) { 
+					} else if (e instanceof Silverfish) {
 						return plugin.deathMessages.get("Monster.Silverfish").toString();
 					} else {
 						return plugin.deathMessages.get("Monster.Other").toString();
