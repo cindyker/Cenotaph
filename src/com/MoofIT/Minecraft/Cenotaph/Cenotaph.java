@@ -59,7 +59,6 @@ import org.yi.acru.bukkit.Lockette.Lockette;
 /*
 TODO 2.2 release
 	- fence errors
-	- remove checkPlugin, add softdepend
 TODO 2.3 release
 	- vault integration
 	- cenotaph payment
@@ -73,7 +72,6 @@ TODO 2.3 release
 public class Cenotaph extends JavaPlugin {
 	public final CenotaphEntityListener entityListener = new CenotaphEntityListener(this);
 	public final CenotaphBlockListener blockListener = new CenotaphBlockListener(this);
-	public final CenotaphServerListener serverListener = new CenotaphServerListener(this);
 	public final CenotaphPlayerListener playerListener = new CenotaphPlayerListener(this);
 	public final CenotaphCommand commandExec = new CenotaphCommand(this);
 	public final DynmapThread dynThread = new DynmapThread(this);
@@ -183,11 +181,10 @@ public class Cenotaph extends JavaPlugin {
 		pm.registerEvents(entityListener,this);
 		pm.registerEvents(blockListener,this);
 		pm.registerEvents(playerListener,this);
-		pm.registerEvents(serverListener,this);
 
-		lwcPlugin = (LWCPlugin)checkPlugin("LWC");
-		LockettePlugin = (Lockette)checkPlugin("Lockette");
-		dynmap = (DynmapAPI)checkPlugin("dynmap");
+		lwcPlugin = (LWCPlugin)loadPlugin("LWC");
+		LockettePlugin = (Lockette)loadPlugin("Lockette");
+		dynmap = (DynmapAPI)loadPlugin("dynmap");
 
 		loadConfig();
 		if (dynmap != null) dynThread.activate(dynmap);
@@ -371,14 +368,10 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	/*
-	 * Check if a plugin is loaded/enabled already. Returns the plugin if so, null otherwise
+	 * Check if a plugin is loaded/enabled. Returns the plugin and print message to console if so, returns null otherwise
 	 */
-	private Plugin checkPlugin(String p) {
+	private Plugin loadPlugin(String p) {
 		Plugin plugin = pm.getPlugin(p);
-		return checkPlugin(plugin);
-	}
-
-	public Plugin checkPlugin(Plugin plugin) {
 		if (plugin != null && plugin.isEnabled()) {
 			log.info("[Cenotaph] Using " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
 			return plugin;

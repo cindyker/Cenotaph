@@ -4,6 +4,7 @@ version: 2.1.2
 description: Dead Man's Chest mod for Bukkit. Forked from Tombstone by Drakia (TheDgtl) 
 author: Southpaw018
 website: http://www.moofit.com
+softdepend: [Lockette, LWC, dynmap]
 
 commands:
   cenlist:
