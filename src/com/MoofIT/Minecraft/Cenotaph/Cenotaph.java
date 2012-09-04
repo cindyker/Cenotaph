@@ -57,8 +57,6 @@ import com.griefcraft.model.Protection;
 import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
-TODO 2.2 release
-	- fence errors
 TODO 2.3 release
 	- vault integration
 	- cenotaph payment
