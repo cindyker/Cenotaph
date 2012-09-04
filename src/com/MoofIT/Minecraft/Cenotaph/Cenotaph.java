@@ -48,6 +48,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.dynmap.DynmapAPI;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
@@ -57,10 +58,10 @@ import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
 TODO 2.2 release
-	- function refactor (utility class?)
-	- improved override messages
-	- improved timing messages
 	- dynmap integration
+	- getServer().getScheduler().cancelTasks(this);
+	- fence errors
+	- remove checkPlugin, add softdepend
 TODO 2.3 release
 	- vault integration
 	- cenotaph payment
@@ -77,11 +78,13 @@ public class Cenotaph extends JavaPlugin {
 	public final CenotaphServerListener serverListener = new CenotaphServerListener(this);
 	public final CenotaphPlayerListener playerListener = new CenotaphPlayerListener(this);
 	public final CenotaphCommand commandExec = new CenotaphCommand(this);
+	public final DynmapThread dynThread = new DynmapThread(this);
 	public static Logger log;
 	PluginManager pm;
 
 	public LWCPlugin lwcPlugin = null;
 	public Lockette LockettePlugin = null;
+	public DynmapAPI dynmap = null;
 
 	public static ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
 	public static HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
@@ -186,8 +189,10 @@ public class Cenotaph extends JavaPlugin {
 
 		lwcPlugin = (LWCPlugin)checkPlugin("LWC");
 		LockettePlugin = (Lockette)checkPlugin("Lockette");
+		dynmap = (DynmapAPI)checkPlugin("dynmap");
 
 		loadConfig();
+		if (dynmap != null) dynThread.activate(dynmap);
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
 
@@ -349,8 +354,8 @@ public class Cenotaph extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		for (World w : getServer().getWorlds())
-			saveCenotaphList(w.getName());
+		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
+		dynThread.cenotaphLayer.cleanup();
 	}
 	private String[] loadSign() {
 		String[] msg = signMessage;
