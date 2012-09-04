@@ -58,8 +58,6 @@ import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
 TODO 2.2 release
-	- dynmap integration
-	- getServer().getScheduler().cancelTasks(this);
 	- fence errors
 	- remove checkPlugin, add softdepend
 TODO 2.3 release
@@ -356,6 +354,7 @@ public class Cenotaph extends JavaPlugin {
 	public void onDisable() {
 		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
 		dynThread.cenotaphLayer.cleanup();
+		getServer().getScheduler().cancelTasks(this);
 	}
 	private String[] loadSign() {
 		String[] msg = signMessage;
