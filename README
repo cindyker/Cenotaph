@@ -90,6 +90,12 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 3.0]
+  - Major code refactoring (you can't see it, but trust me, it's awesome)
+  - Total messaging overhaul. Messages are clearer, simpler, and better formatted
+  - centime is now ceninfo (centime will continue to work)
+  - Admin commands now match on partial or similar player names instead of requiring full case-sensitive name
+  - Dynmap integration  
 [Version 2.1.2]
   - Optimized break override options (keepUntilEmpty and breakWhenEmpty)
   - Add death messages for beta 1.8 monsters (Finally...yikes. Sorry, everyone.)
@@ -174,6 +180,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Config file changes
 =============
+15: Removed a couple obsolete messaging options (logEvents and playerMessage)
 14: Add b1.8 monsters
 13: Add level-based removal options, Lockette sign carry setting, and per-world disabling
 12: Add DeathMessages plus dateFormat and timeFormat 
