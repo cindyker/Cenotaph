@@ -76,10 +76,10 @@ public class DynmapThread extends Thread {
 
 				/* See if we already have marker */
 				Marker m = markers.remove(id);
-				if(m == null) { /* Not found?  Need new one */
+				if(m == null) { /* Not found? Need new one */
 					m = set.createMarker(id, label, wname, loc.getX(), loc.getY(), loc.getZ(), deficon, false);
 				}
-				else {  /* Else, update position if needed */
+				else { /* Else, update position if needed */
 					m.setLocation(wname, loc.getX(), loc.getY(), loc.getZ());
 					m.setLabel(label);
 					m.setMarkerIcon(deficon);

@@ -488,7 +488,7 @@ public class CenotaphEntityListener implements Listener {
 			}
 		} catch (NullPointerException e) {
 			Cenotaph.log.severe("[Cenotaph] Error processing death cause: " + dmg.getCause().toString());
-			Cenotaph.log.info("[Cenotaph] [DEBUG]" + e.getStackTrace());
+			e.printStackTrace();
 			return ChatColor.RED + "ERROR" + ChatColor.BLACK;
 		}
 	}

@@ -130,7 +130,7 @@ public class CenotaphCommand implements CommandExecutor {
 				return true;
 			}
 			if (args.length == 0) {
-				plugin.sendMessage(p, "Usage: /cenadmin list"); //TODO 2.2 use name matching
+				plugin.sendMessage(p, "Usage: /cenadmin list");
 				plugin.sendMessage(p, "Usage: /cenadmin list <player>");
 				plugin.sendMessage(p, "Usage: /cenadmin find <player> <#>");
 				plugin.sendMessage(p, "Usage: /cenadmin remove <player> <#>");

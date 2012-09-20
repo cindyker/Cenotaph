@@ -57,7 +57,8 @@ import com.griefcraft.model.Protection;
 import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
-TODO 2.3 release
+TODO 3.1 release
+	- dynmap: display break time and security info
 	- vault integration
 	- cenotaph payment
 	- worldguard integration?
