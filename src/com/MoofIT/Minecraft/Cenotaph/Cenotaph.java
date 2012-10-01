@@ -127,44 +127,7 @@ public class Cenotaph extends JavaPlugin {
 	public boolean lwcPublic = false;
 
 	//DeathMessages
-	public HashMap<String, Object> deathMessages = new HashMap<String, Object>() { //TODO apparently this is a bad hack, and Java does not support Map or Collection literals.
-		public static final long serialVersionUID = 1L;
-		{
-			put("Monster.Zombie", "a Zombie");
-			put("Monster.Skeleton", "a Skeleton");
-			put("Monster.Spider", "a Spider");
-			put("Monster.Wolf", "a Wolf");
-			put("Monster.Creeper", "a Creeper");
-			put("Monster.Slime", "a Slime");
-			put("Monster.Ghast", "a Ghast");
-			put("Monster.PigZombie", "a Pig Zombie");
-			put("Monster.Giant", "a Giant");
-			put("Monster.Other", "a Monster");
-			put("Monster.Blaze", "a Blaze");
-			put("Monster.CaveSpider", "a Cave Spider");
-			put("Monster.EnderDragon", "a Dragon");
-			put("Monster.Enderman", "an Enderman");
-			put("Monster.IronGolem", "an Iron Golem");
-			put("Monster.MagmaCube", "a Magma Cube");
-			put("Monster.Silverfish", "a Siverfish");
-
-			put("World.Cactus", "a Cactus");
-			put("World.Suffocation", "Suffocation");
-			put("World.Fall", "a Fall");
-			put("World.Fire", "a Fire");
-			put("World.Burning", "Burning");
-			put("World.Lava", "Lava");
-			put("World.Drowning", "Drowning");
-			put("World.Lightning", "Lightning");
-
-			put("Explosion.Misc", "an Explosion");
-			put("Explosion.TNT", "a TNT Explosion");
-
-			put("Misc.Dispenser", "a Dispenser");
-			put("Misc.Void", "the Void");
-			put("Misc.Other", "Unknown");
-		}
-	};
+	public HashMap<String, Object> deathMessages = new HashMap<String, Object>();
 
 	//Config versioning
 	public int configVer = 0;
@@ -186,6 +149,7 @@ public class Cenotaph extends JavaPlugin {
 		LockettePlugin = (Lockette)loadPlugin("Lockette");
 		dynmap = (DynmapAPI)loadPlugin("dynmap");
 
+		initDeathMessagesDefaults();
 		loadConfig();
 		if (dynmapEnable && dynmap != null) dynThread.activate(dynmap);
 		for (World w : getServer().getWorlds())
@@ -208,7 +172,7 @@ public class Cenotaph extends JavaPlugin {
 		if (configVer == 0) {
 			log.info("[Cenotaph] Configuration error or no config file found. Generating default config file.");
 			saveDefaultConfig();
-			this.reloadConfig(); //hack to force good data into configs TODO 2.2: proper defaults
+			this.reloadConfig();
 			config = this.getConfig();
 		}
 		else if (configVer < configCurrent) {
@@ -258,13 +222,50 @@ public class Cenotaph extends JavaPlugin {
 		}
 	}
 
+	private void initDeathMessagesDefaults() {
+		deathMessages.put("Monster.Zombie", "a Zombie");
+		deathMessages.put("Monster.Skeleton", "a Skeleton");
+		deathMessages.put("Monster.Spider", "a Spider");
+		deathMessages.put("Monster.Wolf", "a Wolf");
+		deathMessages.put("Monster.Creeper", "a Creeper");
+		deathMessages.put("Monster.Slime", "a Slime");
+		deathMessages.put("Monster.Ghast", "a Ghast");
+		deathMessages.put("Monster.PigZombie", "a Pig Zombie");
+		deathMessages.put("Monster.Giant", "a Giant");
+		deathMessages.put("Monster.Other", "a Monster");
+		deathMessages.put("Monster.Blaze", "a Blaze");
+		deathMessages.put("Monster.CaveSpider", "a Cave Spider");
+		deathMessages.put("Monster.EnderDragon", "a Dragon");
+		deathMessages.put("Monster.Enderman", "an Enderman");
+		deathMessages.put("Monster.IronGolem", "an Iron Golem");
+		deathMessages.put("Monster.MagmaCube", "a Magma Cube");
+		deathMessages.put("Monster.Silverfish", "a Siverfish");
+
+		deathMessages.put("World.Cactus", "a Cactus");
+		deathMessages.put("World.Suffocation", "Suffocation");
+		deathMessages.put("World.Fall", "a Fall");
+		deathMessages.put("World.Fire", "a Fire");
+		deathMessages.put("World.Burning", "Burning");
+		deathMessages.put("World.Lava", "Lava");
+		deathMessages.put("World.Drowning", "Drowning");
+		deathMessages.put("World.Lightning", "Lightning");
+
+		deathMessages.put("Explosion.Misc", "an Explosion");
+		deathMessages.put("Explosion.TNT", "a TNT Explosion");
+
+		deathMessages.put("Misc.Dispenser", "a Dispenser");
+		deathMessages.put("Misc.Void", "the Void");
+		deathMessages.put("Misc.Other", "Unknown");
+	}
+	
+
 	public void loadTombList(String world) {
 		if (!saveCenotaphList) return;
 		try {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
 			if (!fh.exists()) return;
 			Scanner scanner = new Scanner(fh);
-			while (scanner.hasNextLine()) { //TODO handle bad entry cases
+			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine().trim();
 				String[] split = line.split(":");
 				//block:lblock:sign:owner:level:time:lwc
