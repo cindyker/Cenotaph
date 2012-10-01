@@ -2,7 +2,6 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,24 +48,11 @@ import com.griefcraft.model.Protection;
 
 public class CenotaphEntityListener implements Listener {
 	private Cenotaph plugin;
-
-	private static final HashSet<Material> blockNoReplaceList;
-	static {
-		HashSet<Material> tempSet = new HashSet<Material>();
-		tempSet.add(Material.STEP);
-		tempSet.add(Material.TORCH);
-		tempSet.add(Material.REDSTONE_WIRE);
-		tempSet.add(Material.RAILS);
-		tempSet.add(Material.STONE_PLATE);
-		tempSet.add(Material.WOOD_PLATE);
-		tempSet.add(Material.REDSTONE_TORCH_ON);
-		tempSet.add(Material.REDSTONE_TORCH_OFF);
-		tempSet.add(Material.CAKE_BLOCK);
-		blockNoReplaceList = (HashSet<Material>)Collections.unmodifiableSet(tempSet);
-	};
+	private HashSet<Material> blockNoReplaceList = new HashSet<Material>();
 
 	public CenotaphEntityListener(Cenotaph instance) {
 		this.plugin = instance;
+		initNoReplaceList();
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -395,6 +381,18 @@ public class CenotaphEntityListener implements Listener {
 		});
 		tBlock.setLocketteSign(sign);
 		return true;
+	}
+
+	private void initNoReplaceList() {
+		blockNoReplaceList.add(Material.STEP);
+		blockNoReplaceList.add(Material.TORCH);
+		blockNoReplaceList.add(Material.REDSTONE_WIRE);
+		blockNoReplaceList.add(Material.RAILS);
+		blockNoReplaceList.add(Material.STONE_PLATE);
+		blockNoReplaceList.add(Material.WOOD_PLATE);
+		blockNoReplaceList.add(Material.REDSTONE_TORCH_ON);
+		blockNoReplaceList.add(Material.REDSTONE_TORCH_OFF);
+		blockNoReplaceList.add(Material.CAKE_BLOCK);
 	}
 
 	private Boolean activateLWC(Player player, TombBlock tBlock) {
