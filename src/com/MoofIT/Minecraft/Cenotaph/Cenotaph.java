@@ -108,6 +108,7 @@ public class Cenotaph extends JavaPlugin {
 	public String dateFormat = "MM/dd/yyyy";
 	public String timeFormat = "hh:mm a";
 	public List<String> disableInWorlds;
+	public boolean dynmapEnable = true;
 
 	//Removal
 	public boolean destroyQuickLoot = false;
@@ -126,7 +127,7 @@ public class Cenotaph extends JavaPlugin {
 	public boolean lwcPublic = false;
 
 	//DeathMessages
-	public HashMap<String, Object> deathMessages = new HashMap<String, Object>() {
+	public HashMap<String, Object> deathMessages = new HashMap<String, Object>() { //TODO apparently this is a bad hack, and Java does not support Map or Collection literals.
 		public static final long serialVersionUID = 1L;
 		{
 			put("Monster.Zombie", "a Zombie");
@@ -186,7 +187,7 @@ public class Cenotaph extends JavaPlugin {
 		dynmap = (DynmapAPI)loadPlugin("dynmap");
 
 		loadConfig();
-		if (dynmap != null) dynThread.activate(dynmap);
+		if (dynmapEnable && dynmap != null) dynThread.activate(dynmap);
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
 
@@ -225,6 +226,7 @@ public class Cenotaph extends JavaPlugin {
 		signMessage = loadSign();
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
+		dynmapEnable = config.getBoolean("Core.dynmapEnable", dynmapEnable);
 
 		try {
 			disableInWorlds = config.getStringList("Core.disableInWorlds");
@@ -349,7 +351,7 @@ public class Cenotaph extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
-		dynThread.cenotaphLayer.cleanup();
+		if (dynmapEnable && dynmap != null) dynThread.cenotaphLayer.cleanup();
 		getServer().getScheduler().cancelTasks(this);
 	}
 	private String[] loadSign() {
