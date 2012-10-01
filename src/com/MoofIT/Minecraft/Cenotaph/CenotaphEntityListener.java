@@ -2,7 +2,9 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.bukkit.ChatColor;
@@ -47,6 +49,21 @@ import com.griefcraft.model.Protection;
 
 public class CenotaphEntityListener implements Listener {
 	private Cenotaph plugin;
+
+	private static final HashSet<Material> blockNoReplaceList;
+	static {
+		HashSet<Material> tempSet = new HashSet<Material>();
+		tempSet.add(Material.STEP);
+		tempSet.add(Material.TORCH);
+		tempSet.add(Material.REDSTONE_WIRE);
+		tempSet.add(Material.RAILS);
+		tempSet.add(Material.STONE_PLATE);
+		tempSet.add(Material.WOOD_PLATE);
+		tempSet.add(Material.REDSTONE_TORCH_ON);
+		tempSet.add(Material.REDSTONE_TORCH_OFF);
+		tempSet.add(Material.CAKE_BLOCK);
+		blockNoReplaceList = (HashSet<Material>)Collections.unmodifiableSet(tempSet);
+	};
 
 	public CenotaphEntityListener(Cenotaph instance) {
 		this.plugin = instance;
@@ -104,15 +121,7 @@ public class CenotaphEntityListener implements Listener {
 		Block block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
 		// If we run into something we don't want to destroy, go one up.
-		if (	block.getType() == Material.STEP ||
-				block.getType() == Material.TORCH ||
-				block.getType() == Material.REDSTONE_WIRE ||
-				block.getType() == Material.RAILS ||
-				block.getType() == Material.STONE_PLATE ||
-				block.getType() == Material.WOOD_PLATE ||
-				block.getType() == Material.REDSTONE_TORCH_ON ||
-				block.getType() == Material.REDSTONE_TORCH_OFF ||
-				block.getType() == Material.CAKE_BLOCK) {
+		if (blockNoReplaceList.contains(block.getType())) {
 			block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() + 1, loc.getBlockZ());
 		}
 
