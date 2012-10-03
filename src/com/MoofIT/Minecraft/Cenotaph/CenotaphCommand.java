@@ -16,7 +16,7 @@ public class CenotaphCommand implements CommandExecutor {
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { //TODO needs major cleanup, move indexing to separate class function
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (!(sender instanceof Player)) return false;
 		Player p = (Player)sender;
 		String cmd = command.getName();
@@ -35,10 +35,7 @@ public class CenotaphCommand implements CommandExecutor {
 			for (TombBlock tomb : pList) {
 				i++;
 				if (tomb.getBlock() == null) continue;
-				int X = tomb.getBlock().getX();
-				int Y = tomb.getBlock().getY();
-				int Z = tomb.getBlock().getZ();
-				plugin.sendMessage(p, " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
+				plugin.sendMessage(p, " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")");
 			}
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenfind")) {
@@ -46,74 +43,28 @@ public class CenotaphCommand implements CommandExecutor {
 				plugin.sendMessage(p, "Permission Denied");
 				return true;
 			}
-			if (args.length != 1) return false;
-			ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(p.getName());
-			if (pList == null) {
-				plugin.sendMessage(p, "You have no cenotaphs.");
+
+			TombBlock tBlock = getBlockByIndex(p.getName(), args.length == 0 ? "last" : args[0]);
+			if (tBlock == null) {
+				plugin.sendMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
 				return true;
 			}
-			int slot = 0;
-			try {
-				slot = Integer.parseInt(args[0]);
-			} catch (Exception e) {
-				plugin.sendMessage(p, "Invalid cenotaph");
-				return true;
-			}
-			slot -= 1;
-			if (slot < 0 || slot >= pList.size()) {
-				plugin.sendMessage(p, "Invalid cenotaph");
-				return true;
-			}
-			TombBlock tBlock = pList.get(slot);
 			double degrees = (plugin.getYawTo(tBlock.getBlock().getLocation(), p.getLocation()) + 270) % 360;
 			p.setCompassTarget(tBlock.getBlock().getLocation());
-			plugin.sendMessage(p, "Your cenotaph #" + args[0] + " is to the " + Cenotaph.getDirection(degrees) + ". Your compass has been set to point at its location. Use /cenreset to reset it to your spawn point.");
+			plugin.sendMessage(p, "Course: " + degrees + " (" + Cenotaph.getDirection(degrees) + "). Your compass has been set to point that direction. Use /cenreset to reset it to your spawn point.");
 			return true;
 		} else if (cmd.equalsIgnoreCase("ceninfo")) {
-			if (!p.hasPermission("cenotaph.cmd.cenotaphtime")) {
+			if (!p.hasPermission("cenotaph.cmd.cenotaphinfo") && !p.hasPermission("cenotaph.cmd.cenotaphtime")) {
 				plugin.sendMessage(p, "Permission Denied");
 				return true;
 			}
-			if (args.length != 1) return false;
-			ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(p.getName());
-			if (pList == null) {
-				plugin.sendMessage(p, "You have no cenotaphs.");
-				return true;
-			}
-			int slot = 0;
-			try {
-				slot = Integer.parseInt(args[0]);
-			} catch (Exception e) {
-				plugin.sendMessage(p, "Invalid cenotaph");
-				return true;
-			}
-			slot -= 1;
-			if (slot < 0 || slot >= pList.size()) {
-				plugin.sendMessage(p, "Invalid cenotaph");
+			TombBlock tBlock = getBlockByIndex(p.getName(), args.length == 0 ? "last" : args[0]);
+			if (tBlock == null) {
+				plugin.sendMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
 				return true;
 			}
 
-			long cTime = System.currentTimeMillis() / 1000;
-			TombBlock tBlock = pList.get(slot);
-
-			int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime);
-			int secTimeLeft = (int)((tBlock.getTime() + plugin.securityTimeout) - cTime);
-			int remTimeLeft = (int)((tBlock.getTime() + breakTime) - cTime);
-
-			String msg = ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
-			if (tBlock.getLwcEnabled()) msg += "LWC ";
-			else if (tBlock.getLocketteSign() != null) msg += "Lockette ";
-			else msg += "None ";
-			if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove && !plugin.keepUntilEmpty ? plugin.convertTime(secTimeLeft) : "Inf" ) + " ";
-			msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(remTimeLeft) : "Inf") + " ";
-			if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
-				msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
-				if (plugin.removeWhenEmpty) msg += "Break on empty";
-				if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
-				if (plugin.keepUntilEmpty) msg += "Keep until empty";
-			}
-
-			plugin.sendMessage(p, msg);
+			plugin.sendMessage(p, centimeMsg(tBlock));
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenreset")) {
 			if (!p.hasPermission("cenotaph.cmd.cenotaphreset")) {
@@ -145,7 +96,6 @@ public class CenotaphCommand implements CommandExecutor {
 					plugin.sendMessage(p, "Player" + args[1] + " not found.");
 					return true;
 				}
-
 			}
 			if (args[0].equalsIgnoreCase("list")) {
 				if (!p.hasPermission("cenotaph.admin.list")) {
@@ -173,10 +123,7 @@ public class CenotaphCommand implements CommandExecutor {
 				for (TombBlock tomb : pList) {
 					i++;
 					if (tomb.getBlock() == null) continue;
-					int X = tomb.getBlock().getX();
-					int Y = tomb.getBlock().getY();
-					int Z = tomb.getBlock().getZ();
-					plugin.sendMessage(p, " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + X + "," + Y + "," + Z + ")");
+					plugin.sendMessage(p, " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")");
 				}
 				return true;
 			} else if (args[0].equalsIgnoreCase("find")) {
@@ -184,74 +131,30 @@ public class CenotaphCommand implements CommandExecutor {
 					plugin.sendMessage(p, "Permission Denied");
 					return true;
 				}
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
-				if (pList == null) {
-					plugin.sendMessage(p, "No cenotaphs found for " + playerName + ".");
+				TombBlock tBlock = getBlockByIndex(playerName, args.length < 3 ? "last" : args[2]);
+				if (tBlock == null) {
+					plugin.sendMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
 					return true;
 				}
-				int slot = 0;
-				try {
-					slot = Integer.parseInt(args[2]);
-				} catch (Exception e) {
-					plugin.sendMessage(p, "Invalid cenotaph entry.");
-					return true;
-				}
-				slot -= 1;
-				if (slot < 0 || slot >= pList.size()) {
-					plugin.sendMessage(p, "Invalid cenotaph entry.");
-					return true;
-				}
-				TombBlock tBlock = pList.get(slot);
+
 				double degrees = (plugin.getYawTo(tBlock.getBlock().getLocation(), p.getLocation()) + 270) % 360;
 				int X = tBlock.getBlock().getX();
 				int Y = tBlock.getBlock().getY();
 				int Z = tBlock.getBlock().getZ();
-				plugin.sendMessage(p, args[1] + "'s cenotaph #" + args[2] + " is at " + X + "," + Y + "," + Z + ", to the " + Cenotaph.getDirection(degrees) + ".");
+				plugin.sendMessage(p,"Location:" + X + "," + Y + "," + Z + ", to the " + Cenotaph.getDirection(degrees) + ".");
 				return true;
 			} else if (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("time")) {
-				if (!p.hasPermission("cenotaph.admin.cenotaphtime")) {
+				if (!p.hasPermission("cenotaph.admin.cenotaphinfo") && !p.hasPermission("cenotaph.admin.cenotaphtime")) {
 					plugin.sendMessage(p, "Permission Denied");
 					return true;
 				}
-				if (args.length != 3) return false;
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
-				if (pList == null) {
-					plugin.sendMessage(p, "No cenotaphs found for " + playerName + ".");
+				TombBlock tBlock = getBlockByIndex(playerName, args.length < 3 ? "last" : args[2]);
+				if (tBlock == null) {
+					plugin.sendMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
 					return true;
 				}
-				int slot = 0;
-				try {
-					slot = Integer.parseInt(args[2]);
-				} catch (Exception e) {
-					plugin.sendMessage(p, "Invalid cenotaph entry.");
-					return true;
-				}
-				slot -= 1;
-				if (slot < 0 || slot >= pList.size()) {
-					plugin.sendMessage(p, "Invalid cenotaph entry.");
-					return true;
-				}
-				long cTime = System.currentTimeMillis() / 1000;
-				TombBlock tBlock = pList.get(slot);
 
-				int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime);
-				int secTimeLeft = (int)((tBlock.getTime() + plugin.securityTimeout) - cTime);
-				int remTimeLeft = (int)((tBlock.getTime() + breakTime) - cTime);
-
-				String msg = ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
-				if (tBlock.getLwcEnabled()) msg += "LWC ";
-				else if (tBlock.getLocketteSign() != null) msg += "Lockette ";
-				else msg += "None ";
-				if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove && !plugin.keepUntilEmpty ? plugin.convertTime(secTimeLeft) : "Inf" ) + " ";
-				msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(remTimeLeft) : "Inf") + " ";
-				if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
-					msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
-					if (plugin.removeWhenEmpty) msg += "Break on empty";
-					if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
-					if (plugin.keepUntilEmpty) msg += "Keep until empty";
-				}
-
-				plugin.sendMessage(p, msg);
+				plugin.sendMessage(p, centimeMsg(tBlock));
 				return true;
 			} else if (args[0].equalsIgnoreCase("version")) {
 				String message;
@@ -310,5 +213,46 @@ public class CenotaphCommand implements CommandExecutor {
 			return true;
 		}
 		return false;
+	}
+
+	private TombBlock getBlockByIndex(String playerName,String index) {
+		ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
+		int slot = 0;
+
+		if (pList == null) return null;
+
+		try {
+			slot = Integer.parseInt(index);
+		} catch (NumberFormatException e) {
+			slot = pList.size();
+		}
+		slot -= 1;
+
+		if (slot < 0 || slot >= pList.size()) return null;
+
+		return pList.get(slot);
+	}
+
+	private String centimeMsg(TombBlock tBlock) {
+		long cTime = System.currentTimeMillis() / 1000;
+
+		int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime);
+		int secTimeLeft = (int)((tBlock.getTime() + plugin.securityTimeout) - cTime);
+		int remTimeLeft = (int)((tBlock.getTime() + breakTime) - cTime);
+
+		String msg = ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
+		if (tBlock.getLwcEnabled()) msg += "LWC ";
+		else if (tBlock.getLocketteSign() != null) msg += "Lockette ";
+		else msg += "None ";
+		if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove && !plugin.keepUntilEmpty ? plugin.convertTime(secTimeLeft) : "Inf" ) + " ";
+		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(remTimeLeft) : "Inf") + " ";
+		if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
+			msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
+			if (plugin.removeWhenEmpty) msg += "Break on empty";
+			if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
+			if (plugin.keepUntilEmpty) msg += "Keep until empty";
+		}
+
+		return msg;
 	}
 }
