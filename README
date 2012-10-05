@@ -39,13 +39,13 @@ cenotaph.quickloot - Whether to allow a player/group to quickloot by right click
 
 cenotaph.cmd.cenotaphlist - Allow this user to use /cenlist
 cenotaph.cmd.cenotaphfind - Allow this user to use /cenfind
-cenotaph.cmd.cenotaphtime - Allow this user to use /centime
+cenotaph.cmd.cenotaphinfo - Allow this user to use /ceninfo
 cenotaph.cmd.cenotaphreset - Allow this user to use /cenreset
 
 cenotaph.admin - Allow this user to physically destroy others' cenotaphs. Also a prerequisite for use of the other admin commands
 cenotaph.admin.list - Allow this user to see all cenotaphs with /cenadmin list
 cenotaph.admin.find - Allow this user to find any cenotaph with /cenadmin find
-cenotaph.admin.time - Allow this user to check the time left on any cenotaph with /cenadmin time
+cenotaph.admin.info - Allow this user to check the time left on any cenotaph with /cenadmin time
 cenotaph.admin.remove - Allow this user to destroy any cenotaph with /cenadmin remove
 cenotaph.admin.reload - Allow this user to reload Cenotaph's configuration from config.yml
 
@@ -57,7 +57,7 @@ User commands:
       Lists your current cenotaphs with index numbers for the other commands.
   /cenfind <index>
      Gives more information about a specific cenotaph and sets your compass to point at it.
-  /centime <index>
+  /ceninfo <index>
       Description: Tells how much time is left before a specific cenotaph unlocks or breaks
   /cenreset
       Sets your compass to point to your spawn again after using /cenfind
@@ -69,7 +69,7 @@ Admin commands:
       Displays all cenotaphs for a player with indexes.
   /cenadmin find <player> <index>
       Displays additional information about a specific cenotaph (does not set compass like the user version does).
-  /cenadmin time <player> <index>
+  /cenadmin info <player> <index>
       Gives time information about the indicated cenotaph.
   /cenadmin remove <player> <index>
       Destroys the indicated cenotaph, dropping its contents on the ground.
@@ -90,6 +90,13 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 3.0.1]
+  - Add option to disable Dynmap
+  - Fix error on shutdown when Dynmap is not loaded/enabled
+  - A few minor improvements in speed/efficiency
+  - When used without an index number, the find and info commands now default to the last (most recent) cenotaph instead of giving an error message
+  - More cleanup in the command handler
+  - Permission update: .cenotaphtime and .admin.time are now .cenotaphinfo and .admin.info. The old permissions will continue to work.
 [Version 3.0]
   - Major code refactoring (you can't see it, but trust me, it's awesome)
   - Total messaging overhaul. Messages are clearer, simpler, and better formatted
@@ -180,6 +187,7 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Config file changes
 =============
+16: Add option to disable Dynmap
 15: Removed a couple obsolete messaging options (logEvents and playerMessage)
 14: Add b1.8 monsters
 13: Add level-based removal options, Lockette sign carry setting, and per-world disabling
