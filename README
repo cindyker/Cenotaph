@@ -90,6 +90,13 @@ Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the L
 =============
  Changes
 =============
+[Version 3.1]
+  - Build against 1.6.4 Craftbukkit RB
+  - Fix sign code to use new Bukkit metadata system
+  - Build against 1.6 plugin dependencies released as of January 2014
+[Version 3.0.2]
+  - Build against 1.5.1 beta CB
+  - Build against plugin dependencies as of April 2013
 [Version 3.0.1]
   - Add option to disable Dynmap
   - Fix error on shutdown when Dynmap is not loaded/enabled

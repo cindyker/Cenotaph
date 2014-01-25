@@ -40,6 +40,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -57,15 +58,27 @@ import com.griefcraft.model.Protection;
 import org.yi.acru.bukkit.Lockette.Lockette;
 
 /*
-TODO 3.1 release
+TODO
+	--GENERAL
 	- dynmap: display break time and security info
+	- option to force low priority for player death events
+	- block replacement strategy: agressive vs. passive
+
+	--ECONOMY
 	- vault integration
-	- cenotaph payment
-	- worldguard integration?
+	- life purchasing
+	- cenotaph payments
+	- keep compass option
+	- keep chest and sign option
+
+	--REGION PROTECTION
+	- worldguard integration
 	- towny integration
-	- pvp raid options
-		- allow ops to restrict # of items looted
-		- allow options to add killer to lock, or everyone to lock, or killer group to lock
+	- factions integration
+
+	--PVP
+	- allow ops to restrict # of items looted
+	- allow options to add killer to lock, or everyone to lock, or killer group to lock
 */
 
 public class Cenotaph extends JavaPlugin {

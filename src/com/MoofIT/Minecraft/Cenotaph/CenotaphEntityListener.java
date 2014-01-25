@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
@@ -42,7 +43,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
-
+import org.bukkit.material.Directional;
+import org.bukkit.material.MaterialData;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
 
@@ -352,22 +354,14 @@ public class CenotaphEntityListener implements Listener {
 		signBlock.setType(Material.AIR); //hack to prevent oddness with signs popping out of the ground as of Bukkit 818
 		signBlock.setType(Material.WALL_SIGN);
 
-		String facing = Cenotaph.getDirection((plugin.getYawTo(signBlock.getLocation(),tBlock.getBlock().getLocation()) + 270) % 360);
-		if (facing == "East")
-			signBlock.setData((byte)0x02);
-		else if (facing == "West")
-			signBlock.setData((byte)0x03);
-		else if (facing == "North")
-			signBlock.setData((byte)0x04);
-		else if (facing == "South")
-			signBlock.setData((byte)0x05);
-		else {
-			//plugin.sendMessage(player, "Error placing Lockette sign! Chest unsecured!");
-			return false;
-		}
-
 		BlockState signBlockState = null;
 		signBlockState = signBlock.getState();
+
+		MaterialData signFacingDirection = signBlockState.getData();
+		BlockFace facing = getLocketteSignDirection(plugin.getYawTo(tBlock.getBlock().getLocation(), signBlock.getLocation()));
+		((Directional)signFacingDirection).setFacingDirection(facing);
+		signBlockState.setData(signFacingDirection);
+
 		final Sign sign = (Sign)signBlockState;
 
 		String name = player.getName();
@@ -584,4 +578,22 @@ public class CenotaphEntityListener implements Listener {
 		if (exp.getType() == Material.CHEST) return true;
 		return false;
 	}
+	
+	private BlockFace getLocketteSignDirection(double rot) {
+
+		if (0 <= rot && rot < 45) {
+			return BlockFace.NORTH;
+		} else if (45 <= rot && rot < 135) {
+			return BlockFace.EAST;
+		} else if (135 <= rot && rot < 225) {
+			return BlockFace.SOUTH;
+		} else if (225 <= rot && rot < 315) {
+			return BlockFace.WEST;
+		} else if (315 <= rot && rot < 360) {
+			return BlockFace.NORTH;
+		} else {
+			return null;
+		}
+	}
+
 }
