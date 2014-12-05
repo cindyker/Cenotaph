@@ -86,10 +86,15 @@ See default config file for options and instructions.
 =============
 Drakia: Cenotaph was originally Tombstone, by Drakia (TheDgtl). Many thanks to him for his hard work on the original plugin. You can access his Github repository here: https://github.com/TheDgtl/Tombstone
 Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the Lockette integration working as I stumbled by way though picking up Java was invaluable. :)
-
+cindyker: I removed the hard dependency on lockette for being available. Deadbolt and Lockette use the same sign types. So now it will just use the config to decide.
 =============
  Changes
 =============
+[Version 4.0]
+  - Build against 1.8 Spigot
+  - Changed Lockette dependency, now you can use DeadBolt too
+  - Java Version 1.7
+  - and MAVEN! :D
 [Version 3.1]
   - Build against 1.6.4 Craftbukkit RB
   - Fix sign code to use new Bukkit metadata system
