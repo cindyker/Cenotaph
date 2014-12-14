@@ -2,6 +2,7 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.util.Iterator;
 
+import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,11 +21,11 @@ public class TombThread extends Thread {
 
 			//"empty" option checks
 			if (plugin.keepUntilEmpty || plugin.removeWhenEmpty) {
-				if (tBlock.getBlock().getState() instanceof Chest) {
+				if(tBlock.getBlock().getType() == Material.CHEST){
 					boolean isEmpty = true;
 
 					Chest sChest = (Chest)tBlock.getBlock().getState();
-					Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
+				    Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
 
 					for (ItemStack item : sChest.getInventory().getContents()) {
 						if (item != null) isEmpty = false;

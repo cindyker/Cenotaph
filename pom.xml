@@ -6,7 +6,7 @@
 
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
-    <version>4.1</version>
+    <version>4.2</version>
 
     <repositories>
         <repository>
@@ -70,7 +70,7 @@
         </plugins>
     </build>
     <!-- Distribution -->
-    <distributionManagement>
+  <distributionManagement>
         <repository>
             <id>cindyscats-repo</id>
             <url>http://basket.cindyscats.com/content/repositories/releases/</url>
