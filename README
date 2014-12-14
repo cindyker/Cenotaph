@@ -90,6 +90,8 @@ cindyker: I removed the hard dependency on lockette for being available. Deadbol
 =============
  Changes
 =============
+[Version 4.2]
+  - Fixed Empty Chest check.
 [Version 4.1]
   - Updated to support LWC 4.5.0-SNAPSHOT
 [Version 4.0]
