@@ -90,6 +90,8 @@ cindyker: I removed the hard dependency on lockette for being available. Deadbol
 =============
  Changes
 =============
+[Version 4.1]
+  - Updated to support LWC 4.5.0-SNAPSHOT
 [Version 4.0]
   - Build against 1.8 Spigot
   - Changed Lockette dependency, now you can use DeadBolt too
