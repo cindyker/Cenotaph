@@ -393,16 +393,21 @@ public class Cenotaph extends JavaPlugin {
 	public void deactivateLWC(TombBlock tBlock, boolean force) {
 		if (!lwcEnable) return;
 		if (lwcPlugin == null) return;
+
 		LWC lwc = lwcPlugin.getLWC();
 
 		// Remove the protection on the chest
 		Block _block = tBlock.getBlock();
-		Protection protection = lwc.findProtection(_block);
+		Protection protection = lwc.findProtection(_block.getLocation());
 		if (protection != null) {
-			lwc.getPhysicalDatabase().removeProtection(protection.getId());
+			protection.remove();
 			//Set to public instead of removing completely
 			if (lwcPublic && !force)
 				lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
+		}
+		else
+		{
+			log.info("[Cenotaph] - LWC Protection not found for chest at " + tBlock.getBlock().getLocation().toString());
 		}
 
 		// Remove the protection on the sign

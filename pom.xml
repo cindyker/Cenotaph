@@ -39,7 +39,7 @@
         <dependency>
             <groupId>com.griefcraft</groupId>
             <artifactId>LWC</artifactId>
-            <version>4.2.0</version>
+            <version>4.5.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -69,4 +69,17 @@
             </plugin>
         </plugins>
     </build>
+    <!-- Distribution -->
+    <distributionManagement>
+        <repository>
+            <id>cindyscats-repo</id>
+            <url>http://basket.cindyscats.com/content/repositories/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>cindyscats-repo</id>
+            <url>http://basket.cindyscats.com/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
