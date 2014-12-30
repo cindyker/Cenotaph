@@ -4,7 +4,7 @@
 Cenotaph - A Dead Man's chest plugin for Bukkit
 Save your players' inventory from disappearing when they die.
 
-Download (Direct JAR): http://basket.cindyscats.com/service/local/repositories/releases/content/MoofIT/Cenotaph/4.0/Cenotaph-4.0.jar
+Download (Direct JAR): http://basket.cindyscats.com/service/local/repositories/releases/content/MoofIT/Cenotaph/4.3/Cenotaph-4.3.jar
 Source: https://github.com/cindyker/Cenotaph
 
 =============
@@ -90,6 +90,8 @@ cindyker: I removed the hard dependency on lockette for being available. Deadbol
 =============
  Changes
 =============
+[Version 4.3]
+  - More Chest checks to be fixed.
 [Version 4.2]
   - Fixed Empty Chest check.
 [Version 4.1]
