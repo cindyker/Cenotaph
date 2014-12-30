@@ -2,6 +2,7 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.util.Iterator;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -18,16 +19,32 @@ public class TombThread extends Thread {
 		long cTime = System.currentTimeMillis() / 1000;
 		for (Iterator<TombBlock> iter = Cenotaph.tombList.iterator(); iter.hasNext();) {
 			TombBlock tBlock = iter.next();
+			boolean bRemoved = false;
 
 			//"empty" option checks
 			if (plugin.keepUntilEmpty || plugin.removeWhenEmpty) {
-				if(tBlock.getBlock().getType() == Material.CHEST){
+
+				//if the Block is not there, remove it from the list.
+				if(tBlock==null){
+					iter.remove();
+					continue;
+				}
+			//	if(tBlock.getBlock().getState() instanceof Chest)
+				Location loc = tBlock.getBlock().getLocation();
+				if (loc.getWorld().getBlockTypeIdAt((int)loc.getX(),(int)loc.getY(),(int)loc.getZ() ) == Material.CHEST.getId()) {
+
+					//IF the Chunk isn't loaded, then no one is there, lets not do anything with it right now.
+					if(!loc.getChunk().isLoaded())
+						continue;
+
 					boolean isEmpty = true;
 
 					Chest sChest = (Chest)tBlock.getBlock().getState();
 				    Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
 
-					for (ItemStack item : sChest.getInventory().getContents()) {
+					ItemStack[] items =sChest.getInventory().getContents();
+
+					for (ItemStack item : items) {
 						if (item != null) isEmpty = false;
 						break;
 					}
@@ -43,6 +60,7 @@ public class TombThread extends Thread {
 					if (plugin.removeWhenEmpty) {
 						if (isEmpty) {
 							plugin.destroyCenotaph(tBlock);
+							bRemoved = true;
 							iter.remove();
 						}
 					}
@@ -72,13 +90,15 @@ public class TombThread extends Thread {
 				if (plugin.levelBasedRemoval) {
 					if (cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * plugin.levelBasedTime, tBlock.getTime() + plugin.removeTime)) {
 						plugin.destroyCenotaph(tBlock);
-						iter.remove();
+						if(!bRemoved)
+							iter.remove();
 					}
 				}
 				else {
 					if (cTime > (tBlock.getTime() + plugin.removeTime)) {
 						plugin.destroyCenotaph(tBlock);
-						iter.remove();
+						if(!bRemoved)
+							iter.remove();
 					}
 				}
 			}
