@@ -342,6 +342,7 @@ public class CenotaphEntityListener implements Listener {
 	private Boolean protectWithLockette(Player player, TombBlock tBlock) {
 		if (!plugin.LocketteEnable) return false;
 
+       // plugin.getLogger().info("Protecting with lockette!");
 		Block signBlock = null;
 
 		signBlock = findPlace(tBlock.getBlock(),true);
@@ -357,7 +358,8 @@ public class CenotaphEntityListener implements Listener {
 		signBlockState = signBlock.getState();
 
 		MaterialData signFacingDirection = signBlockState.getData();
-		BlockFace facing = getLocketteSignDirection(plugin.getYawTo(tBlock.getBlock().getLocation(), signBlock.getLocation()));
+		//BlockFace facing = getLocketteSignDirection(plugin.getYawTo(tBlock.getBlock().getLocation(), signBlock.getLocation()));
+        BlockFace facing = tBlock.getBlock().getFace(signBlock);
 		((Directional)signFacingDirection).setFacingDirection(facing);
 		signBlockState.setData(signFacingDirection);
 

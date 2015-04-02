@@ -90,6 +90,8 @@ cindyker: I removed the hard dependency on lockette for being available. Deadbol
 =============
  Changes
 =============
+[Version 4.4]
+  - Fix Lockette blockface check.
 [Version 4.3]
   - More Chest checks to be fixed.
 [Version 4.2]
