@@ -109,6 +109,7 @@ public class Cenotaph extends JavaPlugin {
 	public boolean versionCheck = true;
 	public boolean voidCheck = true;
 	public boolean creeperProtection = false;
+	public boolean tntProtection = false;
 	public String signMessage[] = new String[] {
 		"{name}",
 		"RIP",
@@ -196,6 +197,7 @@ public class Cenotaph extends JavaPlugin {
 		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
 		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
 		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
+		tntProtection = config.getBoolean("Core.tntProtection", tntProtection);
 		signMessage = loadSign();
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);

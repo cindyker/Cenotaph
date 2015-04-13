@@ -90,6 +90,9 @@ cindyker: I removed the hard dependency on lockette for being available. Deadbol
 =============
  Changes
 =============
+[Version 4.5]
+  - Fix Cenotaph's being left on the list when destroyed by tnt.
+  - Added the ability prevent tnt from breaking chests. Add tntProtection: true to the config.
 [Version 4.4]
   - Fix Lockette blockface check.
 [Version 4.3]

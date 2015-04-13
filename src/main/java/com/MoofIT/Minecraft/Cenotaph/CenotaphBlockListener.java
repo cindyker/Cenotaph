@@ -5,8 +5,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+
+import java.util.Iterator;
 
 public class CenotaphBlockListener implements Listener {
 	private Cenotaph plugin;
@@ -56,5 +60,40 @@ public class CenotaphBlockListener implements Listener {
 		plugin.removeTomb(tBlock, true);
 		Player owner = plugin.getServer().getPlayer(tBlock.getOwner());
 		if (owner != null) plugin.sendMessage(owner, "Your cenotaph has been destroyed by " + p.getName() + "!");
+	}
+
+
+	//Handle Explosions...
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onEntityExplode(EntityExplodeEvent event) {
+		Iterator<Block> iter = event.blockList().iterator();
+		while (iter.hasNext()) {
+			Block block = iter.next();
+
+			if (block.getType() == Material.WALL_SIGN) {
+				org.bukkit.material.Sign signData = (org.bukkit.material.Sign) block.getState().getData();
+				TombBlock tBlock = Cenotaph.tombBlockList.get(block.getRelative(signData.getAttachedFace()).getLocation());
+				if (tBlock == null) {
+					continue;
+				}
+				iter.remove();
+			}
+
+			if (block.getType() != Material.CHEST && block.getType() != Material.SIGN_POST) continue;
+
+			TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
+
+			if (tBlock == null) continue;
+			//plugin.getLogger().info("Found Cenotaph in an explosion!");
+			//its an cenotaph block.. prevent TNT.
+			if( plugin.tntProtection ) {
+			//	plugin.getLogger().info("Protecting Cenotaph from the explosion!");
+				iter.remove();
+			}
+			else {
+			//	plugin.getLogger().info("Removing Cenotaph from the list");
+				plugin.removeTomb(tBlock, true);
+			}
+		}
 	}
 }
