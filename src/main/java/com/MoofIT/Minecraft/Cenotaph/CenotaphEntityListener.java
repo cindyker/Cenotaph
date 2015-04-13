@@ -374,7 +374,7 @@ public class CenotaphEntityListener implements Listener {
 				sign.update();
 			}
 		});
-		tBlock.setLocketteSign(sign);
+		tBlock.setLocketteSign(signBlock);
 		return true;
 	}
 

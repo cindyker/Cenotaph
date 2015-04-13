@@ -35,7 +35,12 @@ public class CenotaphCommand implements CommandExecutor {
 			for (TombBlock tomb : pList) {
 				i++;
 				if (tomb.getBlock() == null) continue;
-				plugin.sendMessage(p, " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")");
+				String message;
+				message = " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")";
+				if (tomb.getLocketteSign() != null) {
+					message = message + " [Locked]";
+				}
+				plugin.sendMessage(p, message);
 			}
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenfind")) {
