@@ -32,15 +32,15 @@ public class CenotaphCommand implements CommandExecutor {
 			}
 			plugin.sendMessage(p, "Cenotaph List:");
 			int i = 0;
+			long cTime = System.currentTimeMillis() / 1000;
 			for (TombBlock tomb : pList) {
 				i++;
 				if (tomb.getBlock() == null) continue;
 				String message;
 				message = " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")";
 				if (tomb.getLocketteSign() != null) {
-					message = message + " [Locked]";
-				}
-				plugin.sendMessage(p, message);
+					message = message + " [Locked " + plugin.convertTime( (int) (plugin.securityTimeout - (cTime - tomb.getTime())) ) + "]";
+				}				
 			}
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenfind")) {

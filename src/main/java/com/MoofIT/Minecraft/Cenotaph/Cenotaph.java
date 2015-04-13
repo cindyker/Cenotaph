@@ -280,7 +280,7 @@ public class Cenotaph extends JavaPlugin {
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine().trim();
 				String[] split = line.split(":");
-				//block:lblock:sign:owner:level:time:lwc
+				//block:lblock:sign:owner:level:time:lwc:locketteSign
 				Block block = readBlock(split[0]);
 				Block lBlock = readBlock(split[1]);
 				Block sign = readBlock(split[2]);
