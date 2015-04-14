@@ -90,6 +90,15 @@ cindyker: I removed the hard dependency on lockette for being available. Deadbol
 =============
  Changes
 =============
+[Version 4.6]
+  - Fixes for lockette/deadbolt by LlmDl
+  - Add locketteSign to saving and loading in tombBlock database, fixes auto-unlocking chests.
+  - Fix explosions destroying chests before lockette/deadbolt signs can be placed.
+  - Fix for lock time-out not showing properly on the message sent to players who just died and made a deathchest.
+  - Fix for explosion-deaths' cenotaphs not being saved to the database.
+  - Additions:
+  - Add indicator to /cenlist displaying [Locked] status if locketteSign is still present on cenotaph.
+  - Show remaining locked time on /cenlist command.
 [Version 4.5]
   - Fix Cenotaph's being left on the list when destroyed by tnt.
   - Added the ability prevent tnt from breaking chests. Add tntProtection: true to the config.
