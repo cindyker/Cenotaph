@@ -41,6 +41,7 @@ public class CenotaphCommand implements CommandExecutor {
 				if (tomb.getLocketteSign() != null) {
 					message = message + " [Locked " + plugin.convertTime( (int) (plugin.securityTimeout - (cTime - tomb.getTime())) ) + "]";
 				}				
+				plugin.sendMessage(p, message);
 			}
 			return true;
 		} else if (cmd.equalsIgnoreCase("cenfind")) {
