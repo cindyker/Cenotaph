@@ -64,7 +64,7 @@ public class CenotaphBlockListener implements Listener {
 
 
 	//Handle Explosions...
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onEntityExplode(EntityExplodeEvent event) {
 		Iterator<Block> iter = event.blockList().iterator();
 		while (iter.hasNext()) {
@@ -90,10 +90,10 @@ public class CenotaphBlockListener implements Listener {
 			//	plugin.getLogger().info("Protecting Cenotaph from the explosion!");
 				iter.remove();
 			}
-			else {
+			else if (event.isCancelled()) {
 			//	plugin.getLogger().info("Removing Cenotaph from the list");
 				plugin.removeTomb(tBlock, true);
-			}
+			} else return;
 		}
 	}
 }

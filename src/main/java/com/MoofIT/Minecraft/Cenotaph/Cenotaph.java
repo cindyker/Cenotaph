@@ -41,6 +41,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -279,7 +280,7 @@ public class Cenotaph extends JavaPlugin {
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine().trim();
 				String[] split = line.split(":");
-				//block:lblock:sign:owner:level:time:lwc
+				//block:lblock:sign:owner:level:time:lwc:locketteSign
 				Block block = readBlock(split[0]);
 				Block lBlock = readBlock(split[1]);
 				Block sign = readBlock(split[2]);
@@ -287,17 +288,27 @@ public class Cenotaph extends JavaPlugin {
 				int level = Integer.valueOf(split[4]);
 				long time = Long.valueOf(split[5]);
 				boolean lwc = Boolean.valueOf(split[6]);
-
+				Block locketteSign;
+				if (split.length == 7) {
+					// hack to allow old db files to still be usable
+					locketteSign = null;
+					continue;
+				} else {				
+					locketteSign = readBlock(split[7]);
+				}
+				
 				if (block == null || owner == null) {
 					log.info("[Cenotaph] Invalid entry in database " + fh.getName());
 					continue;
 				}
-				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, level, time, lwc);
+				
+				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, level, time, lwc, locketteSign);
 				tombList.offer(tBlock);
 				// Used for quick tombStone lookup
 				tombBlockList.put(block.getLocation(), tBlock);
 				if (lBlock != null) tombBlockList.put(lBlock.getLocation(), tBlock);
 				if (sign != null) tombBlockList.put(sign.getLocation(), tBlock);
+				if (locketteSign != null) tombBlockList.put(locketteSign.getLocation(), tBlock);
 				ArrayList<TombBlock> pList = playerTombList.get(owner);
 				if (pList == null) {
 					pList = new ArrayList<TombBlock>();
@@ -336,6 +347,8 @@ public class Cenotaph extends JavaPlugin {
 				bw.append(String.valueOf(tBlock.getTime()));
 				bw.append(":");
 				bw.append(String.valueOf(tBlock.getLwcEnabled()));
+				bw.append(":");
+				bw.append(printBlock(tBlock.getLocketteSign()));
 
 				bw.append(builder.toString());
 				bw.newLine();
@@ -347,7 +360,7 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	private String printBlock(Block b) {
-		if (b == null) return "";
+		if (b == null) return null;
 		return b.getWorld().getName() + "," + b.getX() + "," + b.getY() + "," + b.getZ();
 	}
 
@@ -360,6 +373,7 @@ public class Cenotaph extends JavaPlugin {
 		return world.getBlockAt(Integer.valueOf(split[1]), Integer.valueOf(split[2]), Integer.valueOf(split[3]));
 	}
 
+	
 	@Override
 	public void onDisable() {
 		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
@@ -427,7 +441,7 @@ public class Cenotaph extends JavaPlugin {
 	}
 	public void deactivateLockette(TombBlock tBlock) {
 		if (tBlock.getLocketteSign() == null) return;
-		tBlock.getLocketteSign().getBlock().setType(Material.AIR);
+		tBlock.getLocketteSign().setType(Material.AIR);
 		tBlock.removeLocketteSign();
 	}
 
