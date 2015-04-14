@@ -82,7 +82,7 @@ public class CenotaphEntityListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onEntityDeath(EntityDeathEvent event)
 	{
 		if (!(event.getEntity() instanceof Player)) return;
@@ -293,7 +293,7 @@ public class CenotaphEntityListener implements Listener {
 		msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
 		if (prot) {
 			msg += (protLWC ? "LWC" : "Lockette") + " ";
-			if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove && !plugin.keepUntilEmpty ? plugin.convertTime(plugin.securityTimeout) : "Inf" ) + " ";
+			if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + plugin.convertTime(plugin.securityTimeout) + " ";
 		}
 		else msg += "None ";
 		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(breakTime) : "Inf") + " ";
@@ -374,7 +374,7 @@ public class CenotaphEntityListener implements Listener {
 				sign.update();
 			}
 		});
-		tBlock.setLocketteSign(sign);
+		tBlock.setLocketteSign(signBlock);
 		return true;
 	}
 

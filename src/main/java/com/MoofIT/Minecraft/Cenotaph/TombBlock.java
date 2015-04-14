@@ -7,7 +7,7 @@ public class TombBlock {
 	private Block block;
 	private Block lBlock;
 	private Block sign;
-	private Sign LocketteSign;
+	private Block locketteSign;
 	private long time;
 	private String owner;
 	private int ownerLevel;
@@ -21,7 +21,7 @@ public class TombBlock {
 		this.ownerLevel = ownerLevel;
 		this.time = time;
 	}
-	TombBlock(Block block, Block lBlock, Block sign, String owner, int ownerLevel, long time, boolean lwc) {
+	TombBlock(Block block, Block lBlock, Block sign, String owner, int ownerLevel, long time, boolean lwc, Block locketteSign) {
 		this.block = block;
 		this.lBlock = lBlock;
 		this.sign = sign;
@@ -29,6 +29,7 @@ public class TombBlock {
 		this.ownerLevel = ownerLevel;
 		this.time = time;
 		this.lwcEnabled = lwc;
+		this.locketteSign = locketteSign;
 	}
 
 	long getTime() {
@@ -43,8 +44,8 @@ public class TombBlock {
 	Block getSign() {
 		return sign;
 	}
-	Sign getLocketteSign() {
-		return LocketteSign;
+	Block getLocketteSign() {
+		return locketteSign;
 	}
 	String getOwner() {
 		return owner;
@@ -58,10 +59,10 @@ public class TombBlock {
 	void setLwcEnabled(boolean val) {
 		lwcEnabled = val;
 	}
-	void setLocketteSign(Sign sign) {
-		this.LocketteSign = sign;
+	void setLocketteSign(Block signBlock) {
+		this.locketteSign = signBlock;
 	}
 	void removeLocketteSign() {
-		this.LocketteSign = null;
+		this.locketteSign = null;
 	}
 }
