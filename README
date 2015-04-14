@@ -98,6 +98,7 @@ LlmDl: making lockette support all it should be
   - Fix explosions destroying chests before lockette/deadbolt signs can be placed.
   - Fix for lock time-out not showing properly on the message sent to players who just died and made a deathchest.
   - Fix for explosion-deaths' cenotaphs not being saved to the database.
+  - Disable breaking the sign above chests if the chest is still locked by lockette/deadbolt.
   - Additions:
   - Add indicator to /cenlist displaying [Locked] status if locketteSign is still present on cenotaph.
   - Show remaining locked time on /cenlist command.
