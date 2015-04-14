@@ -57,6 +57,14 @@ public class CenotaphBlockListener implements Listener {
 				return;
 			}
 		}
+		
+		if (plugin.LocketteEnable && tBlock.getLocketteSign() != null) {
+			if (!tBlock.getOwner().equals(p.getName()) && !p.hasPermission("cenotaph.admin")) {
+				event.setCancelled(true);
+				plugin.sendMessage(p, "Cannot interfere with a locked Cenotaph.");
+				return;
+			}
+		}
 		plugin.removeTomb(tBlock, true);
 		Player owner = plugin.getServer().getPlayer(tBlock.getOwner());
 		if (owner != null) plugin.sendMessage(owner, "Your cenotaph has been destroyed by " + p.getName() + "!");
