@@ -87,6 +87,8 @@ See default config file for options and instructions.
 Drakia: Cenotaph was originally Tombstone, by Drakia (TheDgtl). Many thanks to him for his hard work on the original plugin. You can access his Github repository here: https://github.com/TheDgtl/Tombstone
 Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the Lockette integration working as I stumbled by way though picking up Java was invaluable. :)
 cindyker: I removed the hard dependency on lockette for being available. Deadbolt and Lockette use the same sign types. So now it will just use the config to decide.
+
+LlmDl: making lockette support all it should be
 =============
  Changes
 =============
