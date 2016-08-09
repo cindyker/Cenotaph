@@ -26,6 +26,10 @@ commands:
     description: Show the time left before your cenotaph unlocks or breaks
     usage: /<command> <index>
     aliases: [cenotaphinfo,centime,cenotaphtime]
+  centoggle:
+    description: Toggle whether we should try to create a cenotaph
+    usage: /<command>
+    aliases: []
 
   cenadmin:
     description: Admin commands for Cenotaph

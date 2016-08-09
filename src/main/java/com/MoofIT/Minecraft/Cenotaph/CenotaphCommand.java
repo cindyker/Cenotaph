@@ -79,6 +79,10 @@ public class CenotaphCommand implements CommandExecutor {
 			}
 			p.setCompassTarget(p.getWorld().getSpawnLocation());
 			return true;
+			//TODO
+		} else if (cmd.equalsIgnoreCase("centoggle")) {
+			plugin.sendMessage(p, "Not done");
+			return true;
 		}
 		else if (cmd.equalsIgnoreCase("cenadmin")) {
 			String playerName = null;

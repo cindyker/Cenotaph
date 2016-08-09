@@ -174,7 +174,7 @@ public class Cenotaph extends JavaPlugin {
 		
 	    if (moneyTake > 0){
 	    	if (getServer().getPluginManager().getPlugin("Vault") == null || !setupEconomy()) {
-	    		log.severe(String.format("[%s] - Could not enable economy features. Make sure you have both Vault and and Economy plugin installed.", getDescription().getName()));
+	    		log.severe(String.format("[%s] - Could not enable economy features. Make sure you have both Vault and an Economy plugin installed.", getDescription().getName()));
 	    		getServer().getPluginManager().disablePlugin(this);
 	    		return;
 	    	}
