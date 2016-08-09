@@ -1,11 +1,11 @@
 name: Cenotaph
 main: com.MoofIT.Minecraft.Cenotaph.Cenotaph
-version: 4.6
+version: 4.6.1
 description: Dead Man's Chest mod for Bukkit. Forked from Tombstone by Drakia (TheDgtl) 
 author: Southpaw018
 authors: [cindyker]
 website: http://www.moofit.com
-softdepend: [LWC, dynmap]
+softdepend: [Vault, LWC, dynmap]
 
 commands:
   cenlist:
@@ -26,6 +26,10 @@ commands:
     description: Show the time left before your cenotaph unlocks or breaks
     usage: /<command> <index>
     aliases: [cenotaphinfo,centime,cenotaphtime]
+  centoggle:
+    description: Toggle whether we should try to create a cenotaph
+    usage: /<command>
+    aliases: []
 
   cenadmin:
     description: Admin commands for Cenotaph
@@ -54,6 +58,9 @@ permissions:
     default: false
   cenotaph.freelockettesign:
     description: Give the player an additional free sign if using Lockette.
+    default: false
+  cenotaph.nocost:
+    description: Do not charge this player money when a cenotaph is created.
     default: false
 
   cenotaph.lwc:

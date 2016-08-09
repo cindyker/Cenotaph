@@ -49,12 +49,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapAPI;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
+
+import net.milkbowl.vault.economy.Economy;
 
 /*
 TODO
@@ -121,6 +124,7 @@ public class Cenotaph extends JavaPlugin {
 	public String timeFormat = "hh:mm a";
 	public List<String> disableInWorlds;
 	public boolean dynmapEnable = true;
+	public float moneyTake = 0.0f;
 
 	//Removal
 	public boolean destroyQuickLoot = false;
@@ -143,7 +147,9 @@ public class Cenotaph extends JavaPlugin {
 
 	//Config versioning
 	public int configVer = 0;
-	public final int configCurrent = 12;
+	public final int configCurrent = 17;
+	
+	public static Economy econ = null;	
 
 	@Override
 	public void onEnable() {
@@ -165,7 +171,15 @@ public class Cenotaph extends JavaPlugin {
 		if (dynmapEnable && dynmap != null) dynThread.activate(dynmap);
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
-
+		
+	    if (moneyTake > 0){
+	    	if (getServer().getPluginManager().getPlugin("Vault") == null || !setupEconomy()) {
+	    		log.severe(String.format("[%s] - Could not enable economy features. Make sure you have both Vault and an Economy plugin installed.", getDescription().getName()));
+	    		getServer().getPluginManager().disablePlugin(this);
+	    		return;
+	    	}
+	    }
+	    
 		if (versionCheck) {
 			versionCheck(true);
 		}
@@ -175,6 +189,15 @@ public class Cenotaph extends JavaPlugin {
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(this), 0L, 100L);
 	}
 
+    private boolean setupEconomy()
+    {
+        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        if (economyProvider != null) {
+            econ = economyProvider.getProvider();
+        }
+        return (econ != null);
+    }
+	
 	public void loadConfig() {
 		this.reloadConfig();
 		config = this.getConfig();
@@ -203,7 +226,8 @@ public class Cenotaph extends JavaPlugin {
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
 		dynmapEnable = config.getBoolean("Core.dynmapEnable", dynmapEnable);
-
+		moneyTake = (float) config.getDouble("Core.moneyTake", moneyTake);
+		
 		try {
 			disableInWorlds = config.getStringList("Core.disableInWorlds");
 		} catch (NullPointerException e) {
