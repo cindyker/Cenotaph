@@ -48,6 +48,8 @@ import org.bukkit.material.MaterialData;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
 
+import net.milkbowl.vault.economy.EconomyResponse;
+
 public class CenotaphEntityListener implements Listener {
 	private Cenotaph plugin;
 	private HashSet<Material> blockNoReplaceList = new HashSet<Material>();
@@ -117,6 +119,14 @@ public class CenotaphEntityListener implements Listener {
 		if (plugin.voidCheck && ((plugin.cenotaphSign && block.getY() > p.getWorld().getMaxHeight() - 1) || (!plugin.cenotaphSign && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) {
 			plugin.sendMessage(p, "Chest would be in the Void. Inv dropped.");
 			return;
+		}
+
+		//Check balance
+		if (!p.hasPermission("cenotaph.nocost") && plugin.moneyTake > 0){
+		if (Cenotaph.econ.getBalance(p) < plugin.moneyTake){
+			plugin.sendMessage(p, "Not enough money! Inv dropped.");
+			return;
+			}
 		}
 
 		// Check if the player has a chest.
@@ -304,6 +314,14 @@ public class CenotaphEntityListener implements Listener {
 			if (plugin.keepUntilEmpty) msg += "Keep until empty";
 		}
 		plugin.sendMessage(p, msg);
+		
+		//Subtract money
+		if (!p.hasPermission("cenotaph.nocost") && plugin.moneyTake > 0){
+		EconomyResponse r = Cenotaph.econ.withdrawPlayer(p, plugin.moneyTake);
+		if (r.transactionSuccess()){
+			plugin.sendMessage(p, plugin.moneyTake + " " + Cenotaph.econ.currencyNamePlural() + " has been taken from your account.");
+		}
+		}
 	}
 
 	private void createSign(Block signBlock, Player p) {
