@@ -47,7 +47,7 @@ import org.bukkit.material.Directional;
 import org.bukkit.material.MaterialData;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
-
+import com.sk89q.worldguard.bukkit.WGBukkit;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 public class CenotaphEntityListener implements Listener {
@@ -121,6 +121,13 @@ public class CenotaphEntityListener implements Listener {
 			return;
 		}
 
+		//WorldGuard support
+		if (plugin.worldguardSupport){
+			if (!WGBukkit.getPlugin().canBuild(p, block.getRelative(0, -1, 0))){
+				plugin.sendMessage(p, "In a protected area. Inv dropped.");
+				return;
+			}
+		}
 		//Check balance
 		if (!p.hasPermission("cenotaph.nocost") && plugin.moneyTake > 0){
 		if (Cenotaph.econ.getBalance(p) < plugin.moneyTake){

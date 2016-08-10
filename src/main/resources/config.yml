@@ -52,6 +52,9 @@ Core:
 
     dynmapEnable: true
     
+    #Prevent cenotaphs from being created in regions where the player cannot build.
+    worldguardSupport: false
+    
     #How much money to take for creating a cenotaph, set to 0 to disable.
     moneyTake: 0
 

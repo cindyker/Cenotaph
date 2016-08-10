@@ -124,6 +124,7 @@ public class Cenotaph extends JavaPlugin {
 	public String timeFormat = "hh:mm a";
 	public List<String> disableInWorlds;
 	public boolean dynmapEnable = true;
+	public boolean worldguardSupport = false;
 	public float moneyTake = 0.0f;
 
 	//Removal
@@ -166,19 +167,13 @@ public class Cenotaph extends JavaPlugin {
 		lwcPlugin = (LWCPlugin)loadPlugin("LWC");
 		dynmap = (DynmapAPI)loadPlugin("dynmap");
 
+		setupEconomy();
+		
 		initDeathMessagesDefaults();
 		loadConfig();
 		if (dynmapEnable && dynmap != null) dynThread.activate(dynmap);
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
-		
-	    if (moneyTake > 0){
-	    	if (getServer().getPluginManager().getPlugin("Vault") == null || !setupEconomy()) {
-	    		log.severe(String.format("[%s] - Could not enable economy features. Make sure you have both Vault and and Economy plugin installed.", getDescription().getName()));
-	    		getServer().getPluginManager().disablePlugin(this);
-	    		return;
-	    	}
-	    }
 	    
 		if (versionCheck) {
 			versionCheck(true);
@@ -226,7 +221,26 @@ public class Cenotaph extends JavaPlugin {
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
 		dynmapEnable = config.getBoolean("Core.dynmapEnable", dynmapEnable);
+		worldguardSupport = config.getBoolean("Core.worldguardSupport", worldguardSupport);
 		moneyTake = (float) config.getDouble("Core.moneyTake", moneyTake);
+		
+	    if (moneyTake > 0){
+	    	if (getServer().getPluginManager().getPlugin("Vault") == null || econ == null) {
+	    		log.severe(String.format("[%s] - Make sure you have both Vault and an Economy plugin installed. Money will NOT be taken on cenotaph creation.", getDescription().getName()));
+	    		moneyTake = 0;
+	    		//getServer().getPluginManager().disablePlugin(this);
+	    		//return;
+	    	}
+	    }
+	    
+	    if (worldguardSupport){
+	    	if (getServer().getPluginManager().getPlugin("WorldGuard") == null) {
+	    		log.severe(String.format("[%s] - worldguardSupport is set to true but WorldGuard was not found. Will NOT respect WorldGuard protections.", getDescription().getName()));
+	    		worldguardSupport = false;
+	    		//getServer().getPluginManager().disablePlugin(this);
+	    		//return;
+	    	}
+	    }
 		
 		try {
 			disableInWorlds = config.getStringList("Core.disableInWorlds");
