@@ -92,6 +92,9 @@ LlmDl: making lockette support all it should be
 =============
  Changes
 =============
+[Version 4.7]
+  - Adding support for WorldGuard by MegaNarwhal
+  - Adding Monetary support by MegaNarwhal
 [Version 4.6]
   - Fixes for lockette/deadbolt by LlmDl
   - Add locketteSign to saving and loading in tombBlock database, fixes auto-unlocking chests.
