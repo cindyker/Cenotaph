@@ -51,6 +51,12 @@ Core:
         #- world2
 
     dynmapEnable: true
+    
+    #Prevent cenotaphs from being created in regions where the player cannot build.
+    worldguardSupport: false
+    
+    #How much money to take for creating a cenotaph, set to 0 to disable.
+    moneyTake: 0
 
 Removal:
     #Destroy cenotaph on player quickloot if true
@@ -118,4 +124,4 @@ DeathMessages:
         Void: "the Void"
         Other: "Unknown"
 
-configVer: 16
+configVer: 17

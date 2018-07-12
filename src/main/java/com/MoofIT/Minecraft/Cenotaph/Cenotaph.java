@@ -49,12 +49,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapAPI;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
+
+import net.milkbowl.vault.economy.Economy;
 
 /*
 TODO
@@ -121,6 +124,8 @@ public class Cenotaph extends JavaPlugin {
 	public String timeFormat = "hh:mm a";
 	public List<String> disableInWorlds;
 	public boolean dynmapEnable = true;
+	public boolean worldguardSupport = false;
+	public float moneyTake = 0.0f;
 
 	//Removal
 	public boolean destroyQuickLoot = false;
@@ -143,7 +148,9 @@ public class Cenotaph extends JavaPlugin {
 
 	//Config versioning
 	public int configVer = 0;
-	public final int configCurrent = 12;
+	public final int configCurrent = 17;
+	
+	public static Economy econ = null;	
 
 	@Override
 	public void onEnable() {
@@ -160,12 +167,14 @@ public class Cenotaph extends JavaPlugin {
 		lwcPlugin = (LWCPlugin)loadPlugin("LWC");
 		dynmap = (DynmapAPI)loadPlugin("dynmap");
 
+		setupEconomy();
+		
 		initDeathMessagesDefaults();
 		loadConfig();
 		if (dynmapEnable && dynmap != null) dynThread.activate(dynmap);
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
-
+	    
 		if (versionCheck) {
 			versionCheck(true);
 		}
@@ -175,6 +184,15 @@ public class Cenotaph extends JavaPlugin {
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(this), 0L, 100L);
 	}
 
+    private boolean setupEconomy()
+    {
+        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        if (economyProvider != null) {
+            econ = economyProvider.getProvider();
+        }
+        return (econ != null);
+    }
+	
 	public void loadConfig() {
 		this.reloadConfig();
 		config = this.getConfig();
@@ -203,7 +221,27 @@ public class Cenotaph extends JavaPlugin {
 		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
 		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
 		dynmapEnable = config.getBoolean("Core.dynmapEnable", dynmapEnable);
-
+		worldguardSupport = config.getBoolean("Core.worldguardSupport", worldguardSupport);
+		moneyTake = (float) config.getDouble("Core.moneyTake", moneyTake);
+		
+	    if (moneyTake > 0){
+	    	if (getServer().getPluginManager().getPlugin("Vault") == null || econ == null) {
+	    		log.severe(String.format("[%s] - Make sure you have both Vault and an Economy plugin installed. Money will NOT be taken on cenotaph creation.", getDescription().getName()));
+	    		moneyTake = 0;
+	    		//getServer().getPluginManager().disablePlugin(this);
+	    		//return;
+	    	}
+	    }
+	    
+	    if (worldguardSupport){
+	    	if (getServer().getPluginManager().getPlugin("WorldGuard") == null) {
+	    		log.severe(String.format("[%s] - worldguardSupport is set to true but WorldGuard was not found. Will NOT respect WorldGuard protections.", getDescription().getName()));
+	    		worldguardSupport = false;
+	    		//getServer().getPluginManager().disablePlugin(this);
+	    		//return;
+	    	}
+	    }
+		
 		try {
 			disableInWorlds = config.getStringList("Core.disableInWorlds");
 		} catch (NullPointerException e) {
