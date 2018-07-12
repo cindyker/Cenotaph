@@ -36,6 +36,7 @@ cenotaph.sign - Whether the player gets a sign on their cenotaph chest
 cenotaph.freesign - Allow the player to get a free sign whether they are carrying one or not.
 cenotaph.freelockettesign - Give the player an additional free sign for Lockette
 cenotaph.quickloot - Whether to allow a player/group to quickloot by right clicking the cenotaph sign.
+cenotaph.nocost - Allow the player to not pay for the chest.
 
 cenotaph.cmd.cenotaphlist - Allow this user to use /cenlist
 cenotaph.cmd.cenotaphfind - Allow this user to use /cenfind
