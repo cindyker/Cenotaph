@@ -23,7 +23,7 @@ public class CenotaphPlayerListener implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 		Block b = event.getClickedBlock();
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.CHEST) return;
+		if (b.getType() != Material.SIGN && b.getType() != Material.CHEST) return;
 		// We'll do quickloot on rightclick of chest if we're going to destroy it anyways
 		if (b.getType() == Material.CHEST && (!plugin.destroyQuickLoot || !plugin.noDestroy)) return;
 		if (!event.getPlayer().hasPermission("cenotaph.quickloot")) return;

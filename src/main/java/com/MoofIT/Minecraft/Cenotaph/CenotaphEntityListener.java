@@ -6,10 +6,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -47,7 +44,6 @@ import org.bukkit.material.Directional;
 import org.bukkit.material.MaterialData;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
-import com.sk89q.worldguard.bukkit.WGBukkit;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 public class CenotaphEntityListener implements Listener {
@@ -123,7 +119,10 @@ public class CenotaphEntityListener implements Listener {
 
 		//WorldGuard support
 		if (plugin.worldguardSupport){
-			if (!WGBukkit.getPlugin().canBuild(p, block.getRelative(0, -1, 0))){
+
+			plugin.getLogger().info("Checking WorlGuard...");
+
+			if (!WorldGuardWrapper.canBuild(p)){
 				plugin.sendMessage(p, "In a protected area. Inv dropped.");
 				return;
 			}
@@ -343,7 +342,7 @@ public class CenotaphEntityListener implements Listener {
 			reason = getCause(dmg);
 		}
 
-		signBlock.setType(Material.SIGN_POST);
+		signBlock.setType(Material.SIGN);
 		final Sign sign = (Sign)signBlock.getState();
 
 		for (int x = 0; x < 4; x++) {
@@ -404,28 +403,35 @@ public class CenotaphEntityListener implements Listener {
 	}
 
 	private void initNoReplaceList() {
-		blockNoReplaceList.add(Material.STEP);
+		for(Material mat: Tag.SLABS.getValues()) {
+			blockNoReplaceList.add(mat);
+		}
 		blockNoReplaceList.add(Material.TORCH);
 		blockNoReplaceList.add(Material.REDSTONE_WIRE);
-		blockNoReplaceList.add(Material.RAILS);
-		blockNoReplaceList.add(Material.STONE_PLATE);
-		blockNoReplaceList.add(Material.WOOD_PLATE);
-		blockNoReplaceList.add(Material.REDSTONE_TORCH_ON);
-		blockNoReplaceList.add(Material.REDSTONE_TORCH_OFF);
-		blockNoReplaceList.add(Material.CAKE_BLOCK);
+		for(Material mat: Tag.RAILS.getValues()) {
+			blockNoReplaceList.add(mat);
+		}
+		blockNoReplaceList.add(Material.STONE_PRESSURE_PLATE);
+		for(Material mat:Tag.WOODEN_PRESSURE_PLATES.getValues()) {
+			blockNoReplaceList.add(mat);
+		}
+		blockNoReplaceList.add(Material.REDSTONE_TORCH);
+		blockNoReplaceList.add(Material.CAKE);
 	}
 
 	private Boolean activateLWC(Player player, TombBlock tBlock) {
 		if (!plugin.lwcEnable) return false;
 		if (plugin.lwcPlugin == null) return false;
+
+		plugin.getLogger().info("LWC is NOT currently SUPPORT in 1.13. It currently Requires Block ID numbers. This version of Cenotaph is No Longer using ID numbers.");
 		LWC lwc = plugin.lwcPlugin.getLWC();
 
 		// Register the chest + sign as private
 		Block block = tBlock.getBlock();
 		Block sign = tBlock.getSign();
-		lwc.getPhysicalDatabase().registerProtection(block.getTypeId(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", block.getX(), block.getY(), block.getZ());
+		lwc.getPhysicalDatabase().registerProtection(block.getType().name(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", block.getX(), block.getY(), block.getZ());
 		if (sign != null)
-			lwc.getPhysicalDatabase().registerProtection(sign.getTypeId(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
+			lwc.getPhysicalDatabase().registerProtection(sign.getType().name(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
 
 		tBlock.setLwcEnabled(true);
 		return true;
@@ -536,12 +542,16 @@ public class CenotaphEntityListener implements Listener {
 			Block b;
 			b = w.getBlockAt(baseX - 1, baseY, baseZ);
 			if (canReplace(b.getType())) return b;
+
 			b = w.getBlockAt(baseX + 1, baseY, baseZ);
 			if (canReplace(b.getType())) return b;
+
 			b = w.getBlockAt(baseX, baseY, baseZ - 1);
 			if (canReplace(b.getType())) return b;
+
 			b = w.getBlockAt(baseX, baseY, baseZ + 1);
 			if (canReplace(b.getType())) return b;
+
 			b = w.getBlockAt(baseX, baseY, baseZ);
 			if (canReplace(b.getType())) return b;
 
@@ -555,22 +565,35 @@ public class CenotaphEntityListener implements Listener {
 			}
 		}
 
+		if(plugin.oneBlockUp) {
+			//Check block one up, in case of Carpeting/
+			for (int x = baseX - 1; x < baseX + 1; x++) {
+				for (int z = baseZ - 1; z < baseZ + 1; z++) {
+					Block b = w.getBlockAt(x, baseY + 1, z);
+					if (canReplace(b.getType())) return b;
+				}
+			}
+		}
+
 		return null;
 	}
 
 	Boolean canReplace(Material mat) {
 		return (mat == Material.AIR ||
-				mat == Material.SAPLING ||
+				mat == Material.ACACIA_SAPLING ||
+				mat == Material.BIRCH_SAPLING ||
+				mat == Material.OAK_SAPLING ||
+				mat == Material.DARK_OAK_SAPLING ||
+				mat == Material.JUNGLE_SAPLING ||
+				mat == Material.SPRUCE_SAPLING ||
 				mat == Material.WATER ||
-				mat == Material.STATIONARY_WATER ||
 				mat == Material.LAVA ||
-				mat == Material.STATIONARY_LAVA ||
-				mat == Material.YELLOW_FLOWER ||
-				mat == Material.RED_ROSE ||
+				mat == Material.SUNFLOWER ||
+				mat == Material.ROSE_RED ||
 				mat == Material.BROWN_MUSHROOM ||
 				mat == Material.RED_MUSHROOM ||
 				mat == Material.FIRE ||
-				mat == Material.CROPS ||
+				mat == Material.WHEAT ||
 				mat == Material.SNOW ||
 				mat == Material.SUGAR_CANE ||
 				mat == Material.GRAVEL ||

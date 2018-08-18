@@ -90,6 +90,7 @@ public class Cenotaph extends JavaPlugin {
 	public final CenotaphCommand commandExec = new CenotaphCommand(this);
 	public final DynmapThread dynThread = new DynmapThread(this);
 	public static Logger log;
+	public static Cenotaph plugin;
 	PluginManager pm;
 
 	public LWCPlugin lwcPlugin = null;
@@ -112,6 +113,7 @@ public class Cenotaph extends JavaPlugin {
 	public boolean noInterfere = true;
 	public boolean versionCheck = true;
 	public boolean voidCheck = true;
+	public boolean oneBlockUp = true;
 	public boolean creeperProtection = false;
 	public boolean tntProtection = false;
 	public String signMessage[] = new String[] {
@@ -155,6 +157,8 @@ public class Cenotaph extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		log = Logger.getLogger("Minecraft");
+
+		plugin = this;
 
 		log.info("Cenotaph " + getDescription().getVersion() + " is enabled.");
 
@@ -215,6 +219,7 @@ public class Cenotaph extends JavaPlugin {
 		noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
 		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
 		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
+		oneBlockUp = config.getBoolean("Core.oneBlockUp",oneBlockUp);
 		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
 		tntProtection = config.getBoolean("Core.tntProtection", tntProtection);
 		signMessage = loadSign();
@@ -260,6 +265,13 @@ public class Cenotaph extends JavaPlugin {
 		//Security
 		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
 		lwcEnable = config.getBoolean("Security.lwcEnable", lwcEnable);
+
+		//ToDo: Remove this if LWC is ever fixed.
+		if(lwcEnable == true){
+			getLogger().info("LWC support is currently disabled. Please see Release notes for this version of Cenotaph!");
+			lwcEnable = false;
+		}
+
 		securityRemove = config.getBoolean("Security.securityRemove", securityRemove);
 		securityTimeout = config.getInt("Security.securityTimeout", securityTimeout);
 		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
@@ -457,7 +469,7 @@ public class Cenotaph extends JavaPlugin {
 			protection.remove();
 			//Set to public instead of removing completely
 			if (lwcPublic && !force)
-				lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
+				lwc.getPhysicalDatabase().registerProtection(_block.getType().name(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 		}
 		else
 		{
@@ -472,7 +484,7 @@ public class Cenotaph extends JavaPlugin {
 				protection.remove();
 				// Set to public instead of removing completely
 				if (lwcPublic && !force)
-					lwc.getPhysicalDatabase().registerProtection(_block.getTypeId(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
+					lwc.getPhysicalDatabase().registerProtection(_block.getType().name(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 			}
 		}
 		tBlock.setLwcEnabled(false);

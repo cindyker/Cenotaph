@@ -12,12 +12,17 @@ Core:
     noInterfere: true
 
     #Check for new versions on startup
-    versionCheck: true
+    versionCheck: false
 
     #Cenotaph normally checks to make sure it isn't trying to create a chest in the void.
     #If you handle or modify the void with another plugin, you can disable that check here.
     #This option should be true for most servers.
     voidCheck: true
+
+    #Cenotaph will normally only check the world around the player for chst placement.
+    #But if they are standing on a carpeted floor, it will fail to find a good place for
+    #the chest. This check will allow Cenotaph to look one block up for a safe place.
+    oneBlockUpCheck: true
 
     #If you are not locking your chests with Lockette or LWC but still want them to be
     #protected against Creeper explosions, or you want your chests to be protected even
@@ -85,6 +90,8 @@ Security:
     securityTimeout: 3600
 
     #Set LWC protection to Public instead of removing it after the timeout
+    #LWC Has Been updated to use Modern LWC from Spigotmc.org
+    #This version of LWC has support for Block Names vs Juat ID's.
     lwcPublic: false
 
 #Remember, your character limit for the below message plus whatever else is on the line is 15 characters.

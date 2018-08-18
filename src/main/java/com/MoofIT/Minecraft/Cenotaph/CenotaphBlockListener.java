@@ -38,7 +38,7 @@ public class CenotaphBlockListener implements Listener {
 			}
 		}
 
-		if (b.getType() != Material.CHEST && b.getType() != Material.SIGN_POST) return;
+		if (b.getType() != Material.CHEST && b.getType() != Material.SIGN) return;
 
 		TombBlock tBlock = Cenotaph.tombBlockList.get(b.getLocation());
 		if (tBlock == null) return;
@@ -87,7 +87,7 @@ public class CenotaphBlockListener implements Listener {
 				iter.remove();
 			}
 
-			if (block.getType() != Material.CHEST && block.getType() != Material.SIGN_POST) continue;
+			if (block.getType() != Material.CHEST && block.getType() != Material.SIGN) continue;
 
 			TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
 

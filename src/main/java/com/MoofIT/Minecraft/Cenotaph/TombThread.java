@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +32,8 @@ public class TombThread extends Thread {
 				}
 			//	if(tBlock.getBlock().getState() instanceof Chest)
 				Location loc = tBlock.getBlock().getLocation();
-				if (loc.getWorld().getBlockTypeIdAt((int)loc.getX(),(int)loc.getY(),(int)loc.getZ() ) == Material.CHEST.getId()) {
+				Block b = loc.getWorld().getBlockAt((int)loc.getX(),(int)loc.getY(),(int)loc.getZ());
+				if (b.getType() == Material.CHEST) {
 
 					//IF the Chunk isn't loaded, then no one is there, lets not do anything with it right now.
 					if(!loc.getChunk().isLoaded())

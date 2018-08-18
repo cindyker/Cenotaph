@@ -4,6 +4,8 @@
 Cenotaph - A Dead Man's chest plugin for Bukkit
 Save your players' inventory from disappearing when they die.
 
+VERSION for Minecraft 1.13 and above only! 
+
 Download (Direct JAR): http://basket.cindyscats.com/service/local/repositories/releases/content/MoofIT/Cenotaph/4.3/Cenotaph-4.3.jar
 Source: https://github.com/cindyker/Cenotaph
 
@@ -93,6 +95,12 @@ LlmDl: making lockette support all it should be
 =============
  Changes
 =============
+[Version 4.8]
+  - Fixed block checks for 1.13.
+  - LWC - Moved LWC support to Modern LWC. It has Block Name support, However during my testing, the current released plugin is broken for 1.13. 
+       It is being actively developed. So I have left the support in for the eventuality that they will get it updated. 
+  - Update Vault to 1.6
+  - Update WorldGuard support to use new WorldGuard API calls.
 [Version 4.7]
   - Adding support for WorldGuard by MegaNarwhal
   - Adding Monetary support by MegaNarwhal
