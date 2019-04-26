@@ -141,7 +141,13 @@ public class CenotaphEntityListener implements Listener {
 		for (ItemStack item : event.getDrops()) {
 			if (item == null) continue;
 			if (item.getType() == Material.CHEST) pChestCount += item.getAmount();
-			if (item.getType() == Material.SIGN) pSignCount += item.getAmount();
+
+			for(Material mat: Tag.SIGNS.getValues()) {
+				if(item.getType() == mat)
+					pSignCount += item.getAmount();
+			}
+
+			//if (item.getType() == Material.SIGN) pSignCount += item.getAmount();
 		}
 
 		if (pChestCount == 0 && !p.hasPermission("cenotaph.freechest")) {
@@ -280,8 +286,14 @@ public class CenotaphEntityListener implements Listener {
 				}
 			}
 
+
+			for(Material mat: Tag.SIGNS.getValues()) {
+				if(item.getType() == mat)
+					pSignCount += item.getAmount();
+			}
+
 			// Take a sign
-			if (removeSignCount > 0 && item.getType() == Material.SIGN){
+			if (removeSignCount > 0 && Tag.SIGNS.isTagged( item.getType() )){
 				item.setAmount(item.getAmount() - 1);
 				removeSignCount -= 1;
 				if (item.getAmount() == 0) {
@@ -342,7 +354,7 @@ public class CenotaphEntityListener implements Listener {
 			reason = getCause(dmg);
 		}
 
-		signBlock.setType(Material.SIGN);
+		signBlock.setType(Material.OAK_SIGN);
 		final Sign sign = (Sign)signBlock.getState();
 
 		for (int x = 0; x < 4; x++) {
@@ -376,7 +388,7 @@ public class CenotaphEntityListener implements Listener {
 		}
 
 		signBlock.setType(Material.AIR); //hack to prevent oddness with signs popping out of the ground as of Bukkit 818
-		signBlock.setType(Material.WALL_SIGN);
+		signBlock.setType(Material.OAK_WALL_SIGN);
 
 		BlockState signBlockState = null;
 		signBlockState = signBlock.getState();
@@ -589,7 +601,7 @@ public class CenotaphEntityListener implements Listener {
 				mat == Material.WATER ||
 				mat == Material.LAVA ||
 				mat == Material.SUNFLOWER ||
-				mat == Material.ROSE_RED ||
+				mat == Material.POPPY ||
 				mat == Material.BROWN_MUSHROOM ||
 				mat == Material.RED_MUSHROOM ||
 				mat == Material.FIRE ||

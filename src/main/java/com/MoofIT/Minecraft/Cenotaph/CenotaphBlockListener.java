@@ -1,6 +1,7 @@
 package com.MoofIT.Minecraft.Cenotaph;
 
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ public class CenotaphBlockListener implements Listener {
 		Block b = event.getBlock();
 		Player p = event.getPlayer();
 
-		if (b.getType() == Material.WALL_SIGN)
+		if ( Tag.WALL_SIGNS.isTagged( b.getType() ) )
 		{
 			org.bukkit.material.Sign signData = (org.bukkit.material.Sign)b.getState().getData();
 			TombBlock tBlock = Cenotaph.tombBlockList.get(b.getRelative(signData.getAttachedFace()).getLocation());
@@ -38,7 +39,7 @@ public class CenotaphBlockListener implements Listener {
 			}
 		}
 
-		if (b.getType() != Material.CHEST && b.getType() != Material.SIGN) return;
+		if (b.getType() != Material.CHEST && Tag.SIGNS.isTagged( b.getType())) return;
 
 		TombBlock tBlock = Cenotaph.tombBlockList.get(b.getLocation());
 		if (tBlock == null) return;
@@ -78,7 +79,7 @@ public class CenotaphBlockListener implements Listener {
 		while (iter.hasNext()) {
 			Block block = iter.next();
 
-			if (block.getType() == Material.WALL_SIGN) {
+			if (Tag.WALL_SIGNS.isTagged( block.getType())) {
 				org.bukkit.material.Sign signData = (org.bukkit.material.Sign) block.getState().getData();
 				TombBlock tBlock = Cenotaph.tombBlockList.get(block.getRelative(signData.getAttachedFace()).getLocation());
 				if (tBlock == null) {
@@ -87,7 +88,7 @@ public class CenotaphBlockListener implements Listener {
 				iter.remove();
 			}
 
-			if (block.getType() != Material.CHEST && block.getType() != Material.SIGN) continue;
+			if (block.getType() != Material.CHEST && Tag.SIGNS.isTagged( block.getType()) ) continue;
 
 			TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
 

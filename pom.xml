@@ -6,7 +6,7 @@
 
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
-    <version>4.8</version>
+    <version>4.9</version>
 
     <repositories>
         <repository>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.13-R0.1-SNAPSHOT</version>
+            <version>1.14-R0.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -50,7 +50,7 @@
             <version>4.5.0-SNAPSHOT</version>
             <type>jar</type>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/com/griefcraft/2.0.7-SNAPSHOT/EntityLWC.jar</systemPath>
+            <systemPath>${basedir}/lib/Modern-LWC-2.1.3-dev.jar</systemPath>
 
         </dependency>
         <dependency>
@@ -90,17 +90,6 @@
             </plugin>
         </plugins>
     </build>
-    <!-- Distribution -->
-  <distributionManagement>
-        <repository>
-            <id>cindyscats-repo</id>
-            <url>http://basket.cindyscats.com/content/repositories/releases/</url>
-        </repository>
 
-        <snapshotRepository>
-            <id>cindyscats-repo</id>
-            <url>http://basket.cindyscats.com/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
 </project>
