@@ -469,7 +469,7 @@ public class Cenotaph extends JavaPlugin {
 			protection.remove();
 			//Set to public instead of removing completely
 			if (lwcPublic && !force)
-				lwc.getPhysicalDatabase().registerProtection(_block.getType().name(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
+				lwc.getPhysicalDatabase().registerProtection(_block.getType(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 		}
 		else
 		{
@@ -484,7 +484,7 @@ public class Cenotaph extends JavaPlugin {
 				protection.remove();
 				// Set to public instead of removing completely
 				if (lwcPublic && !force)
-					lwc.getPhysicalDatabase().registerProtection(_block.getType().name(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
+					lwc.getPhysicalDatabase().registerProtection(_block.getType(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 			}
 		}
 		tBlock.setLwcEnabled(false);

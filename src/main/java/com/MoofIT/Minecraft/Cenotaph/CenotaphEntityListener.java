@@ -441,9 +441,9 @@ public class CenotaphEntityListener implements Listener {
 		// Register the chest + sign as private
 		Block block = tBlock.getBlock();
 		Block sign = tBlock.getSign();
-		lwc.getPhysicalDatabase().registerProtection(block.getType().name(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", block.getX(), block.getY(), block.getZ());
+		lwc.getPhysicalDatabase().registerProtection(block.getType(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", block.getX(), block.getY(), block.getZ());
 		if (sign != null)
-			lwc.getPhysicalDatabase().registerProtection(sign.getType().name(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
+			lwc.getPhysicalDatabase().registerProtection(sign.getType(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
 
 		tBlock.setLwcEnabled(true);
 		return true;

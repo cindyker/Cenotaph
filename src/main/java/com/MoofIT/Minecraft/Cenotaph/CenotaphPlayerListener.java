@@ -1,6 +1,7 @@
 package com.MoofIT.Minecraft.Cenotaph;
 
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.event.Event.Result;
@@ -23,7 +24,7 @@ public class CenotaphPlayerListener implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 		Block b = event.getClickedBlock();
-		if (b.getType() != Material.SIGN && b.getType() != Material.CHEST) return;
+		if ( !Tag.SIGNS.isTagged( b.getType() ) && b.getType() != Material.CHEST) return;
 		// We'll do quickloot on rightclick of chest if we're going to destroy it anyways
 		if (b.getType() == Material.CHEST && (!plugin.destroyQuickLoot || !plugin.noDestroy)) return;
 		if (!event.getPlayer().hasPermission("cenotaph.quickloot")) return;

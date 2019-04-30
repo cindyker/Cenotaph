@@ -17,11 +17,13 @@ package com.MoofIT.Minecraft.Cenotaph;
  *
  * This class is based on a similar class in GriefPrevention.
  */
-import com.sk89q.worldedit.Vector;
+
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
 
 import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.LocalPlayer;
@@ -57,22 +59,20 @@ public class WorldGuardWrapper
 
         WorldGuardPlatform p = WorldGuard.getInstance().getPlatform();
 
-        RegionManager manager = p.getRegionContainer().get(p.getWorldByName(creatingPlayer.getWorld().getName()));
+        com.sk89q.worldedit.entity.Player wp = worldGuard.wrapPlayer(creatingPlayer);
 
+        RegionManager manager = p.getRegionContainer().get(wp.getWorld());
 
         if(manager != null)
         {
-
-            Vector vector = new Vector();
-            vector.add(creatingPlayer.getLocation().getX(),creatingPlayer.getLocation().getY()-1,creatingPlayer.getLocation().getZ());
-            ApplicableRegionSet testregion = manager.getApplicableRegions(vector);
-
             LocalPlayer localPlayer = worldGuard.wrapPlayer(creatingPlayer);
 
-            for (ProtectedRegion r : testregion.getRegions()) {
+            ApplicableRegionSet testRegion = p.getRegionContainer().createQuery().getApplicableRegions(localPlayer.getLocation());
+
+            for (ProtectedRegion r : testRegion.getRegions()) {
 
                 if (!manager.getApplicableRegions(r).testState(localPlayer, Flags.BUILD)) {
-                    Cenotaph.log.info("Player "+localPlayer.getName()+" is in a Region where they can't build. No Cenotaph will be made.");
+                    Cenotaph.log.info("Player "+localPlayer.getName()+" is in Region "+ r.getId() +" where they can't build. No Cenotaph will be made.");
                     return false;
                 }
             }
