@@ -4,7 +4,7 @@
 Cenotaph - A Dead Man's chest plugin for Bukkit
 Save your players' inventory from disappearing when they die.
 
-VERSION for Minecraft 1.14 and above only!
+VERSION for Minecraft 1.14.4 and above only!
 Forward support only!
 
 Source: https://github.com/cindyker/Cenotaph
@@ -101,6 +101,8 @@ LlmDl: making lockette support all it should be
 =============
  Changes
 =============
+[Version 5.0]
+  - Recompiled for 1.14.4
 [Version 4.9]
   - Fixed block checks for 1.14. (SIGNS are different now behind the scenes as there are now signs for all wood types)
   - LWC - Moved LWC support to http://ci.dmulloy2.net/job/LWC/.  It is actively being developed.
