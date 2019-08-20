@@ -40,8 +40,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Directional;
-import org.bukkit.material.MaterialData;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -127,11 +125,14 @@ public class CenotaphEntityListener implements Listener {
 				return;
 			}
 		}
-		//Check balance
-		if (!p.hasPermission("cenotaph.nocost") && plugin.moneyTake > 0){
-		if (Cenotaph.econ.getBalance(p) < plugin.moneyTake){
-			plugin.sendMessage(p, "Not enough money! Inv dropped.");
-			return;
+		
+		if (Cenotaph.economyEnabled) {
+			//Check balance
+			if (!p.hasPermission("cenotaph.nocost") && plugin.moneyTake > 0){
+			if (Cenotaph.econ.getBalance(p) < plugin.moneyTake){
+				plugin.sendMessage(p, "Not enough money! Inv dropped.");
+				return;
+				}
 			}
 		}
 
@@ -230,7 +231,7 @@ public class CenotaphEntityListener implements Listener {
 			removeSignCount -= 1;
 
 		// Create a TombBlock for this tombstone
-		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getLevel() + 1, (System.currentTimeMillis() / 1000));
+		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getLevel() + 1, (System.currentTimeMillis() / 1000), p.getUniqueId());
 
 		// Protect the chest/sign if LWC is installed.
 		Boolean prot = false;
@@ -387,17 +388,13 @@ public class CenotaphEntityListener implements Listener {
 			return false;
 		}
 
-		signBlock.setType(Material.AIR); //hack to prevent oddness with signs popping out of the ground as of Bukkit 818
+
 		signBlock.setType(Material.OAK_WALL_SIGN);
-
-		BlockState signBlockState = null;
-		signBlockState = signBlock.getState();
-
-		MaterialData signFacingDirection = signBlockState.getData();
-		//BlockFace facing = getLocketteSignDirection(plugin.getYawTo(tBlock.getBlock().getLocation(), signBlock.getLocation()));
-        BlockFace facing = tBlock.getBlock().getFace(signBlock);
-		((Directional)signFacingDirection).setFacingDirection(facing);
-		signBlockState.setData(signFacingDirection);
+		BlockState signBlockState = signBlock.getState();
+		org.bukkit.block.data.type.WallSign signBlockData = (org.bukkit.block.data.type.WallSign) signBlockState.getBlockData();
+		BlockFace facing = tBlock.getBlock().getFace(signBlock);
+		signBlockData.setFacing(facing);
+		signBlockState.setBlockData(signBlockData);
 
 		final Sign sign = (Sign)signBlockState;
 
@@ -638,23 +635,6 @@ public class CenotaphEntityListener implements Listener {
 		exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() + 1);
 		if (exp.getType() == Material.CHEST) return true;
 		return false;
-	}
-	
-	private BlockFace getLocketteSignDirection(double rot) {
-
-		if (0 <= rot && rot < 45) {
-			return BlockFace.NORTH;
-		} else if (45 <= rot && rot < 135) {
-			return BlockFace.EAST;
-		} else if (135 <= rot && rot < 225) {
-			return BlockFace.SOUTH;
-		} else if (225 <= rot && rot < 315) {
-			return BlockFace.WEST;
-		} else if (315 <= rot && rot < 360) {
-			return BlockFace.NORTH;
-		} else {
-			return null;
-		}
 	}
 
 }

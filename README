@@ -87,8 +87,9 @@ See default config file for options and instructions.
 ==============
 To Build yourself
 ==============
-Download BuildTools and Build 1.14 Spigot.
-Get 1.14 versions of WorldEdit and WorldGuard and LWC to the lib folder and build with Maven
+
+Convert to Maven Project and right click pom.xml > run as Maven Install.
+All dependencies should be located at their respective repos.
 
 =============
  Credits
@@ -101,6 +102,16 @@ LlmDl: making lockette support all it should be
 =============
  Changes
 =============
+[Version 5.1]
+  - Update to much of the Lockette/Sign code to make it not use deprecated API.
+  - Update to use UUIDs in TombBlocks, allowing us to use less deprecated methods.
+  - Update to pom.xml's sk89q's repos, making them not be required in the lib folder.
+  - Update to economy handler, no longer errors when Vault is not found on a server.
+  - Old databases will have old tombstones which do not have ownerUUID
+    values. These will be null, and means that for those tombstones there
+    will be no message sent to a player when their security runs out/they
+    have their tombstone destroyed, (but these messages wouldn't be shown
+    anyways if this happened while they were offline.)
 [Version 5.0]
   - Recompiled for 1.14.4
 [Version 4.9]
