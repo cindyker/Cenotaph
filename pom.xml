@@ -6,7 +6,7 @@
 
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
-    <version>5.0</version>
+    <version>5.1</version>
 
     <repositories>
         <repository>
@@ -26,18 +26,9 @@
             <url>http://repo.mikeprimm.com</url>
         </repository>
         <repository>
-            <id>dmulloy2</id>
-            <url>http://repo.dmulloy2.net/nexus/repository/snapshots/</url>
+        	<id>minebench-lwc-hookup</id>
+        	<url>https://repo.minebench.de</url>
         </repository>
-      <!--  <repository>
-            <id>LWC</id>
-            <url>http://andune.com/nexus/content/repositories/public</url>
-        </repository>-->
-        <repository>
-            <id>localLWCrepository</id>
-            <url>file://${basedir}/lib</url>
-        </repository>
-
     </repositories>
 
 
@@ -48,22 +39,11 @@
             <version>1.14.4-R0.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
-<!--        <dependency>
-            <groupId>com.griefcraft</groupId>
-            <artifactId>LWC</artifactId>
-            <version>4.5.0-SNAPSHOT</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/Modern-LWC-2.1.4-dev.jar</systemPath>
-
-        </dependency>-->
         <dependency>
             <groupId>com.griefcraft</groupId>
-            <artifactId>LWC</artifactId>
-            <version>4.7.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/lwc-4.7.0-SNAPSHOT.jar</systemPath>
-            <type>jar</type>
+            <artifactId>lwc</artifactId>
+    		<version>4.7.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>us.dynmap</groupId>
@@ -80,18 +60,14 @@
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-legacy</artifactId>
             <version>7.0.0-SNAPSHOT</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/worldguard-legacy-7.0.0-SNAPSHOT-dist (7).jar</systemPath>
+            <scope>provided</scope>
         </dependency>
-        <!--WorldGuard depends on WorldEdit-->
+
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/worldedit-bukkit-7.0.0-SNAPSHOT-dist (6).jar</systemPath>
+            <version>7.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

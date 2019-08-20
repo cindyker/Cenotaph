@@ -19,29 +19,25 @@ package com.MoofIT.Minecraft.Cenotaph;
  * along with this program.If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -116,6 +112,7 @@ public class Cenotaph extends JavaPlugin {
 	public boolean oneBlockUp = true;
 	public boolean creeperProtection = false;
 	public boolean tntProtection = false;
+	public static boolean economyEnabled = false;
 	public String signMessage[] = new String[] {
 		"{name}",
 		"RIP",
@@ -171,7 +168,7 @@ public class Cenotaph extends JavaPlugin {
 		lwcPlugin = (LWCPlugin)loadPlugin("LWC");
 		dynmap = (DynmapAPI)loadPlugin("dynmap");
 
-		setupEconomy();
+		economyEnabled = setupEconomy();
 		
 		initDeathMessagesDefaults();
 		loadConfig();
@@ -190,11 +187,14 @@ public class Cenotaph extends JavaPlugin {
 
     private boolean setupEconomy()
     {
-        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-        if (economyProvider != null) {
-            econ = economyProvider.getProvider();
+    	if (Bukkit.getServer().getPluginManager().isPluginEnabled("Vault")) {
+	        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+	        if (economyProvider != null)
+	            econ = economyProvider.getProvider();
+	        	return (econ != null);
+        } else {
+        	return false;
         }
-        return (econ != null);
     }
 	
 	public void loadConfig() {
@@ -229,13 +229,9 @@ public class Cenotaph extends JavaPlugin {
 		worldguardSupport = config.getBoolean("Core.worldguardSupport", worldguardSupport);
 		moneyTake = (float) config.getDouble("Core.moneyTake", moneyTake);
 		
-	    if (moneyTake > 0){
-	    	if (getServer().getPluginManager().getPlugin("Vault") == null || econ == null) {
-	    		log.severe(String.format("[%s] - Make sure you have both Vault and an Economy plugin installed. Money will NOT be taken on cenotaph creation.", getDescription().getName()));
-	    		moneyTake = 0;
-	    		//getServer().getPluginManager().disablePlugin(this);
-	    		//return;
-	    	}
+	    if (moneyTake > 0 && !economyEnabled){
+    		log.severe(String.format("[%s] - Make sure you have both Vault and an Economy plugin installed. Money will NOT be taken on cenotaph creation.", getDescription().getName()));
+    		moneyTake = 0;
 	    }
 	    
 	    if (worldguardSupport){
@@ -334,11 +330,12 @@ public class Cenotaph extends JavaPlugin {
 				Block block = readBlock(split[0]);
 				Block lBlock = readBlock(split[1]);
 				Block sign = readBlock(split[2]);
-				String owner = split[3];
+				String owner = split[3];				
 				int level = Integer.valueOf(split[4]);
 				long time = Long.valueOf(split[5]);
 				boolean lwc = Boolean.valueOf(split[6]);
 				Block locketteSign;
+				UUID ownerUUID;
 				if (split.length == 7) {
 					// hack to allow old db files to still be usable
 					locketteSign = null;
@@ -346,13 +343,19 @@ public class Cenotaph extends JavaPlugin {
 				} else {				
 					locketteSign = readBlock(split[7]);
 				}
+				if (split.length == 8) {
+					ownerUUID = null;
+					continue;
+				} else {
+					ownerUUID = UUID.fromString(split[8]);
+				}
 				
 				if (block == null || owner == null) {
 					log.info("[Cenotaph] Invalid entry in database " + fh.getName());
 					continue;
 				}
 				
-				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, level, time, lwc, locketteSign);
+				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, level, time, lwc, locketteSign, ownerUUID);
 				tombList.offer(tBlock);
 				// Used for quick tombStone lookup
 				tombBlockList.put(block.getLocation(), tBlock);
@@ -399,6 +402,8 @@ public class Cenotaph extends JavaPlugin {
 				bw.append(String.valueOf(tBlock.getLwcEnabled()));
 				bw.append(":");
 				bw.append(printBlock(tBlock.getLocketteSign()));
+				bw.append(":");
+				bw.append(String.valueOf(tBlock.getOwnerUUID()));
 
 				bw.append(builder.toString());
 				bw.newLine();
@@ -600,7 +605,9 @@ public class Cenotaph extends JavaPlugin {
 
 		removeTomb(tBlock, true);
 
-		Player p = getServer().getPlayer(tBlock.getOwner());
+		Player p = null;
+		if (tBlock.getOwnerUUID() != null)
+			p = getServer().getPlayer(tBlock.getOwnerUUID());
 		if (p != null) sendMessage(p, "Your cenotaph has broken.");
 	}
 
