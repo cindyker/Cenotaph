@@ -88,7 +88,7 @@ See default config file for options and instructions.
 To Build yourself
 ==============
 Download BuildTools and Build 1.14 Spigot.
-Get 1.14 versions of WorldEdit and WorldGuard and LWC to the lib folder and build with Maven
+Get 1.14 version of LWC into the lib folder and build with Maven
 
 =============
  Credits
