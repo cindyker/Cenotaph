@@ -231,7 +231,7 @@ public class CenotaphEntityListener implements Listener {
 			removeSignCount -= 1;
 
 		// Create a TombBlock for this tombstone
-		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getUniqueId(), p.getLevel() + 1, (System.currentTimeMillis() / 1000));
+		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getLevel() + 1, (System.currentTimeMillis() / 1000), p.getUniqueId());
 
 		// Protect the chest/sign if LWC is installed.
 		Boolean prot = false;
