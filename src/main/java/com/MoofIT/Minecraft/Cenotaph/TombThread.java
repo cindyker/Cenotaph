@@ -71,7 +71,7 @@ public class TombThread extends Thread {
 
 			//Security removal check
 			if (plugin.securityRemove) {
-				Player p = plugin.getServer().getPlayer(tBlock.getOwner());
+				Player p = plugin.getServer().getPlayer(tBlock.getOwnerUUID());
 
 				if (cTime >= (tBlock.getTime() + plugin.securityTimeout)) {
 					if (tBlock.getLwcEnabled() && plugin.lwcPlugin != null) {

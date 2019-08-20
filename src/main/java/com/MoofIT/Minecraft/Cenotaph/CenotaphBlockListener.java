@@ -4,6 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,11 +26,20 @@ public class CenotaphBlockListener implements Listener {
 	public void onBlockBreak(BlockBreakEvent event) {
 		Block b = event.getBlock();
 		Player p = event.getPlayer();
+		
 
+		
+		// Handles wall_signs which are used for lockette/deadbolt locks on Tombstones.
 		if ( Tag.WALL_SIGNS.isTagged( b.getType() ) )
 		{
-			org.bukkit.material.Sign signData = (org.bukkit.material.Sign)b.getState().getData();
-			TombBlock tBlock = Cenotaph.tombBlockList.get(b.getRelative(signData.getAttachedFace()).getLocation());
+			TombBlock tBlock = null;
+			BlockData blockData = b.getBlockData();
+			Directional directional = (Directional) blockData;
+			Block attachedBlock = b.getRelative(directional.getFacing().getOppositeFace());
+
+			if (attachedBlock != null)
+				tBlock = Cenotaph.tombBlockList.get(attachedBlock.getLocation());
+			
 			if (tBlock == null) return;
 
 			if (tBlock.getLocketteSign() != null) {
@@ -65,9 +76,11 @@ public class CenotaphBlockListener implements Listener {
 				plugin.sendMessage(p, "Cannot interfere with a locked Cenotaph.");
 				return;
 			}
-		}
+		}		
+		Player owner = null;
+		if (tBlock.getOwnerUUID() != null)
+			owner = plugin.getServer().getPlayer(tBlock.getOwnerUUID());
 		plugin.removeTomb(tBlock, true);
-		Player owner = plugin.getServer().getPlayer(tBlock.getOwner());
 		if (owner != null) plugin.sendMessage(owner, "Your cenotaph has been destroyed by " + p.getName() + "!");
 	}
 
@@ -80,8 +93,13 @@ public class CenotaphBlockListener implements Listener {
 			Block block = iter.next();
 
 			if (Tag.WALL_SIGNS.isTagged( block.getType())) {
-				org.bukkit.material.Sign signData = (org.bukkit.material.Sign) block.getState().getData();
-				TombBlock tBlock = Cenotaph.tombBlockList.get(block.getRelative(signData.getAttachedFace()).getLocation());
+				TombBlock tBlock = null;
+				BlockData blockData = block.getBlockData();				
+				Directional directional = (Directional) blockData;
+				Block attachedBlock = block.getRelative(directional.getFacing().getOppositeFace());
+
+				if (attachedBlock != null)
+					tBlock = Cenotaph.tombBlockList.get(attachedBlock.getLocation());
 				if (tBlock == null) {
 					continue;
 				}

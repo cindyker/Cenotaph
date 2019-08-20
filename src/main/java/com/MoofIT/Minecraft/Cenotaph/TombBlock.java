@@ -1,7 +1,8 @@
 package com.MoofIT.Minecraft.Cenotaph;
 
+import java.util.UUID;
+
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 
 public class TombBlock {
 	private Block block;
@@ -12,20 +13,24 @@ public class TombBlock {
 	private String owner;
 	private int ownerLevel;
 	private boolean lwcEnabled = false;
+	private UUID ownerUUID;
 
-	TombBlock(Block block, Block lBlock, Block sign, String owner, int ownerLevel, long time) {
+	TombBlock(Block block, Block lBlock, Block sign, String owner, UUID ownerUUID, int ownerLevel, long time) {
 		this.block = block;
 		this.lBlock = lBlock;
 		this.sign = sign;
 		this.owner = owner;
+		this.ownerUUID = ownerUUID;
 		this.ownerLevel = ownerLevel;
 		this.time = time;
+		
 	}
-	TombBlock(Block block, Block lBlock, Block sign, String owner, int ownerLevel, long time, boolean lwc, Block locketteSign) {
+	TombBlock(Block block, Block lBlock, Block sign, String owner, UUID ownerUUID,  int ownerLevel, long time, boolean lwc, Block locketteSign) {
 		this.block = block;
 		this.lBlock = lBlock;
 		this.sign = sign;
 		this.owner = owner;
+		this.ownerUUID = ownerUUID;
 		this.ownerLevel = ownerLevel;
 		this.time = time;
 		this.lwcEnabled = lwc;
@@ -49,6 +54,9 @@ public class TombBlock {
 	}
 	String getOwner() {
 		return owner;
+	}
+	UUID getOwnerUUID() {
+		return ownerUUID;
 	}
 	int getOwnerLevel() {
 		return ownerLevel;
