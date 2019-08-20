@@ -15,7 +15,7 @@ public class TombBlock {
 	private boolean lwcEnabled = false;
 	private UUID ownerUUID;
 
-	TombBlock(Block block, Block lBlock, Block sign, String owner, UUID ownerUUID, int ownerLevel, long time) {
+	TombBlock(Block block, Block lBlock, Block sign, String owner, int ownerLevel, long time, UUID ownerUUID) {
 		this.block = block;
 		this.lBlock = lBlock;
 		this.sign = sign;
@@ -25,7 +25,7 @@ public class TombBlock {
 		this.time = time;
 		
 	}
-	TombBlock(Block block, Block lBlock, Block sign, String owner, UUID ownerUUID,  int ownerLevel, long time, boolean lwc, Block locketteSign) {
+	TombBlock(Block block, Block lBlock, Block sign, String owner,  int ownerLevel, long time, boolean lwc, Block locketteSign, UUID ownerUUID) {
 		this.block = block;
 		this.lBlock = lBlock;
 		this.sign = sign;

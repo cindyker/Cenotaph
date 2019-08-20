@@ -355,7 +355,7 @@ public class Cenotaph extends JavaPlugin {
 					continue;
 				}
 				
-				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, ownerUUID, level, time, lwc, locketteSign);
+				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, level, time, lwc, locketteSign, ownerUUID);
 				tombList.offer(tBlock);
 				// Used for quick tombStone lookup
 				tombBlockList.put(block.getLocation(), tBlock);
@@ -402,6 +402,8 @@ public class Cenotaph extends JavaPlugin {
 				bw.append(String.valueOf(tBlock.getLwcEnabled()));
 				bw.append(":");
 				bw.append(printBlock(tBlock.getLocketteSign()));
+				bw.append(":");
+				bw.append(String.valueOf(tBlock.getOwnerUUID()));
 
 				bw.append(builder.toString());
 				bw.newLine();

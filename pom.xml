@@ -6,7 +6,7 @@
 
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
-    <version>5.0</version>
+    <version>5.1</version>
 
     <repositories>
         <repository>
@@ -29,10 +29,6 @@
             <id>dmulloy2</id>
             <url>http://repo.dmulloy2.net/nexus/repository/snapshots/</url>
         </repository>
-      <!--  <repository>
-            <id>LWC</id>
-            <url>http://andune.com/nexus/content/repositories/public</url>
-        </repository>-->
         <repository>
             <id>localLWCrepository</id>
             <url>file://${basedir}/lib</url>
