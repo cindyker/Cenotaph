@@ -32,7 +32,7 @@ public class CenotaphPlayerListener implements Listener {
 		TombBlock tBlock = Cenotaph.tombBlockList.get(b.getLocation());
 		if (tBlock == null || !(tBlock.getBlock().getState() instanceof Chest)) return;
 
-		if (!tBlock.getOwner().equals(event.getPlayer().getName())) return;
+		if (!tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId())) return;
 
 		Chest sChest = (Chest)tBlock.getBlock().getState();
 		Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;

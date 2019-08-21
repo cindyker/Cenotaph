@@ -62,7 +62,7 @@ public class CenotaphBlockListener implements Listener {
 		}
 
 		if (plugin.lwcPlugin != null && plugin.lwcEnable && tBlock.getLwcEnabled()) {
-			if (tBlock.getOwner().equals(p.getName()) || p.hasPermission("cenotaph.admin")) {
+			if (tBlock.getOwnerUUID().equals(p.getUniqueId()) || p.hasPermission("cenotaph.admin")) {
 				plugin.deactivateLWC(tBlock, true);
 			} else {
 				event.setCancelled(true);
@@ -71,7 +71,7 @@ public class CenotaphBlockListener implements Listener {
 		}
 		
 		if (plugin.LocketteEnable && tBlock.getLocketteSign() != null) {
-			if (!tBlock.getOwner().equals(p.getName()) && !p.hasPermission("cenotaph.admin")) {
+			if (!tBlock.getOwnerUUID().equals(p.getUniqueId()) && !p.hasPermission("cenotaph.admin")) {
 				event.setCancelled(true);
 				plugin.sendMessage(p, "Cannot interfere with a locked Cenotaph.");
 				return;
