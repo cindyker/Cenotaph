@@ -6,7 +6,12 @@
 
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
+    <packaging>jar</packaging>
     <version>5.1</version>
+    
+    <properties>
+        <project.bukkitAPIVersion>1.14</project.bukkitAPIVersion>
+    </properties>
 
     <repositories>
         <repository>
@@ -83,6 +88,13 @@
                 </configuration>
             </plugin>
         </plugins>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
 

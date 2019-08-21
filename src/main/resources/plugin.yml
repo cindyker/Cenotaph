@@ -6,7 +6,7 @@ author: Southpaw018
 authors: [cindyker]
 website: http://www.moofit.com
 softdepend: [WorldGuard, Vault, LWC, dynmap]
-api-version: 1.14
+api-version: ${project.bukkitAPIVersion}
 commands:
   cenlist:
     description: Show a list of your Cenotaphs
