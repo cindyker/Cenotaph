@@ -23,7 +23,7 @@ public class TombThread extends Thread {
 			boolean bRemoved = false;
 
 			//"empty" option checks
-			if (plugin.keepUntilEmpty || plugin.removeWhenEmpty) {
+			if (CenotaphSettings.keepUntilEmpty() || CenotaphSettings.removeWhenEmpty()) {
 
 				//if the Block is not there, remove it from the list.
 				if(tBlock==null){
@@ -56,10 +56,10 @@ public class TombThread extends Thread {
 							break;
 						}
 					}
-					if (plugin.keepUntilEmpty) {
+					if (CenotaphSettings.keepUntilEmpty()) {
 						if (!isEmpty) continue;
 					}
-					if (plugin.removeWhenEmpty) {
+					if (CenotaphSettings.removeWhenEmpty()) {
 						if (isEmpty) {
 							plugin.destroyCenotaph(tBlock);
 							bRemoved = true;
@@ -70,17 +70,17 @@ public class TombThread extends Thread {
 			}
 
 			//Security removal check
-			if (plugin.securityRemove) {
+			if (CenotaphSettings.securityRemove()) {
 				Player p = plugin.getServer().getPlayer(tBlock.getOwnerUUID());
 
-				if (cTime >= (tBlock.getTime() + plugin.securityTimeout)) {
+				if (cTime >= (tBlock.getTime() + CenotaphSettings.securityTimeOut())) {
 					if (tBlock.getLwcEnabled() && plugin.lwcPlugin != null) {
 						plugin.deactivateLWC(tBlock, false);
 						tBlock.setLwcEnabled(false);
 						if (p != null)
 							plugin.sendMessage(p, "LWC protection disabled on your cenotaph!");
 					}
-					if (tBlock.getLocketteSign() != null && plugin.LocketteEnable) {
+					if (tBlock.getLocketteSign() != null && CenotaphSettings.locketteEnable()) {
 						plugin.deactivateLockette(tBlock);
 						if (p != null)
 							plugin.sendMessage(p, "Lockette protection disabled on your cenotaph!");
@@ -88,16 +88,16 @@ public class TombThread extends Thread {
 				}
 			}
 			//Block removal check
-			if (plugin.cenotaphRemove) {
-				if (plugin.levelBasedRemoval) {
-					if (cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * plugin.levelBasedTime, tBlock.getTime() + plugin.removeTime)) {
+			if (CenotaphSettings.cenotaphRemove()) {
+				if (CenotaphSettings.levelBasedRemoval()) {
+					if (cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * CenotaphSettings.levelBasedTime(), tBlock.getTime() + CenotaphSettings.cenotaphRemoveTime())) {
 						plugin.destroyCenotaph(tBlock);
 						if(!bRemoved)
 							iter.remove();
 					}
 				}
 				else {
-					if (cTime > (tBlock.getTime() + plugin.removeTime)) {
+					if (cTime > (tBlock.getTime() + CenotaphSettings.cenotaphRemoveTime())) {
 						plugin.destroyCenotaph(tBlock);
 						if(!bRemoved)
 							iter.remove();

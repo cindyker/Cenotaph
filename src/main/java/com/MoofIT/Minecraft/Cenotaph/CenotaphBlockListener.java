@@ -55,13 +55,13 @@ public class CenotaphBlockListener implements Listener {
 		TombBlock tBlock = Cenotaph.tombBlockList.get(b.getLocation());
 		if (tBlock == null) return;
 
-		if (plugin.noDestroy && !p.hasPermission("cenotaph.admin")) {
+		if (CenotaphSettings.noDestroy() && !p.hasPermission("cenotaph.admin")) {
 			plugin.sendMessage(p, "You cannot break this cenotaph..");
 			event.setCancelled(true);
 			return;
 		}
 
-		if (plugin.lwcPlugin != null && plugin.lwcEnable && tBlock.getLwcEnabled()) {
+		if (plugin.lwcPlugin != null && CenotaphSettings.lwcEnable() && tBlock.getLwcEnabled()) {
 			if (tBlock.getOwnerUUID().equals(p.getUniqueId()) || p.hasPermission("cenotaph.admin")) {
 				plugin.deactivateLWC(tBlock, true);
 			} else {
@@ -70,7 +70,7 @@ public class CenotaphBlockListener implements Listener {
 			}
 		}
 		
-		if (plugin.LocketteEnable && tBlock.getLocketteSign() != null) {
+		if (CenotaphSettings.locketteEnable() && tBlock.getLocketteSign() != null) {
 			if (!tBlock.getOwnerUUID().equals(p.getUniqueId()) && !p.hasPermission("cenotaph.admin")) {
 				event.setCancelled(true);
 				plugin.sendMessage(p, "Cannot interfere with a locked Cenotaph.");
@@ -113,7 +113,7 @@ public class CenotaphBlockListener implements Listener {
 			if (tBlock == null) continue;
 			//plugin.getLogger().info("Found Cenotaph in an explosion!");
 			//its an cenotaph block.. prevent TNT.
-			if( plugin.tntProtection ) {
+			if( CenotaphSettings.tntProtection()) {
 			//	plugin.getLogger().info("Protecting Cenotaph from the explosion!");
 				iter.remove();
 			}

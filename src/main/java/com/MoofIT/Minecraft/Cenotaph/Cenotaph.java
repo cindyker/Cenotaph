@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -52,6 +51,7 @@ import org.dynmap.DynmapAPI;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -63,14 +63,11 @@ TODO
 	- block replacement strategy: agressive vs. passive
 
 	--ECONOMY
-	- vault integration
 	- life purchasing
-	- cenotaph payments
 	- keep compass option
 	- keep chest and sign option
 
 	--REGION PROTECTION
-	- worldguard integration
 	- towny integration
 	- factions integration
 
@@ -87,31 +84,21 @@ public class Cenotaph extends JavaPlugin {
 	public final DynmapThread dynThread = new DynmapThread(this);
 	public static Logger log;
 	public static Cenotaph plugin;
+	
 	PluginManager pm;
-
 	public LWCPlugin lwcPlugin = null;
 	public DynmapAPI dynmap = null;
+	public WorldGuardPlugin worldguard = null;
 
 	public static ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
 	public static HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
 	public static HashMap<String, ArrayList<TombBlock>> playerTombList = new HashMap<String, ArrayList<TombBlock>>();
 	public static HashMap<String, EntityDamageEvent> deathCause = new HashMap<String, EntityDamageEvent>();
-
+	
+	//This is still required because of how the DynmapThread is implemented. 
+	//TODO: Figure out a different way of showing dynmap markers that doesn't required casting variable to a config that doesn't save them.
 	public FileConfiguration config;
 
-	/**
-	 * Configuration options - Defaults
-	 */
-	//Core
-	public boolean cenotaphSign = true;
-	public boolean noDestroy = false;
-	public boolean saveCenotaphList = true;
-	public boolean noInterfere = true;
-	public boolean versionCheck = true;
-	public boolean voidCheck = true;
-	public boolean oneBlockUp = true;
-	public boolean creeperProtection = false;
-	public boolean tntProtection = false;
 	public static boolean economyEnabled = false;
 	public String signMessage[] = new String[] {
 		"{name}",
@@ -119,36 +106,9 @@ public class Cenotaph extends JavaPlugin {
 		"{date}",
 		"{time}"
 	};
-	public String dateFormat = "MM/dd/yyyy";
-	public String timeFormat = "hh:mm a";
-	public List<String> disableInWorlds;
-	public boolean dynmapEnable = true;
 	public boolean worldguardSupport = false;
-	public float moneyTake = 0.0f;
-
-	//Removal
-	public boolean destroyQuickLoot = false;
-	public boolean cenotaphRemove = false;
-	public int removeTime = 3600;
-	public boolean removeWhenEmpty = false;
-	public boolean keepUntilEmpty = false;
-	public boolean levelBasedRemoval = false;
-	public int levelBasedTime = 300;
-
-	//Security
-	public boolean LocketteEnable = true;
-	public boolean lwcEnable = false;
-	public boolean securityRemove = false;
-	public int securityTimeout = 3600;
-	public boolean lwcPublic = false;
-
-	//DeathMessages
-	public HashMap<String, Object> deathMessages = new HashMap<String, Object>();
-
-	//Config versioning
-	public int configVer = 0;
-	public final int configCurrent = 17;
-	
+	private String version = "2.0.0";
+	//public HashMap<String, Object> deathMessages = new HashMap<String, Object>();
 	public static Economy econ = null;	
 
 	@Override
@@ -165,25 +125,48 @@ public class Cenotaph extends JavaPlugin {
 		pm.registerEvents(blockListener,this);
 		pm.registerEvents(playerListener,this);
 
-		lwcPlugin = (LWCPlugin)loadPlugin("LWC");
-		dynmap = (DynmapAPI)loadPlugin("dynmap");
-
 		economyEnabled = setupEconomy();
 		
-		initDeathMessagesDefaults();
-		loadConfig();
-		if (dynmapEnable && dynmap != null) dynThread.activate(dynmap);
+		//initDeathMessagesDefaults();
+		version = this.getDescription().getVersion();
+		
+		if (!loadSettings()) {
+			log.info("Cenotaph config.yml couldn't load.");
+			onDisable();
+		}
+		
+		if (CenotaphSettings.lwcEnable())
+			lwcPlugin = (LWCPlugin)loadPlugin("LWC");
+		if (CenotaphSettings.dynmapEnable()) {
+			dynmap = (DynmapAPI)loadPlugin("dynmap");
+			if (dynmap != null) dynThread.activate(dynmap);
+		}
+		if (CenotaphSettings.worldguardEnable())
+			worldguard = (WorldGuardPlugin)loadPlugin("WorldGuard");
+		
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
-	    
-		if (versionCheck) {
-			versionCheck(true);
-		}
 
 		// Start removal timer. Run every 5 seconds (20 ticks per second)
-		if (securityRemove || cenotaphRemove)
+		if (CenotaphSettings.securityRemove() || CenotaphSettings.cenotaphRemove())
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(this), 0L, 100L);
 	}
+	
+	public String getVersion() {
+		return version;
+	}
+	
+    boolean loadSettings() {
+        
+        try {
+            CenotaphSettings.loadConfig(this.getDataFolder() + File.separator + "config.yml", getVersion());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        signMessage = loadSign();
+        return true;
+    }
 
     private boolean setupEconomy()
     {
@@ -197,128 +180,128 @@ public class Cenotaph extends JavaPlugin {
         }
     }
 	
-	public void loadConfig() {
-		this.reloadConfig();
-		config = this.getConfig();
+//	public void loadConfig() {
+//		this.reloadConfig();
+//		config = this.getConfig();
+//
+//		configVer = config.getInt("configVer", configVer);
+//		if (configVer == 0) {
+//			log.info("[Cenotaph] Configuration error or no config file found. Generating default config file.");
+//			saveDefaultConfig();
+//			this.reloadConfig();
+//			config = this.getConfig();
+//		}
+//		else if (configVer < configCurrent) {
+//			log.warning("[Cenotaph] Your config file is out of date! Delete your config and /cenadmin reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
+//		}
+//
+//		//Core
+//		cenotaphSign = config.getBoolean("Core.cenotaphSign", cenotaphSign);
+//		noDestroy = config.getBoolean("Core.noDestroy", noDestroy);
+//		saveCenotaphList = config.getBoolean("Core.saveCenotaphList", saveCenotaphList);
+//		noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
+//		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
+//		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
+//		oneBlockUp = config.getBoolean("Core.oneBlockUp",oneBlockUp);
+//		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
+//		tntProtection = config.getBoolean("Core.tntProtection", tntProtection);
+//		
+//		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
+//		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
+//		dynmapEnable = config.getBoolean("Core.dynmapEnable", dynmapEnable);
+//		worldguardSupport = config.getBoolean("Core.worldguardSupport", worldguardSupport);
+//		moneyTake = (float) config.getDouble("Core.moneyTake", moneyTake);
+//		
+//	    if (CenotaphSettings.cenotaphCost() > 0 && !economyEnabled){
+//    		log.severe(String.format("[%s] - Make sure you have both Vault and an Economy plugin installed. Money will NOT be taken on cenotaph creation.", getDescription().getName()));
+//    		moneyTake = 0;
+//	    }
+//	    
+//	    if (CenotaphSettings.worldguardEnable()){
+//	    	if (getServer().getPluginManager().getPlugin("WorldGuard") == null) {
+//	    		log.severe(String.format("[%s] - worldguardSupport is set to true but WorldGuard was not found. Will NOT respect WorldGuard protections.", getDescription().getName()));
+//	    		worldguardSupport = false;
+//	    		//getServer().getPluginManager().disablePlugin(this);
+//	    		//return;
+//	    	}
+//	    }
+//		
+//		try {
+//			disableInWorlds = config.getStringList("Core.disableInWorlds");
+//		} catch (NullPointerException e) {
+//			log.warning("[Cenotaph] Configuration failure while loading disableInWorlds. Using defaults.");
+//		}
+//
+//		//Removal
+//		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
+//		cenotaphRemove = config.getBoolean("Removal.cenotaphRemove", cenotaphRemove);
+//		removeTime = config.getInt("Removal.removeTime", removeTime);
+//		removeWhenEmpty = config.getBoolean("Removal.removeWhenEmpty", removeWhenEmpty);
+//		keepUntilEmpty = config.getBoolean("Removal.keepUntilEmpty", keepUntilEmpty);
+//		levelBasedRemoval = config.getBoolean("Removal.levelBasedRemoval", levelBasedRemoval);
+//		levelBasedTime = config.getInt("Removal.levelBasedTime", levelBasedTime);
+//
+//		//Security
+//		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
+//		lwcEnable = config.getBoolean("Security.lwcEnable", lwcEnable);
+//
+//		//ToDo: Remove this if LWC is ever fixed.
+//		if(lwcEnable == true){
+//			getLogger().info("LWC support is currently disabled. Please see Release notes for this version of Cenotaph!");
+//			lwcEnable = false;
+//		}
+//
+//		securityRemove = config.getBoolean("Security.securityRemove", securityRemove);
+//		securityTimeout = config.getInt("Security.securityTimeout", securityTimeout);
+//		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
+//
+//		//DeathMessages
+//		try {
+//			deathMessages = (HashMap<String, Object>)config.getConfigurationSection("DeathMessages").getValues(true);
+//		} catch (NullPointerException e) {
+//			log.warning("[Cenotaph] Configuration failure while loading deathMessages. Using defaults.");
+//		}
+//	}
 
-		configVer = config.getInt("configVer", configVer);
-		if (configVer == 0) {
-			log.info("[Cenotaph] Configuration error or no config file found. Generating default config file.");
-			saveDefaultConfig();
-			this.reloadConfig();
-			config = this.getConfig();
-		}
-		else if (configVer < configCurrent) {
-			log.warning("[Cenotaph] Your config file is out of date! Delete your config and /cenadmin reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
-		}
-
-		//Core
-		cenotaphSign = config.getBoolean("Core.cenotaphSign", cenotaphSign);
-		noDestroy = config.getBoolean("Core.noDestroy", noDestroy);
-		saveCenotaphList = config.getBoolean("Core.saveCenotaphList", saveCenotaphList);
-		noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
-		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
-		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
-		oneBlockUp = config.getBoolean("Core.oneBlockUp",oneBlockUp);
-		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
-		tntProtection = config.getBoolean("Core.tntProtection", tntProtection);
-		signMessage = loadSign();
-		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
-		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
-		dynmapEnable = config.getBoolean("Core.dynmapEnable", dynmapEnable);
-		worldguardSupport = config.getBoolean("Core.worldguardSupport", worldguardSupport);
-		moneyTake = (float) config.getDouble("Core.moneyTake", moneyTake);
-		
-	    if (moneyTake > 0 && !economyEnabled){
-    		log.severe(String.format("[%s] - Make sure you have both Vault and an Economy plugin installed. Money will NOT be taken on cenotaph creation.", getDescription().getName()));
-    		moneyTake = 0;
-	    }
-	    
-	    if (worldguardSupport){
-	    	if (getServer().getPluginManager().getPlugin("WorldGuard") == null) {
-	    		log.severe(String.format("[%s] - worldguardSupport is set to true but WorldGuard was not found. Will NOT respect WorldGuard protections.", getDescription().getName()));
-	    		worldguardSupport = false;
-	    		//getServer().getPluginManager().disablePlugin(this);
-	    		//return;
-	    	}
-	    }
-		
-		try {
-			disableInWorlds = config.getStringList("Core.disableInWorlds");
-		} catch (NullPointerException e) {
-			log.warning("[Cenotaph] Configuration failure while loading disableInWorlds. Using defaults.");
-		}
-
-		//Removal
-		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
-		cenotaphRemove = config.getBoolean("Removal.cenotaphRemove", cenotaphRemove);
-		removeTime = config.getInt("Removal.removeTime", removeTime);
-		removeWhenEmpty = config.getBoolean("Removal.removeWhenEmpty", removeWhenEmpty);
-		keepUntilEmpty = config.getBoolean("Removal.keepUntilEmpty", keepUntilEmpty);
-		levelBasedRemoval = config.getBoolean("Removal.levelBasedRemoval", levelBasedRemoval);
-		levelBasedTime = config.getInt("Removal.levelBasedTime", levelBasedTime);
-
-		//Security
-		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
-		lwcEnable = config.getBoolean("Security.lwcEnable", lwcEnable);
-
-		//ToDo: Remove this if LWC is ever fixed.
-		if(lwcEnable == true){
-			getLogger().info("LWC support is currently disabled. Please see Release notes for this version of Cenotaph!");
-			lwcEnable = false;
-		}
-
-		securityRemove = config.getBoolean("Security.securityRemove", securityRemove);
-		securityTimeout = config.getInt("Security.securityTimeout", securityTimeout);
-		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
-
-		//DeathMessages
-		try {
-			deathMessages = (HashMap<String, Object>)config.getConfigurationSection("DeathMessages").getValues(true);
-		} catch (NullPointerException e) {
-			log.warning("[Cenotaph] Configuration failure while loading deathMessages. Using defaults.");
-		}
-	}
-
-	private void initDeathMessagesDefaults() {
-		deathMessages.put("Monster.Zombie", "a Zombie");
-		deathMessages.put("Monster.Skeleton", "a Skeleton");
-		deathMessages.put("Monster.Spider", "a Spider");
-		deathMessages.put("Monster.Wolf", "a Wolf");
-		deathMessages.put("Monster.Creeper", "a Creeper");
-		deathMessages.put("Monster.Slime", "a Slime");
-		deathMessages.put("Monster.Ghast", "a Ghast");
-		deathMessages.put("Monster.PigZombie", "a Pig Zombie");
-		deathMessages.put("Monster.Giant", "a Giant");
-		deathMessages.put("Monster.Other", "a Monster");
-		deathMessages.put("Monster.Blaze", "a Blaze");
-		deathMessages.put("Monster.CaveSpider", "a Cave Spider");
-		deathMessages.put("Monster.EnderDragon", "a Dragon");
-		deathMessages.put("Monster.Enderman", "an Enderman");
-		deathMessages.put("Monster.IronGolem", "an Iron Golem");
-		deathMessages.put("Monster.MagmaCube", "a Magma Cube");
-		deathMessages.put("Monster.Silverfish", "a Siverfish");
-
-		deathMessages.put("World.Cactus", "a Cactus");
-		deathMessages.put("World.Suffocation", "Suffocation");
-		deathMessages.put("World.Fall", "a Fall");
-		deathMessages.put("World.Fire", "a Fire");
-		deathMessages.put("World.Burning", "Burning");
-		deathMessages.put("World.Lava", "Lava");
-		deathMessages.put("World.Drowning", "Drowning");
-		deathMessages.put("World.Lightning", "Lightning");
-
-		deathMessages.put("Explosion.Misc", "an Explosion");
-		deathMessages.put("Explosion.TNT", "a TNT Explosion");
-
-		deathMessages.put("Misc.Dispenser", "a Dispenser");
-		deathMessages.put("Misc.Void", "the Void");
-		deathMessages.put("Misc.Other", "Unknown");
-	}
-	
+//	private void initDeathMessagesDefaults() {
+//		deathMessages.put("Monster.Zombie", "a Zombie");
+//		deathMessages.put("Monster.Skeleton", "a Skeleton");
+//		deathMessages.put("Monster.Spider", "a Spider");
+//		deathMessages.put("Monster.Wolf", "a Wolf");
+//		deathMessages.put("Monster.Creeper", "a Creeper");
+//		deathMessages.put("Monster.Slime", "a Slime");
+//		deathMessages.put("Monster.Ghast", "a Ghast");
+//		deathMessages.put("Monster.PigZombie", "a Pig Zombie");
+//		deathMessages.put("Monster.Giant", "a Giant");
+//		deathMessages.put("Monster.Other", "a Monster");
+//		deathMessages.put("Monster.Blaze", "a Blaze");
+//		deathMessages.put("Monster.CaveSpider", "a Cave Spider");
+//		deathMessages.put("Monster.EnderDragon", "a Dragon");
+//		deathMessages.put("Monster.Enderman", "an Enderman");
+//		deathMessages.put("Monster.IronGolem", "an Iron Golem");
+//		deathMessages.put("Monster.MagmaCube", "a Magma Cube");
+//		deathMessages.put("Monster.Silverfish", "a Siverfish");
+//
+//		deathMessages.put("World.Cactus", "a Cactus");
+//		deathMessages.put("World.Suffocation", "Suffocation");
+//		deathMessages.put("World.Fall", "a Fall");
+//		deathMessages.put("World.Fire", "a Fire");
+//		deathMessages.put("World.Burning", "Burning");
+//		deathMessages.put("World.Lava", "Lava");
+//		deathMessages.put("World.Drowning", "Drowning");
+//		deathMessages.put("World.Lightning", "Lightning");
+//
+//		deathMessages.put("Explosion.Misc", "an Explosion");
+//		deathMessages.put("Explosion.TNT", "a TNT Explosion");
+//
+//		deathMessages.put("Misc.Dispenser", "a Dispenser");
+//		deathMessages.put("Misc.Void", "the Void");
+//		deathMessages.put("Misc.Other", "Unknown");
+//	}
+//	
 
 	public void loadTombList(String world) {
-		if (!saveCenotaphList) return;
+		if (!CenotaphSettings.saveCenotaphList()) return;
 		try {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
 			if (!fh.exists()) return;
@@ -376,7 +359,7 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	public void saveCenotaphList(String world) {
-		if (!saveCenotaphList) return;
+		if (!CenotaphSettings.saveCenotaphList()) return;
 		try {
 			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(fh));
@@ -427,20 +410,20 @@ public class Cenotaph extends JavaPlugin {
 		if (world == null) return null;
 		return world.getBlockAt(Integer.valueOf(split[1]), Integer.valueOf(split[2]), Integer.valueOf(split[3]));
 	}
-
 	
 	@Override
 	public void onDisable() {
 		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
-		if (dynmapEnable && dynmap != null) dynThread.cenotaphLayer.cleanup();
+		if (CenotaphSettings.dynmapEnable() && dynmap != null) dynThread.cenotaphLayer.cleanup();
 		getServer().getScheduler().cancelTasks(this);
 	}
+
 	private String[] loadSign() {
 		String[] msg = signMessage;
-		msg[0] = config.getString("Core.Sign.Line1", signMessage[0]);
-		msg[1] = config.getString("Core.Sign.Line2", signMessage[1]);
-		msg[2] = config.getString("Core.Sign.Line3", signMessage[2]);
-		msg[3] = config.getString("Core.Sign.Line4", signMessage[3]);
+		msg[0] = CenotaphSettings.signLine1();
+		msg[1] = CenotaphSettings.signLine2();
+		msg[2] = CenotaphSettings.signLine3();
+		msg[3] = CenotaphSettings.signLine4();
 		return msg;
 	}
 
@@ -462,7 +445,7 @@ public class Cenotaph extends JavaPlugin {
 	}
 
 	public void deactivateLWC(TombBlock tBlock, boolean force) {
-		if (!lwcEnable) return;
+		if (!CenotaphSettings.lwcEnable()) return;
 		if (lwcPlugin == null) return;
 
 		LWC lwc = lwcPlugin.getLWC();
@@ -473,7 +456,7 @@ public class Cenotaph extends JavaPlugin {
 		if (protection != null) {
 			protection.remove();
 			//Set to public instead of removing completely
-			if (lwcPublic && !force)
+			if (CenotaphSettings.lwcPublic() && !force)
 				lwc.getPhysicalDatabase().registerProtection(_block.getType(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 		}
 		else
@@ -488,7 +471,7 @@ public class Cenotaph extends JavaPlugin {
 			if (protection != null) {
 				protection.remove();
 				// Set to public instead of removing completely
-				if (lwcPublic && !force)
+				if (CenotaphSettings.lwcPublic() && !force)
 					lwc.getPhysicalDatabase().registerProtection(_block.getType(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
 			}
 		}
@@ -521,11 +504,6 @@ public class Cenotaph extends JavaPlugin {
 
 		if (tBlock.getBlock() != null)
 			saveCenotaphList(tBlock.getBlock().getWorld().getName());
-	}
-
-	//Never updated, so I removed it... :)
-	public String versionCheck(Boolean printToLog) {
-		return getDescription().getVersion();
 	}
 
 	/**
