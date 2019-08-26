@@ -108,7 +108,6 @@ public class Cenotaph extends JavaPlugin {
 	};
 	public boolean worldguardSupport = false;
 	private String version = "2.0.0";
-	//public HashMap<String, Object> deathMessages = new HashMap<String, Object>();
 	public static Economy econ = null;	
 
 	@Override
@@ -127,7 +126,6 @@ public class Cenotaph extends JavaPlugin {
 
 		economyEnabled = setupEconomy();
 		
-		//initDeathMessagesDefaults();
 		version = this.getDescription().getVersion();
 		
 		if (!loadSettings()) {
@@ -179,126 +177,6 @@ public class Cenotaph extends JavaPlugin {
         	return false;
         }
     }
-	
-//	public void loadConfig() {
-//		this.reloadConfig();
-//		config = this.getConfig();
-//
-//		configVer = config.getInt("configVer", configVer);
-//		if (configVer == 0) {
-//			log.info("[Cenotaph] Configuration error or no config file found. Generating default config file.");
-//			saveDefaultConfig();
-//			this.reloadConfig();
-//			config = this.getConfig();
-//		}
-//		else if (configVer < configCurrent) {
-//			log.warning("[Cenotaph] Your config file is out of date! Delete your config and /cenadmin reload to see the new options. Proceeding using set options from config file and defaults for new options..." );
-//		}
-//
-//		//Core
-//		cenotaphSign = config.getBoolean("Core.cenotaphSign", cenotaphSign);
-//		noDestroy = config.getBoolean("Core.noDestroy", noDestroy);
-//		saveCenotaphList = config.getBoolean("Core.saveCenotaphList", saveCenotaphList);
-//		noInterfere = config.getBoolean("Core.noInterfere", noInterfere);
-//		versionCheck = config.getBoolean("Core.versionCheck", versionCheck);
-//		voidCheck = config.getBoolean("Core.voidCheck", voidCheck);
-//		oneBlockUp = config.getBoolean("Core.oneBlockUp",oneBlockUp);
-//		creeperProtection = config.getBoolean("Core.creeperProtection", creeperProtection);
-//		tntProtection = config.getBoolean("Core.tntProtection", tntProtection);
-//		
-//		dateFormat = config.getString("Core.Sign.dateFormat", dateFormat);
-//		timeFormat = config.getString("Core.Sign.timeFormat", timeFormat);
-//		dynmapEnable = config.getBoolean("Core.dynmapEnable", dynmapEnable);
-//		worldguardSupport = config.getBoolean("Core.worldguardSupport", worldguardSupport);
-//		moneyTake = (float) config.getDouble("Core.moneyTake", moneyTake);
-//		
-//	    if (CenotaphSettings.cenotaphCost() > 0 && !economyEnabled){
-//    		log.severe(String.format("[%s] - Make sure you have both Vault and an Economy plugin installed. Money will NOT be taken on cenotaph creation.", getDescription().getName()));
-//    		moneyTake = 0;
-//	    }
-//	    
-//	    if (CenotaphSettings.worldguardEnable()){
-//	    	if (getServer().getPluginManager().getPlugin("WorldGuard") == null) {
-//	    		log.severe(String.format("[%s] - worldguardSupport is set to true but WorldGuard was not found. Will NOT respect WorldGuard protections.", getDescription().getName()));
-//	    		worldguardSupport = false;
-//	    		//getServer().getPluginManager().disablePlugin(this);
-//	    		//return;
-//	    	}
-//	    }
-//		
-//		try {
-//			disableInWorlds = config.getStringList("Core.disableInWorlds");
-//		} catch (NullPointerException e) {
-//			log.warning("[Cenotaph] Configuration failure while loading disableInWorlds. Using defaults.");
-//		}
-//
-//		//Removal
-//		destroyQuickLoot = config.getBoolean("Removal.destroyQuickLoot", destroyQuickLoot);
-//		cenotaphRemove = config.getBoolean("Removal.cenotaphRemove", cenotaphRemove);
-//		removeTime = config.getInt("Removal.removeTime", removeTime);
-//		removeWhenEmpty = config.getBoolean("Removal.removeWhenEmpty", removeWhenEmpty);
-//		keepUntilEmpty = config.getBoolean("Removal.keepUntilEmpty", keepUntilEmpty);
-//		levelBasedRemoval = config.getBoolean("Removal.levelBasedRemoval", levelBasedRemoval);
-//		levelBasedTime = config.getInt("Removal.levelBasedTime", levelBasedTime);
-//
-//		//Security
-//		LocketteEnable = config.getBoolean("Security.LocketteEnable", LocketteEnable);
-//		lwcEnable = config.getBoolean("Security.lwcEnable", lwcEnable);
-//
-//		//ToDo: Remove this if LWC is ever fixed.
-//		if(lwcEnable == true){
-//			getLogger().info("LWC support is currently disabled. Please see Release notes for this version of Cenotaph!");
-//			lwcEnable = false;
-//		}
-//
-//		securityRemove = config.getBoolean("Security.securityRemove", securityRemove);
-//		securityTimeout = config.getInt("Security.securityTimeout", securityTimeout);
-//		lwcPublic = config.getBoolean("Security.lwcPublic", lwcPublic);
-//
-//		//DeathMessages
-//		try {
-//			deathMessages = (HashMap<String, Object>)config.getConfigurationSection("DeathMessages").getValues(true);
-//		} catch (NullPointerException e) {
-//			log.warning("[Cenotaph] Configuration failure while loading deathMessages. Using defaults.");
-//		}
-//	}
-
-//	private void initDeathMessagesDefaults() {
-//		deathMessages.put("Monster.Zombie", "a Zombie");
-//		deathMessages.put("Monster.Skeleton", "a Skeleton");
-//		deathMessages.put("Monster.Spider", "a Spider");
-//		deathMessages.put("Monster.Wolf", "a Wolf");
-//		deathMessages.put("Monster.Creeper", "a Creeper");
-//		deathMessages.put("Monster.Slime", "a Slime");
-//		deathMessages.put("Monster.Ghast", "a Ghast");
-//		deathMessages.put("Monster.PigZombie", "a Pig Zombie");
-//		deathMessages.put("Monster.Giant", "a Giant");
-//		deathMessages.put("Monster.Other", "a Monster");
-//		deathMessages.put("Monster.Blaze", "a Blaze");
-//		deathMessages.put("Monster.CaveSpider", "a Cave Spider");
-//		deathMessages.put("Monster.EnderDragon", "a Dragon");
-//		deathMessages.put("Monster.Enderman", "an Enderman");
-//		deathMessages.put("Monster.IronGolem", "an Iron Golem");
-//		deathMessages.put("Monster.MagmaCube", "a Magma Cube");
-//		deathMessages.put("Monster.Silverfish", "a Siverfish");
-//
-//		deathMessages.put("World.Cactus", "a Cactus");
-//		deathMessages.put("World.Suffocation", "Suffocation");
-//		deathMessages.put("World.Fall", "a Fall");
-//		deathMessages.put("World.Fire", "a Fire");
-//		deathMessages.put("World.Burning", "Burning");
-//		deathMessages.put("World.Lava", "Lava");
-//		deathMessages.put("World.Drowning", "Drowning");
-//		deathMessages.put("World.Lightning", "Lightning");
-//
-//		deathMessages.put("Explosion.Misc", "an Explosion");
-//		deathMessages.put("Explosion.TNT", "a TNT Explosion");
-//
-//		deathMessages.put("Misc.Dispenser", "a Dispenser");
-//		deathMessages.put("Misc.Void", "the Void");
-//		deathMessages.put("Misc.Other", "Unknown");
-//	}
-//	
 
 	public void loadTombList(String world) {
 		if (!CenotaphSettings.saveCenotaphList()) return;
