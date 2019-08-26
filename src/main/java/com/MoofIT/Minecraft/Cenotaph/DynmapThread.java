@@ -145,10 +145,10 @@ public class DynmapThread extends Thread {
 			Cenotaph.log.severe("[Cenotaph] Dynmap integration: Error loading Dynmap marker API!");
 			return;
 		}
-		cenotaphLayer = new cenotaphLayer(plugin.config, "[%name%]");
+		cenotaphLayer = new cenotaphLayer(plugin.config, "[%name%]"); //TODO: find out why this works, even though it isn't saved by the config.
 
 		/* Set up update job - based on period */
-		double per = plugin.config.getDouble("update.period", 5.0);
+		double per = plugin.config.getDouble("update.period", 5.0);  //TODO: find out why this works, even though it isn't saved by the config.
 		if(per < 2.0) per = 2.0;
 		updperiod = (long)(per*20.0);
 		stop = false;

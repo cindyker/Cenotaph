@@ -12,26 +12,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Blaze;
-import org.bukkit.entity.CaveSpider;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Ghast;
-import org.bukkit.entity.Giant;
-import org.bukkit.entity.IronGolem;
-import org.bukkit.entity.MagmaCube;
-import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Silverfish;
-import org.bukkit.entity.Skeleton;
-import org.bukkit.entity.Slime;
-import org.bukkit.entity.Spider;
 import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.Wolf;
-import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -69,7 +53,7 @@ public class CenotaphEntityListener implements Listener {
 	public void onEntityExplode(EntityExplodeEvent event)
 	{
 		if (event.isCancelled()) return;
-		if (!plugin.creeperProtection) return;
+		if (!CenotaphSettings.creeperProtection()) return;
 		for (Block block : event.blockList()) {
 			TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
 			if (tBlock != null) {
@@ -83,6 +67,7 @@ public class CenotaphEntityListener implements Listener {
 	{
 		if (!(event.getEntity() instanceof Player)) return;
 		Player p = (Player)event.getEntity();
+		World world = p.getWorld();
 
 		if (!p.hasPermission("cenotaph.use")) return;
 
@@ -91,12 +76,9 @@ public class CenotaphEntityListener implements Listener {
 			return;
 		}
 
-		for (String world : plugin.disableInWorlds) {
-			String curWorld = p.getWorld().getName();
-			if (world.equalsIgnoreCase(curWorld)) {
-				plugin.sendMessage(p,"Cenotaph disabled in " + curWorld + ". Inv dropped.");
-				return;
-			}
+		if (CenotaphSettings.disabledWorlds().contains(world.getName())) {
+			plugin.sendMessage(p,"Cenotaph disabled in " + world.getName() + ". Inv dropped.");
+			return;
 		}
 
 
@@ -110,7 +92,7 @@ public class CenotaphEntityListener implements Listener {
 		}
 
 		//Don't create the chest if it or its sign would be in the void
-		if (plugin.voidCheck && ((plugin.cenotaphSign && block.getY() > p.getWorld().getMaxHeight() - 1) || (!plugin.cenotaphSign && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) {
+		if (CenotaphSettings.voidCheck() && ((CenotaphSettings.cenotaphSign() && block.getY() > p.getWorld().getMaxHeight() - 1) || (!CenotaphSettings.cenotaphSign() && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) {
 			plugin.sendMessage(p, "Chest would be in the Void. Inv dropped.");
 			return;
 		}
@@ -128,8 +110,8 @@ public class CenotaphEntityListener implements Listener {
 		
 		if (Cenotaph.economyEnabled) {
 			//Check balance
-			if (!p.hasPermission("cenotaph.nocost") && plugin.moneyTake > 0){
-			if (Cenotaph.econ.getBalance(p) < plugin.moneyTake){
+			if (!p.hasPermission("cenotaph.nocost") && CenotaphSettings.cenotaphCost() > 0){
+			if (Cenotaph.econ.getBalance(p) < CenotaphSettings.cenotaphCost()){
 				plugin.sendMessage(p, "Not enough money! Inv dropped.");
 				return;
 				}
@@ -164,7 +146,7 @@ public class CenotaphEntityListener implements Listener {
 		}
 
 		// Check if there is a nearby chest
-		if (plugin.noInterfere && checkChest(block)) {
+		if (CenotaphSettings.noInterfere() && checkChest(block)) {
 			plugin.sendMessage(p, "Existing chest interfering with chest placement. Inv dropped.");
 			return;
 		}
@@ -210,7 +192,7 @@ public class CenotaphEntityListener implements Listener {
 
 		// Check if we have signs enabled, if the player can use signs, and if the player has a sign or gets a free sign
 		Block sBlock = null;
-		if (plugin.cenotaphSign && p.hasPermission("cenotaph.sign") &&
+		if (CenotaphSettings.cenotaphSign() && p.hasPermission("cenotaph.sign") &&
 			(pSignCount > 0 || p.hasPermission("cenotaph.freesign"))) {
 			// Find a place to put the sign, then place the sign.
 			sBlock = sChest.getWorld().getBlockAt(sChest.getX(), sChest.getY() + 1, sChest.getZ());
@@ -316,36 +298,36 @@ public class CenotaphEntityListener implements Listener {
 			} else if (removeChestCount == 0) break;
 		}
 
-		int breakTime = (plugin.levelBasedRemoval ? Math.min(p.getLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime);
+		int breakTime = (CenotaphSettings.levelBasedRemoval() ? Math.min(p.getLevel() + 1 * CenotaphSettings.levelBasedTime(), CenotaphSettings.cenotaphRemoveTime()) : CenotaphSettings.cenotaphRemoveTime());
 		String msg = "Inv stored. ";
 		if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + "Overflow: " + ChatColor.WHITE + event.getDrops().size() + " ";
 		msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
 		if (prot) {
 			msg += (protLWC ? "LWC" : "Lockette") + " ";
-			if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + plugin.convertTime(plugin.securityTimeout) + " ";
+			if (CenotaphSettings.securityRemove()) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + plugin.convertTime(CenotaphSettings.securityTimeOut()) + " ";
 		}
 		else msg += "None ";
-		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(breakTime) : "Inf") + " ";
-		if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
+		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (CenotaphSettings.cenotaphRemove() ? plugin.convertTime(breakTime) : "Inf") + " ";
+		if (CenotaphSettings.removeWhenEmpty() || CenotaphSettings.keepUntilEmpty()) {
 			msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
-			if (plugin.removeWhenEmpty) msg += "Break on empty";
-			if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
-			if (plugin.keepUntilEmpty) msg += "Keep until empty";
+			if (CenotaphSettings.removeWhenEmpty()) msg += "Break on empty";
+			if (CenotaphSettings.removeWhenEmpty() && CenotaphSettings.keepUntilEmpty()) msg += " & ";
+			if (CenotaphSettings.keepUntilEmpty()) msg += "Keep until empty";
 		}
 		plugin.sendMessage(p, msg);
 		
 		//Subtract money
-		if (!p.hasPermission("cenotaph.nocost") && plugin.moneyTake > 0){
-		EconomyResponse r = Cenotaph.econ.withdrawPlayer(p, plugin.moneyTake);
+		if (!p.hasPermission("cenotaph.nocost") && CenotaphSettings.cenotaphCost() > 0){
+		EconomyResponse r = Cenotaph.econ.withdrawPlayer(Bukkit.getOfflinePlayer(p.getUniqueId()), CenotaphSettings.cenotaphCost());
 		if (r.transactionSuccess()){
-			plugin.sendMessage(p, plugin.moneyTake + " " + Cenotaph.econ.currencyNamePlural() + " has been taken from your account.");
+			plugin.sendMessage(p, CenotaphSettings.cenotaphCost() + " " + Cenotaph.econ.currencyNamePlural() + " has been taken from your account.");
 		}
 		}
 	}
 
 	private void createSign(Block signBlock, Player p) {
-		String date = new SimpleDateFormat(plugin.dateFormat).format(new Date());
-		String time = new SimpleDateFormat(plugin.timeFormat).format(new Date());
+		String date = new SimpleDateFormat(CenotaphSettings.dateFormat()).format(new Date());
+		String time = new SimpleDateFormat(CenotaphSettings.timeFormat()).format(new Date());
 		String name = p.getName();
 		String reason = "Unknown";
 
@@ -377,7 +359,7 @@ public class CenotaphEntityListener implements Listener {
 	}
 
 	private Boolean protectWithLockette(Player player, TombBlock tBlock) {
-		if (!plugin.LocketteEnable) return false;
+		if (!CenotaphSettings.locketteEnable()) return false;
 
        // plugin.getLogger().info("Protecting with lockette!");
 		Block signBlock = null;
@@ -429,7 +411,7 @@ public class CenotaphEntityListener implements Listener {
 	}
 
 	private Boolean activateLWC(Player player, TombBlock tBlock) {
-		if (!plugin.lwcEnable) return false;
+		if (!CenotaphSettings.lwcEnable()) return false;
 		if (plugin.lwcPlugin == null) return false;
 
 		plugin.getLogger().info("LWC is NOT currently SUPPORT in 1.13. It currently Requires Block ID numbers. This version of Cenotaph is No Longer using ID numbers.");
@@ -454,79 +436,47 @@ public class CenotaphEntityListener implements Listener {
 					EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
 					Entity e = event.getDamager();
 					if (e == null) {
-						return plugin.deathMessages.get("Misc.Dispenser").toString();
+						return "Dispenser";
 					} else if (e instanceof Player) {
 						return ((Player) e).getDisplayName();
-					} else if (e instanceof PigZombie) {
-						return plugin.deathMessages.get("Monster.PigZombie").toString();
-					} else if (e instanceof Giant) {
-						return plugin.deathMessages.get("Monster.Giant").toString();
-					} else if (e instanceof Zombie) {
-						return plugin.deathMessages.get("Monster.Zombie").toString();
-					} else if (e instanceof Skeleton) {
-						return plugin.deathMessages.get("Monster.Skeleton").toString();
-					} else if (e instanceof Spider) {
-						return plugin.deathMessages.get("Monster.Spider").toString();
-					} else if (e instanceof Creeper) {
-						return plugin.deathMessages.get("Monster.Creeper").toString();
-					} else if (e instanceof Ghast) {
-						return plugin.deathMessages.get("Monster.Ghast").toString();
-					} else if (e instanceof Slime) {
-						return plugin.deathMessages.get("Monster.Slime").toString();
-					} else if (e instanceof Wolf) {
-						return plugin.deathMessages.get("Monster.Wolf").toString();
-					} else if (e instanceof Blaze) {
-						return plugin.deathMessages.get("Monster.Blaze").toString();
-					} else if (e instanceof CaveSpider) {
-						return plugin.deathMessages.get("Monster.CaveSpider").toString();
-					} else if (e instanceof EnderDragon) {
-						return plugin.deathMessages.get("Monster.EnderDragon").toString();
-					} else if (e instanceof Enderman) {
-						return plugin.deathMessages.get("Monster.Enderman").toString();
-					} else if (e instanceof IronGolem) {
-						return plugin.deathMessages.get("Monster.IronGolem").toString();
-					} else if (e instanceof MagmaCube) {
-						return plugin.deathMessages.get("Monster.MagmaCube").toString();
-					} else if (e instanceof Silverfish) {
-						return plugin.deathMessages.get("Monster.Silverfish").toString();
 					} else {
-						return plugin.deathMessages.get("Monster.Other").toString();
+						return e.getName();
 					}
 				}
 				case CONTACT:
-					return plugin.deathMessages.get("World.Cactus").toString();
+					return "Cactus";
 				case SUFFOCATION:
-					return plugin.deathMessages.get("World.Suffocation").toString();
+					return "Suffocation";
 				case FALL:
-					return plugin.deathMessages.get("World.Fall").toString();
+					return "Fall";
 				case FIRE:
-					return plugin.deathMessages.get("World.Fire").toString();
+					return "Fire";
 				case FIRE_TICK:
-					return plugin.deathMessages.get("World.Burning").toString();
+					return "Burning";
 				case LAVA:
-					return plugin.deathMessages.get("World.Lava").toString();
+					return "Lava";
 				case DROWNING:
-					return plugin.deathMessages.get("World.Drowning").toString();
+					return "Drowning";
 				case BLOCK_EXPLOSION:
-					return plugin.deathMessages.get("Explosion.Misc").toString();
+					return "Explosion";
 				case ENTITY_EXPLOSION:
 				{
 					try {
 						EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
 						Entity e = event.getDamager();
-						if (e instanceof TNTPrimed) return plugin.deathMessages.get("Explosion.TNT").toString();
-						else if (e instanceof Fireball) return plugin.deathMessages.get("Monster.Ghast").toString();
-						else return plugin.deathMessages.get("Monster.Creeper").toString();
+						if (e instanceof TNTPrimed) return "TNT";
+						else if (e instanceof Fireball) return "Ghast";
+						else return "Creeper";
 					} catch (Exception e) {
-						return plugin.deathMessages.get("Explosion.Misc").toString();
+						return "Explosion";
 					}
 				}
 				case VOID:
-					return plugin.deathMessages.get("Misc.Void").toString();
+					return "The Void";
 				case LIGHTNING:
-					return plugin.deathMessages.get("World.Lightning").toString();
+					return "Lightning";
 				default:
-					return plugin.deathMessages.get("Misc.Other").toString();
+					return "Unknown";
 			}
 		} catch (NullPointerException e) {
 			Cenotaph.log.severe("[Cenotaph] Error processing death cause: " + dmg.getCause().toString());
@@ -574,7 +524,7 @@ public class CenotaphEntityListener implements Listener {
 			}
 		}
 
-		if(plugin.oneBlockUp) {
+		if(CenotaphSettings.oneBlockUpCheck()) {
 			//Check block one up, in case of Carpeting/
 			for (int x = baseX - 1; x < baseX + 1; x++) {
 				for (int z = baseZ - 1; z < baseZ + 1; z++) {
@@ -613,13 +563,13 @@ public class CenotaphEntityListener implements Listener {
 		// Check all 4 sides for air.
 		Block exp;
 		exp = base.getWorld().getBlockAt(base.getX() - 1, base.getY(), base.getZ());
-		if (canReplace(exp.getType()) && (!plugin.noInterfere || !checkChest(exp))) return exp;
+		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
 		exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() - 1);
-		if (canReplace(exp.getType()) && (!plugin.noInterfere || !checkChest(exp))) return exp;
+		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
 		exp = base.getWorld().getBlockAt(base.getX() + 1, base.getY(), base.getZ());
-		if (canReplace(exp.getType()) && (!plugin.noInterfere || !checkChest(exp))) return exp;
+		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
 		exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() + 1);
-		if (canReplace(exp.getType()) && (!plugin.noInterfere || !checkChest(exp))) return exp;
+		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
 		return null;
 	}
 
