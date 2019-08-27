@@ -150,7 +150,6 @@ public class CenotaphSettings {
 		return file.exists() || file.mkdirs() || file.isDirectory();
 	}
 	
-	
 	public static boolean cenotaphSign() {		
 		return getBoolean(ConfigNodes.CORE_CENOTAPH_SIGN);		
 	}
@@ -198,7 +197,7 @@ public class CenotaphSettings {
 	public static String signLine4() {
 		return getString(ConfigNodes.CORE_SIGN_LINE4);
 	}
-	
+
 	public static String dateFormat() {
 		return getString(ConfigNodes.CORE_SIGN_DATE_FORMAT);		
 	}
@@ -252,17 +251,21 @@ public class CenotaphSettings {
 		return getBoolean(ConfigNodes.REMOVAL_KEEP_UNTIL_EMPTY);
 	}
 	
-	public static boolean locketteEnable() {
-		return getBoolean(ConfigNodes.SECURITY_LOCKETTE_ENABLE);
+	public static boolean securityEnable() {
+		return getBoolean(ConfigNodes.SECURITY_ENABLE);
 	}
 	
-	public static boolean lwcEnable() {
-		return getBoolean(ConfigNodes.SECURITY_LWC_ENABLE);
-	}
-	
-	public static boolean lwcPublic() {
-		return getBoolean(ConfigNodes.SECURITY_LWC_PUBLIC);
-	}
+//	public static boolean locketteEnable() {
+//		return getBoolean(ConfigNodes.SECURITY_LOCKETTE_ENABLE);
+//	}
+//	
+//	public static boolean lwcEnable() {
+//		return getBoolean(ConfigNodes.SECURITY_LWC_ENABLE);
+//	}
+//	
+//	public static boolean lwcPublic() {
+//		return getBoolean(ConfigNodes.SECURITY_LWC_PUBLIC);
+//	}
 	
 	public static boolean securityRemove() {
 		return getBoolean(ConfigNodes.SECURITY_REMOVE);	

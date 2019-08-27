@@ -5,32 +5,61 @@ description: Dead Man's Chest mod for Bukkit. Forked from Tombstone by Drakia (T
 author: Southpaw018
 authors: [cindyker]
 website: http://www.moofit.com
-softdepend: [WorldGuard, Vault, LWC, dynmap]
+softdepend: [WorldGuard, Vault, dynmap]
 api-version: ${project.bukkitAPIVersion}
 commands:
   cenlist:
     description: Show a list of your Cenotaphs
     usage: /<command> - Show a list of your Cenotaphs
+    permission: cenotaph.cmd.cenotaphlist
+    permission-message: "[Cenotaph] Permission Denied"
     aliases: [cenotaphlist]
   cenfind:
     description: |
       Set your compass to point at the designated Cenotaph.
       Get the index using /cenotaphlist
     usage: /<command> <index> - Point your compass at the given Cenotaph
+    permission: cenotaph.cmd.cenotaphfind
+    permission-message: "[Cenotaph] Permission Denied"
     aliases: [cenotaphfind]
   cenreset:
     description: Reset your compass to spawn
     usage: /<command>
+    permission: cenotaph.cmd.cenotaphreset
+    permission-message: "[Cenotaph] Permission Denied"
     aliases: [cenotaphreset]
   ceninfo:
     description: Show the time left before your cenotaph unlocks or breaks
     usage: /<command> <index>
+    permission: cenotaph.cmd.cenotaphtime
+    permission-message: "[Cenotaph] Permission Denied"
     aliases: [cenotaphinfo,centime,cenotaphtime]
 
   cenadmin:
     description: Admin commands for Cenotaph
-    usage: /<command> for more usage instructions
+    usage: /<command> for more usage instructions 
     aliases: [cenotaphadmin]
+  cenadmin reload:
+    description: Admin command to reload the config.yml
+    usage: /<command>
+  cenadmin list:
+    description: Admin command to list all players with cenotaphs.
+    usage: /<command>    
+  cenadmin list:
+    description: Admin command to list a player's cenotaphs.
+    usage: /<command> [player]
+  cenadmin find:
+    description: Admin command to find a player's cenotaph.
+    usage: /<command> [player] [#]
+  cenadmin info:
+    description: Admin command to see security/time remaining on a player's cenotaph.
+    usage: /<command> [player] [#]
+  cenadmin remove:
+    description: Admin command to remove a player's cenotaph.
+    usage: /<command> [player] [#]
+  cenadmin version:
+    description: Admin command to see Cenotaph version.
+    usage: /<command>
 
 permissions:
   cenotaph.use:
@@ -52,19 +81,9 @@ permissions:
   cenotaph.freesign:
     description: Allow the player to get a free sign whether they are carrying one or not.
     default: false
-  cenotaph.freelockettesign:
-    description: Give the player an additional free sign if using Lockette.
-    default: false
   cenotaph.nocost:
     description: Do not charge this player money when a cenotaph is created.
     default: false
-
-  cenotaph.lwc:
-    description: Protect the placed chest if LWC is enabled
-    default: true
-  cenotaph.lockette:
-    description: Protect the placed chest if Lockette is enabled
-    default: true
 
   cenotaph.cmd.cenotaphlist:
     description: Allow this user to use /cenlist
@@ -79,9 +98,20 @@ permissions:
     description: Allow this user to use /cenreset
     default: true
 
+  cenotaph.admin.*:
+    description: Grants all admin nodes.
+    default: op
+    children:
+      cenotaph.admin: true
+      cenotaph.admin.list: true
+      cenotaph.admin.find: true
+      cenotaph.admin.time: true
+      cenotaph.admin.remove: true
+      cenotaph.admin.reload: true
+      cenotaph.admin.version: true
   cenotaph.admin:
     description: Allow this user to physically destroy others' cenotaphs. Also a prerequisite for use of the other admin commands
-    default: op
+    default: op      
   cenotaph.admin.list:
     description: Allow this user to see all cenotaphs with /cenadmin list
     default: op
@@ -96,4 +126,7 @@ permissions:
     default: op
   cenotaph.admin.reload:
     description: Allow this user to reload Cenotaph's configuration from config.yml
+    default: op
+  cenotaph.admin.version:
+    description: Allow this user to see Cenotaph's version using /cenadmin version
     default: op

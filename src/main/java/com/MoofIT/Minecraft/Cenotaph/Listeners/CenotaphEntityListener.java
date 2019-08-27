@@ -1,4 +1,4 @@
-package com.MoofIT.Minecraft.Cenotaph;
+package com.MoofIT.Minecraft.Cenotaph.Listeners;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,7 +8,6 @@ import java.util.Iterator;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
@@ -24,8 +23,12 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
-import com.griefcraft.lwc.LWC;
-import com.griefcraft.model.Protection;
+
+import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
+import com.MoofIT.Minecraft.Cenotaph.TombBlock;
+import com.MoofIT.Minecraft.Cenotaph.WorldGuardWrapper;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 public class CenotaphEntityListener implements Listener {
@@ -50,10 +53,9 @@ public class CenotaphEntityListener implements Listener {
 	}
 
 	@EventHandler
-	public void onEntityExplode(EntityExplodeEvent event)
-	{
+	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
-		if (!CenotaphSettings.creeperProtection()) return;
+		if (!CenotaphSettings.creeperProtection() && !CenotaphSettings.tntProtection()) return;
 		for (Block block : event.blockList()) {
 			TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
 			if (tBlock != null) {
@@ -98,12 +100,10 @@ public class CenotaphEntityListener implements Listener {
 		}
 
 		//WorldGuard support
-		if (plugin.worldguardSupport){
-
-			plugin.getLogger().info("Checking WorlGuard...");
-
+		if (Cenotaph.worldguardEnabled){
+			//plugin.getLogger().info("Checking WorlGuard...");
 			if (!WorldGuardWrapper.canBuild(p)){
-				plugin.sendMessage(p, "In a protected area. Inv dropped.");
+				plugin.sendMessage(p, "In a WorldGuard protected area. Inv dropped.");
 				return;
 			}
 		}
@@ -111,9 +111,9 @@ public class CenotaphEntityListener implements Listener {
 		if (Cenotaph.economyEnabled) {
 			//Check balance
 			if (!p.hasPermission("cenotaph.nocost") && CenotaphSettings.cenotaphCost() > 0){
-			if (Cenotaph.econ.getBalance(p) < CenotaphSettings.cenotaphCost()){
-				plugin.sendMessage(p, "Not enough money! Inv dropped.");
-				return;
+				if (Cenotaph.econ.getBalance(p) < CenotaphSettings.cenotaphCost()){
+					plugin.sendMessage(p, "Not enough money! Inv dropped.");
+					return;
 				}
 			}
 		}
@@ -129,8 +129,6 @@ public class CenotaphEntityListener implements Listener {
 				if(item.getType() == mat)
 					pSignCount += item.getAmount();
 			}
-
-			//if (item.getType() == Material.SIGN) pSignCount += item.getAmount();
 		}
 
 		if (pChestCount == 0 && !p.hasPermission("cenotaph.freechest")) {
@@ -213,25 +211,8 @@ public class CenotaphEntityListener implements Listener {
 			removeSignCount -= 1;
 
 		// Create a TombBlock for this tombstone
-		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, p.getName(), p.getLevel() + 1, (System.currentTimeMillis() / 1000), p.getUniqueId());
+		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, (System.currentTimeMillis() / 1000), p.getLevel() + 1, p.getUniqueId());
 
-		// Protect the chest/sign if LWC is installed.
-		Boolean prot = false;
-		Boolean protLWC = false;
-		if (p.hasPermission("cenotaph.lwc"))
-			prot = activateLWC(p, tBlock);
-		tBlock.setLwcEnabled(prot);
-		if (prot) protLWC = true;
-
-		// Protect the chest with Lockette if installed, enabled, and unprotected.
-		if (p.hasPermission("cenotaph.lockette") ) {
-			if (p.hasPermission("cenotaph.freelockettesign")) {
-				prot = protectWithLockette(p, tBlock);
-			} else if (pSignCount > removeSignCount) {
-				removeSignCount += 1;
-				prot = protectWithLockette(p, tBlock);
-			}
-		}
 		// Add tombstone to list
 		Cenotaph.tombList.offer(tBlock);
 
@@ -301,13 +282,13 @@ public class CenotaphEntityListener implements Listener {
 		int breakTime = (CenotaphSettings.levelBasedRemoval() ? Math.min(p.getLevel() + 1 * CenotaphSettings.levelBasedTime(), CenotaphSettings.cenotaphRemoveTime()) : CenotaphSettings.cenotaphRemoveTime());
 		String msg = "Inv stored. ";
 		if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + "Overflow: " + ChatColor.WHITE + event.getDrops().size() + " ";
-		msg += ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
-		if (prot) {
-			msg += (protLWC ? "LWC" : "Lockette") + " ";
-			if (CenotaphSettings.securityRemove()) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + plugin.convertTime(CenotaphSettings.securityTimeOut()) + " ";
+		msg += ChatColor.YELLOW + "Security: ";
+		if (CenotaphSettings.securityEnable()) {
+			msg += ChatColor.WHITE + "Enabled ";					
+			if (CenotaphSettings.securityRemove()) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + CenotaphUtil.convertTime(CenotaphSettings.securityTimeOut()) + " ";
 		}
 		else msg += "None ";
-		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (CenotaphSettings.cenotaphRemove() ? plugin.convertTime(breakTime) : "Inf") + " ";
+		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (CenotaphSettings.cenotaphRemove() ? CenotaphUtil.convertTime(breakTime) : "Inf") + " ";
 		if (CenotaphSettings.removeWhenEmpty() || CenotaphSettings.keepUntilEmpty()) {
 			msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
 			if (CenotaphSettings.removeWhenEmpty()) msg += "Break on empty";
@@ -318,10 +299,10 @@ public class CenotaphEntityListener implements Listener {
 		
 		//Subtract money
 		if (!p.hasPermission("cenotaph.nocost") && CenotaphSettings.cenotaphCost() > 0){
-		EconomyResponse r = Cenotaph.econ.withdrawPlayer(Bukkit.getOfflinePlayer(p.getUniqueId()), CenotaphSettings.cenotaphCost());
-		if (r.transactionSuccess()){
-			plugin.sendMessage(p, CenotaphSettings.cenotaphCost() + " " + Cenotaph.econ.currencyNamePlural() + " has been taken from your account.");
-		}
+			EconomyResponse r = Cenotaph.econ.withdrawPlayer(Bukkit.getOfflinePlayer(p.getUniqueId()), CenotaphSettings.cenotaphCost());
+			if (r.transactionSuccess()){
+				plugin.sendMessage(p, CenotaphSettings.cenotaphCost() + " " + Cenotaph.econ.currencyNamePlural() + " has been taken from your account.");
+			}
 		}
 	}
 
@@ -341,7 +322,7 @@ public class CenotaphEntityListener implements Listener {
 		final Sign sign = (Sign)signBlock.getState();
 
 		for (int x = 0; x < 4; x++) {
-			String line = plugin.signMessage[x];
+			String line = CenotaphUtil.signMessage[x];
 			line = line.replace("{name}", name);
 			line = line.replace("{date}", date);
 			line = line.replace("{time}", time);
@@ -356,41 +337,6 @@ public class CenotaphEntityListener implements Listener {
 				sign.update();
 			}
 		});
-	}
-
-	private Boolean protectWithLockette(Player player, TombBlock tBlock) {
-		if (!CenotaphSettings.locketteEnable()) return false;
-
-       // plugin.getLogger().info("Protecting with lockette!");
-		Block signBlock = null;
-
-		signBlock = findPlace(tBlock.getBlock(),true);
-		if (signBlock == null) {
-			//plugin.sendMessage(player, "No room for Lockette sign! Chest unsecured!");
-			return false;
-		}
-
-
-		signBlock.setType(Material.OAK_WALL_SIGN);
-		BlockState signBlockState = signBlock.getState();
-		org.bukkit.block.data.type.WallSign signBlockData = (org.bukkit.block.data.type.WallSign) signBlockState.getBlockData();
-		BlockFace facing = tBlock.getBlock().getFace(signBlock);
-		signBlockData.setFacing(facing);
-		signBlockState.setBlockData(signBlockData);
-
-		final Sign sign = (Sign)signBlockState;
-
-		String name = player.getName();
-		if (name.length() > 15) name = name.substring(0, 15);
-		sign.setLine(0, "[Private]");
-		sign.setLine(1, name);
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				sign.update();
-			}
-		});
-		tBlock.setLocketteSign(signBlock);
-		return true;
 	}
 
 	private void initNoReplaceList() {
@@ -408,24 +354,6 @@ public class CenotaphEntityListener implements Listener {
 		}
 		blockNoReplaceList.add(Material.REDSTONE_TORCH);
 		blockNoReplaceList.add(Material.CAKE);
-	}
-
-	private Boolean activateLWC(Player player, TombBlock tBlock) {
-		if (!CenotaphSettings.lwcEnable()) return false;
-		if (plugin.lwcPlugin == null) return false;
-
-		plugin.getLogger().info("LWC is NOT currently SUPPORT in 1.13. It currently Requires Block ID numbers. This version of Cenotaph is No Longer using ID numbers.");
-		LWC lwc = plugin.lwcPlugin.getLWC();
-
-		// Register the chest + sign as private
-		Block block = tBlock.getBlock();
-		Block sign = tBlock.getSign();
-		lwc.getPhysicalDatabase().registerProtection(block.getType(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", block.getX(), block.getY(), block.getZ());
-		if (sign != null)
-			lwc.getPhysicalDatabase().registerProtection(sign.getType(), Protection.Type.PRIVATE, block.getWorld().getName(), player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
-
-		tBlock.setLwcEnabled(true);
-		return true;
 	}
 
 	private String getCause(EntityDamageEvent dmg) {

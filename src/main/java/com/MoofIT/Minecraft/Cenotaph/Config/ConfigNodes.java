@@ -7,7 +7,7 @@ package com.MoofIT.Minecraft.Cenotaph.Config;
  * written when value is completely removed from an existing config.
  * 
  * To add config options follow these instructions.
- *  - Must have 3 or more values.
+ *  - Must have 2 or more values.
  *  - First value is where the option will be placed: section1.subsection2.subsubsection3
  *  - Second value is the default.
  *  - Third and onwards are lines of comments added to the block. 
@@ -167,32 +167,21 @@ public enum ConfigNodes {
 			"",
 			"# Never remove a cenotaph unless it is empty"),
 	SECURITY_HEADER("security","security",""),
-	SECURITY_LOCKETTE_ENABLE(
-			"security.locketteEnable",
+	SECURITY_ENABLE(
+			"security.securityEnable",
 			"true",
 			"",
-			"# If true, Cenotaph will add a sign on the chest which matches the format of Lockette, Deadbolt."),
-	SECURITY_LWC("security.lwc","",""),	
-	SECURITY_LWC_ENABLE(
-			"security.lwc.enable",
-			"false",
-			"",
-			"# If true, Cenotaph will attempt to lock the chest with LWC for the deceased player."),
-	SECURITY_LWC_PUBLIC(
-			"security.lwc.public",
-			"false",
-			"",
-			"# Set LWC protection to Public instead of removing it after the timeout."),
+			"# If true, Cenotaph will self-protect the tombblock from looters."),
 	SECURITY_REMOVE(
 			"security.securityRemove",
 			"true",
 			"",
-			"# If true the security protection set above will be removed after the below timeOut."),
+			"# If true the security protection set above will be removed after the below timeout."),
 	SECURITY_TIMEOUT(
 			"security.securityTimeOut",
 			"900",
 			"",
-			"# Number of seconds before the security is removed on the cenotaph. Default of 15 minutes.");
+			"# Number of seconds before the security is removed on the cenotaph, if securityRemove is true. Default of 15 minutes.");
 
 	private final String Root;
 	private final String Default;

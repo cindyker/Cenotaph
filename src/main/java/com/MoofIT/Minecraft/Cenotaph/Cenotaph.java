@@ -42,17 +42,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapAPI;
 
-import com.griefcraft.lwc.LWC;
-import com.griefcraft.lwc.LWCPlugin;
-import com.griefcraft.model.Protection;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-
+import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphBlockListener;
+import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphEntityListener;
+import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphPlayerListener;
 import net.milkbowl.vault.economy.Economy;
 
 /*
@@ -86,9 +83,6 @@ public class Cenotaph extends JavaPlugin {
 	public static Cenotaph plugin;
 	
 	PluginManager pm;
-	public LWCPlugin lwcPlugin = null;
-	public DynmapAPI dynmap = null;
-	public WorldGuardPlugin worldguard = null;
 
 	public static ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
 	public static HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
@@ -99,55 +93,41 @@ public class Cenotaph extends JavaPlugin {
 	//TODO: Figure out a different way of showing dynmap markers that doesn't required casting variable to a config that doesn't save them.
 	public FileConfiguration config;
 
+	public DynmapAPI dynmap = null;
 	public static boolean economyEnabled = false;
-	public String signMessage[] = new String[] {
-		"{name}",
-		"RIP",
-		"{date}",
-		"{time}"
-	};
-	public boolean worldguardSupport = false;
+	public static boolean dynmapEnabled = false;
+	public static boolean worldguardEnabled = false;
 	private String version = "2.0.0";
 	public static Economy econ = null;	
 
 	@Override
 	public void onEnable() {
 		log = Logger.getLogger("Minecraft");
-
+		version = this.getDescription().getVersion();
 		plugin = this;
-
-		log.info("Cenotaph " + getDescription().getVersion() + " is enabled.");
-
 		pm = getServer().getPluginManager();
 
 		pm.registerEvents(entityListener,this);
 		pm.registerEvents(blockListener,this);
 		pm.registerEvents(playerListener,this);
-
-		economyEnabled = setupEconomy();
-		
-		version = this.getDescription().getVersion();
-		
+				
 		if (!loadSettings()) {
 			log.info("Cenotaph config.yml couldn't load.");
 			onDisable();
 		}
-		
-		if (CenotaphSettings.lwcEnable())
-			lwcPlugin = (LWCPlugin)loadPlugin("LWC");
-		if (CenotaphSettings.dynmapEnable()) {
-			dynmap = (DynmapAPI)loadPlugin("dynmap");
-			if (dynmap != null) dynThread.activate(dynmap);
-		}
-		if (CenotaphSettings.worldguardEnable())
-			worldguard = (WorldGuardPlugin)loadPlugin("WorldGuard");
+
+		economyEnabled = setupEconomy();
+		dynmapEnabled = setupDynmap();
+		worldguardEnabled = setupWorldGuard();		
 		
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
 
 		// Start removal timer. Run every 5 seconds (20 ticks per second)
-		if (CenotaphSettings.securityRemove() || CenotaphSettings.cenotaphRemove())
+		if (CenotaphSettings.cenotaphRemove())
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(this), 0L, 100L);
+		
+		log.info("Cenotaph " + getDescription().getVersion() + " is enabled.");
 	}
 	
 	public String getVersion() {
@@ -161,22 +141,46 @@ public class Cenotaph extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
-        }
-        signMessage = loadSign();
+        }        
         return true;
     }
 
-    private boolean setupEconomy()
-    {
-    	if (Bukkit.getServer().getPluginManager().isPluginEnabled("Vault")) {
+    private boolean setupEconomy() {
+    	if (pm.isPluginEnabled("Vault")) {
 	        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-	        if (economyProvider != null)
+	        if (economyProvider != null) {
 	            econ = economyProvider.getProvider();
-	        	return (econ != null);
+	            log.info("Cenotaph hooked into Vault.");
+	        }
+	        return (econ != null);
         } else {
         	return false;
         }
     }
+    private boolean setupDynmap() {
+    	if (pm.isPluginEnabled("Dynmap")) {
+    		if (!CenotaphSettings.dynmapEnable())
+    			return false;
+    		else {
+    			dynThread.activate((DynmapAPI) pm.getPlugin("dynmap"));
+    			log.info("Cenotaph hooked into DynMap.");
+    			return true;
+    		}
+    	} 
+    	return false;
+    }
+    private boolean setupWorldGuard() {
+    	if (pm.isPluginEnabled("WorldGuard")) {
+    		if (!CenotaphSettings.worldguardEnable())
+    			return false;
+    		else {
+    			log.info("Cenotaph hooked into WorldGuard.");
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
 
 	public void loadTombList(String world) {
 		if (!CenotaphSettings.saveCenotaphList()) return;
@@ -187,46 +191,50 @@ public class Cenotaph extends JavaPlugin {
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine().trim();
 				String[] split = line.split(":");
-				//block:lblock:sign:owner:level:time:lwc:locketteSign
-				Block block = readBlock(split[0]);
-				Block lBlock = readBlock(split[1]);
-				Block sign = readBlock(split[2]);
-				String owner = split[3];				
-				int level = Integer.valueOf(split[4]);
-				long time = Long.valueOf(split[5]);
-				boolean lwc = Boolean.valueOf(split[6]);
-				Block locketteSign;
-				UUID ownerUUID;
-				if (split.length == 7) {
-					// hack to allow old db files to still be usable
-					locketteSign = null;
-					continue;
-				} else {				
-					locketteSign = readBlock(split[7]);
-				}
-				if (split.length == 8) {
-					ownerUUID = null;
-					continue;
-				} else {
-					ownerUUID = UUID.fromString(split[8]);
-				}
+				Block block, lBlock, sign = null;
+				long time;
+				int level;
+				UUID ownerUUID;				
 				
-				if (block == null || owner == null) {
+				//Try and load old databases first.
+				if (split.length > 6) {
+					//block:lblock:sign:owner:level:time:lwc:locketteSign
+					block = readBlock(split[0]);
+					lBlock = readBlock(split[1]);
+					sign = readBlock(split[2]);									
+					level = Integer.valueOf(split[4]);
+					time = Long.valueOf(split[5]);
+					if (split.length == 8) {
+						ownerUUID = null;
+						continue;
+					} else {
+						ownerUUID = UUID.fromString(split[8]);
+					}
+				//Must be a new database Cenotaph 5.3+
+				} else {
+					//block:lblock:sign:time:ownerlevel:ownerUUID
+					block = readBlock(split[0]);
+					lBlock = readBlock(split[1]);
+					sign = readBlock(split[2]);
+					time = Long.valueOf(split[3]);
+					level = Integer.valueOf(split[4]);
+					ownerUUID = UUID.fromString(split[5]);
+				}
+				if (block == null ) {
 					log.info("[Cenotaph] Invalid entry in database " + fh.getName());
 					continue;
 				}
 				
-				TombBlock tBlock = new TombBlock(block, lBlock, sign, owner, level, time, lwc, locketteSign, ownerUUID);
+				TombBlock tBlock = new TombBlock(block, lBlock, sign, time, level, ownerUUID);
 				tombList.offer(tBlock);
 				// Used for quick tombStone lookup
 				tombBlockList.put(block.getLocation(), tBlock);
 				if (lBlock != null) tombBlockList.put(lBlock.getLocation(), tBlock);
 				if (sign != null) tombBlockList.put(sign.getLocation(), tBlock);
-				if (locketteSign != null) tombBlockList.put(locketteSign.getLocation(), tBlock);
-				ArrayList<TombBlock> pList = playerTombList.get(owner);
+				ArrayList<TombBlock> pList = playerTombList.get(Bukkit.getOfflinePlayer(ownerUUID).getName());
 				if (pList == null) {
 					pList = new ArrayList<TombBlock>();
-					playerTombList.put(owner, pList);
+					playerTombList.put(Bukkit.getOfflinePlayer(ownerUUID).getName(), pList);
 				}
 				pList.add(tBlock);
 			}
@@ -254,18 +262,11 @@ public class Cenotaph extends JavaPlugin {
 				bw.append(":");
 				bw.append(printBlock(tBlock.getSign()));
 				bw.append(":");
-				bw.append(tBlock.getOwner());
+				bw.append(String.valueOf(tBlock.getTime()));
 				bw.append(":");
 				bw.append(Integer.toString(tBlock.getOwnerLevel()));
 				bw.append(":");
-				bw.append(String.valueOf(tBlock.getTime()));
-				bw.append(":");
-				bw.append(String.valueOf(tBlock.getLwcEnabled()));
-				bw.append(":");
-				bw.append(printBlock(tBlock.getLocketteSign()));
-				bw.append(":");
 				bw.append(String.valueOf(tBlock.getOwnerUUID()));
-
 				bw.append(builder.toString());
 				bw.newLine();
 			}
@@ -296,69 +297,9 @@ public class Cenotaph extends JavaPlugin {
 		getServer().getScheduler().cancelTasks(this);
 	}
 
-	private String[] loadSign() {
-		String[] msg = signMessage;
-		msg[0] = CenotaphSettings.signLine1();
-		msg[1] = CenotaphSettings.signLine2();
-		msg[2] = CenotaphSettings.signLine3();
-		msg[3] = CenotaphSettings.signLine4();
-		return msg;
-	}
-
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		return commandExec.onCommand(sender, command, label, args);
-	}
-
-	/*
-	 * Check if a plugin is loaded/enabled. Returns the plugin and print message to console if so, returns null otherwise
-	 */
-	private Plugin loadPlugin(String p) {
-		Plugin plugin = pm.getPlugin(p);
-		if (plugin != null && plugin.isEnabled()) {
-			log.info("[Cenotaph] Using " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
-			return plugin;
-		}
-		return null;
-	}
-
-	public void deactivateLWC(TombBlock tBlock, boolean force) {
-		if (!CenotaphSettings.lwcEnable()) return;
-		if (lwcPlugin == null) return;
-
-		LWC lwc = lwcPlugin.getLWC();
-
-		// Remove the protection on the chest
-		Block _block = tBlock.getBlock();
-		Protection protection = lwc.findProtection(_block.getLocation());
-		if (protection != null) {
-			protection.remove();
-			//Set to public instead of removing completely
-			if (CenotaphSettings.lwcPublic() && !force)
-				lwc.getPhysicalDatabase().registerProtection(_block.getType(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
-		}
-		else
-		{
-			log.info("[Cenotaph] - LWC Protection not found for chest at " + tBlock.getBlock().getLocation().toString());
-		}
-
-		// Remove the protection on the sign
-		_block = tBlock.getSign();
-		if (_block != null) {
-			protection = lwc.findProtection(_block);
-			if (protection != null) {
-				protection.remove();
-				// Set to public instead of removing completely
-				if (CenotaphSettings.lwcPublic() && !force)
-					lwc.getPhysicalDatabase().registerProtection(_block.getType(), Protection.Type.PUBLIC, _block.getWorld().getName(), tBlock.getOwner(), "", _block.getX(), _block.getY(), _block.getZ());
-			}
-		}
-		tBlock.setLwcEnabled(false);
-	}
-	public void deactivateLockette(TombBlock tBlock) {
-		if (tBlock.getLocketteSign() == null) return;
-		tBlock.getLocketteSign().setType(Material.AIR);
-		tBlock.removeLocketteSign();
 	}
 
 	public void removeTomb(TombBlock tBlock, boolean removeList) {
@@ -384,62 +325,6 @@ public class Cenotaph extends JavaPlugin {
 			saveCenotaphList(tBlock.getBlock().getWorld().getName());
 	}
 
-	/**
-	 * Gets the Yaw from one location to another in relation to North.
-	 *
-	 */
-	public double getYawTo(Location from, Location to) {
-			final int distX = to.getBlockX() - from.getBlockX();
-			final int distZ = to.getBlockZ() - from.getBlockZ();
-			double degrees = Math.toDegrees(Math.atan2(-distX, distZ));
-			degrees += 180;
-		return degrees;
-	}
-
-	/**
-	 * Converts a rotation to a cardinal direction name.
-	 * Author: sk89q - Original function from CommandBook plugin
-	 * @param rot
-	 * @return
-	 */
-	public static String getDirection(double rot) {
-		if (0 <= rot && rot < 22.5) {
-			return "North";
-		} else if (22.5 <= rot && rot < 67.5) {
-			return "Northeast";
-		} else if (67.5 <= rot && rot < 112.5) {
-			return "East";
-		} else if (112.5 <= rot && rot < 157.5) {
-			return "Southeast";
-		} else if (157.5 <= rot && rot < 202.5) {
-			return "South";
-		} else if (202.5 <= rot && rot < 247.5) {
-			return "Southwest";
-		} else if (247.5 <= rot && rot < 292.5) {
-			return "West";
-		} else if (292.5 <= rot && rot < 337.5) {
-			return "Northwest";
-		} else if (337.5 <= rot && rot < 360.0) {
-			return "North";
-		} else {
-			return null;
-		}
-	}
-
-	public String convertTime(int s) {
-		String formatted = Integer.toString(s);
-		if (s >= 86400) {
-			formatted = String.format("%dd %d:%02d:%02d", s/86400, (s%86400)/3600, (s%3600)/60, s%60);
-		}
-		else if (s >= 3600) {
-			formatted = String.format("%d:%02d:%02d", s/3600, (s%3600)/60, (s%60));
-		}
-		else if (s > 60) {
-			formatted = String.format("%02d:%02d", s/60, s%60);
-		}
-		return formatted;
-	}
-
 	public void sendMessage(Player player, String message) {
 		player.sendMessage(ChatColor.GOLD + "[Cenotaph] " + ChatColor.WHITE + message);
 	}
@@ -452,12 +337,10 @@ public class Cenotaph extends JavaPlugin {
 			log.severe("[Cenotaph] Error loading world chunk trying to remove cenotaph at " + tBlock.getBlock().getX() + "," + tBlock.getBlock().getY() + "," + tBlock.getBlock().getZ() + " owned by " + tBlock.getOwner() + ".");
 			return;
 		}
-		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
-		deactivateLockette(tBlock);
-		deactivateLWC(tBlock, true);
 
 		tBlock.getBlock().setType(Material.AIR);
 		if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
+		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
 
 		removeTomb(tBlock, true);
 

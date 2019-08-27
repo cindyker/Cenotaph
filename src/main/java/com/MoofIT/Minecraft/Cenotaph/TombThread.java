@@ -6,7 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class TombThread extends Thread {
@@ -69,24 +68,6 @@ public class TombThread extends Thread {
 				}
 			}
 
-			//Security removal check
-			if (CenotaphSettings.securityRemove()) {
-				Player p = plugin.getServer().getPlayer(tBlock.getOwnerUUID());
-
-				if (cTime >= (tBlock.getTime() + CenotaphSettings.securityTimeOut())) {
-					if (tBlock.getLwcEnabled() && plugin.lwcPlugin != null) {
-						plugin.deactivateLWC(tBlock, false);
-						tBlock.setLwcEnabled(false);
-						if (p != null)
-							plugin.sendMessage(p, "LWC protection disabled on your cenotaph!");
-					}
-					if (tBlock.getLocketteSign() != null && CenotaphSettings.locketteEnable()) {
-						plugin.deactivateLockette(tBlock);
-						if (p != null)
-							plugin.sendMessage(p, "Lockette protection disabled on your cenotaph!");
-					}
-				}
-			}
 			//Block removal check
 			if (CenotaphSettings.cenotaphRemove()) {
 				if (CenotaphSettings.levelBasedRemoval()) {

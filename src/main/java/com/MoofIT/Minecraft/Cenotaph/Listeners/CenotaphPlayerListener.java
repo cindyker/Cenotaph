@@ -1,7 +1,6 @@
-package com.MoofIT.Minecraft.Cenotaph;
+package com.MoofIT.Minecraft.Cenotaph.Listeners;
 
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.event.Event.Result;
@@ -11,6 +10,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+
+import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
+import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 
 public class CenotaphPlayerListener implements Listener {
 	private Cenotaph plugin;
@@ -22,18 +25,24 @@ public class CenotaphPlayerListener implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+		if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
+			return;
 		Block b = event.getClickedBlock();
-		if ( !Tag.SIGNS.isTagged( b.getType() ) && b.getType() != Material.CHEST) return;
-		// We'll do quickloot on rightclick of chest if we're going to destroy it anyways
-		if (b.getType() == Material.CHEST && (!CenotaphSettings.destroyQuickloot() || !CenotaphSettings.noDestroy())) return;
-		if (!event.getPlayer().hasPermission("cenotaph.quickloot")) return;
-
+		if (!b.getType().equals(Material.CHEST))
+			return;
 		TombBlock tBlock = Cenotaph.tombBlockList.get(b.getLocation());
-		if (tBlock == null || !(tBlock.getBlock().getState() instanceof Chest)) return;
-
-		if (!tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId())) return;
-
+		if (tBlock == null)
+			return;
+		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId())) {
+			plugin.sendMessage(event.getPlayer(), "This cenotaph is secured."); //TODO: add a nicer message for denial of access.
+			event.setCancelled(true);
+			return;
+		}		
+		// We'll do quickloot on rightclick of chest if we're going to destroy it anyways
+		if (!event.getPlayer().hasPermission("cenotaph.quickloot"))
+			return;		
+		if (!tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId()))
+			return;
 		Chest sChest = (Chest)tBlock.getBlock().getState();
 		Chest lChest = (tBlock.getLBlock() != null) ? (Chest)tBlock.getLBlock().getState() : null;
 
