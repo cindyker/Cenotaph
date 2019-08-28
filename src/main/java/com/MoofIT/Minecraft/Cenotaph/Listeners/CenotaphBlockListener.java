@@ -35,7 +35,7 @@ public class CenotaphBlockListener implements Listener {
 		if (tBlock == null)
 			return;
 
-		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId())) {
+		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId()) && !p.hasPermission("cenotaph.admin")) {
 			plugin.sendMessage(p, "This cenotaph is secured."); //TODO: add a nicer message for denial of access.
 			event.setCancelled(true);
 			return;

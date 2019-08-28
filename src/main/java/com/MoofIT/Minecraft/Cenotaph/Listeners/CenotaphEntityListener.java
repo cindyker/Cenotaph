@@ -8,9 +8,14 @@ import java.util.Iterator;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.Rotatable;
+import org.bukkit.block.data.type.Chest.Type;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -65,8 +70,7 @@ public class CenotaphEntityListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onEntityDeath(EntityDeathEvent event)
-	{
+	public void onEntityDeath(EntityDeathEvent event) {
 		if (!(event.getEntity() instanceof Player)) return;
 		Player p = (Player)event.getEntity();
 		World world = p.getWorld();
@@ -167,7 +171,7 @@ public class CenotaphEntityListener implements Listener {
 		Chest lChest = null;
 		int slot = 0;
 		int maxSlot = sChest.getInventory().getSize();
-
+		BlockFace relativeFace = BlockFace.NORTH;
 		// Check if they need a large chest.
 		if (event.getDrops().size() > maxSlot) {
 			// If they are allowed spawn a large chest to catch their entire inventory.
@@ -176,6 +180,33 @@ public class CenotaphEntityListener implements Listener {
 				// Check if the player has enough chests
 				if (pChestCount >= removeChestCount || p.hasPermission("cenotaph.freechest")) {
 					lBlock.setType(Material.CHEST);
+					// This fun stuff is required post-1.13 when they made chests not snap together. 
+					org.bukkit.block.data.type.Chest blockChestData = (org.bukkit.block.data.type.Chest) block.getBlockData();
+					org.bukkit.block.data.type.Chest lBlockChestData = (org.bukkit.block.data.type.Chest) lBlock.getBlockData();
+					relativeFace = block.getFace(lBlock);
+					if (relativeFace.equals(BlockFace.WEST)) {
+						blockChestData.setFacing(BlockFace.SOUTH);
+						lBlockChestData.setFacing(BlockFace.SOUTH);
+						blockChestData.setType(Type.LEFT);
+						lBlockChestData.setType(Type.RIGHT);
+					} else if (relativeFace.equals(BlockFace.EAST)) {
+						//Chests face North by default so Eastwards lBlock doesn't need the chest faced.
+						blockChestData.setType(Type.LEFT);
+						lBlockChestData.setType(Type.RIGHT);
+					} else if (relativeFace.equals(BlockFace.SOUTH)) {
+						blockChestData.setFacing(BlockFace.EAST);
+						lBlockChestData.setFacing(BlockFace.EAST);
+						blockChestData.setType(Type.LEFT);
+						lBlockChestData.setType(Type.RIGHT);
+					} else if (relativeFace.equals(BlockFace.NORTH)) {
+						blockChestData.setFacing(BlockFace.WEST);
+						lBlockChestData.setFacing(BlockFace.WEST);
+						blockChestData.setType(Type.LEFT);
+						lBlockChestData.setType(Type.RIGHT);							
+					}
+					block.setBlockData(blockChestData,true);
+					lBlock.setBlockData(lBlockChestData,true);
+					
 					lChest = (Chest)lBlock.getState();
 					maxSlot = maxSlot * 2;
 				} else {
@@ -195,17 +226,16 @@ public class CenotaphEntityListener implements Listener {
 			// Find a place to put the sign, then place the sign.
 			sBlock = sChest.getWorld().getBlockAt(sChest.getX(), sChest.getY() + 1, sChest.getZ());
 			if (canReplace(sBlock.getType())) {
-				createSign(sBlock, p);
+				createSign(sBlock, p, relativeFace);
 				removeSignCount += 1;
 			} else if (lChest != null) {
 				sBlock = lChest.getWorld().getBlockAt(lChest.getX(), lChest.getY() + 1, lChest.getZ());
 				if (canReplace(sBlock.getType())) {
-					createSign(sBlock, p);
+					createSign(sBlock, p, relativeFace);
 					removeSignCount += 1;
 				}
 			}
 		}
-
 		// Don't remove a sign if they get a free one
 		if (p.hasPermission("cenotaph.freesign"))
 			removeSignCount -= 1;
@@ -306,7 +336,7 @@ public class CenotaphEntityListener implements Listener {
 		}
 	}
 
-	private void createSign(Block signBlock, Player p) {
+	private void createSign(Block signBlock, Player p, BlockFace bf) {
 		String date = new SimpleDateFormat(CenotaphSettings.dateFormat()).format(new Date());
 		String time = new SimpleDateFormat(CenotaphSettings.timeFormat()).format(new Date());
 		String name = p.getName();
@@ -319,6 +349,11 @@ public class CenotaphEntityListener implements Listener {
 		}
 
 		signBlock.setType(Material.OAK_SIGN);
+		//Lets make the sign appear to look downwards towards the foot of the long chests.
+		org.bukkit.block.data.type.Sign sBlockData = (org.bukkit.block.data.type.Sign) signBlock.getBlockData();
+		sBlockData.setRotation(bf);
+		signBlock.setBlockData(sBlockData);
+		
 		final Sign sign = (Sign)signBlock.getState();
 
 		for (int x = 0; x < 4; x++) {

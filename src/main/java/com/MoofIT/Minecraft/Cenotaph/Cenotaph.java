@@ -42,6 +42,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -93,7 +94,7 @@ public class Cenotaph extends JavaPlugin {
 	//TODO: Figure out a different way of showing dynmap markers that doesn't required casting variable to a config that doesn't save them.
 	public FileConfiguration config;
 
-	public DynmapAPI dynmap = null;
+//	public DynmapAPI dynmap = null;
 	public static boolean economyEnabled = false;
 	public static boolean dynmapEnabled = false;
 	public static boolean worldguardEnabled = false;
@@ -117,8 +118,10 @@ public class Cenotaph extends JavaPlugin {
 		}
 
 		economyEnabled = setupEconomy();
-		dynmapEnabled = setupDynmap();
+		//dynmapEnabled = setupDynmap();
 		worldguardEnabled = setupWorldGuard();		
+//		dynmap = (DynmapAPI)loadPlugin("dynmap");
+//		if (dynmapEnabled && dynmap != null) dynThread.activate(dynmap);
 		
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
@@ -134,6 +137,15 @@ public class Cenotaph extends JavaPlugin {
 		return version;
 	}
 	
+//	private Plugin loadPlugin(String p) {
+//		Plugin plugin = pm.getPlugin(p);
+//		if (plugin != null && plugin.isEnabled()) {
+//			log.info("[Cenotaph] Using " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
+//			return plugin;
+//		}
+//		return null;
+//	}
+//	
     boolean loadSettings() {
         
         try {
@@ -293,7 +305,7 @@ public class Cenotaph extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
-		if (CenotaphSettings.dynmapEnable() && dynmap != null) dynThread.cenotaphLayer.cleanup();
+//		if (CenotaphSettings.dynmapEnable() && dynmap != null) dynThread.cenotaphLayer.cleanup();
 		getServer().getScheduler().cancelTasks(this);
 	}
 
