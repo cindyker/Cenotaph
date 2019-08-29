@@ -15,7 +15,6 @@ public class CenotaphCommand implements CommandExecutor {
 		this.plugin = instance;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (!(sender instanceof Player)) return false;
@@ -49,7 +48,7 @@ public class CenotaphCommand implements CommandExecutor {
 			return true;
 
 		} else if (cmd.equalsIgnoreCase("cenfind")) {
-			TombBlock tBlock = getBlockByIndex(p.getName(), args.length == 0 ? "last" : args[0]);
+			TombBlock tBlock = CenotaphUtil.getBlockByIndex(p.getName(), args.length == 0 ? "last" : args[0]);
 			if (tBlock == null) {
 				CenotaphMessaging.sendPrefixedPlayerMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
 				return true;
@@ -60,7 +59,7 @@ public class CenotaphCommand implements CommandExecutor {
 			return true;
 			
 		} else if (cmd.equalsIgnoreCase("ceninfo")) {			
-			TombBlock tBlock = getBlockByIndex(p.getName(), args.length == 0 ? "last" : args[0]);
+			TombBlock tBlock = CenotaphUtil.getBlockByIndex(p.getName(), args.length == 0 ? "last" : args[0]);
 			if (tBlock == null) {
 				CenotaphMessaging.sendPrefixedPlayerMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
 				return true;
@@ -139,7 +138,7 @@ public class CenotaphCommand implements CommandExecutor {
 				}
 				if (args.length == 1)
 					return false;
-				TombBlock tBlock = getBlockByIndex(playerName, args.length < 3 ? "last" : args[2]);
+				TombBlock tBlock = CenotaphUtil.getBlockByIndex(playerName, args.length < 3 ? "last" : args[2]);
 				if (tBlock == null) {
 					CenotaphMessaging.sendPrefixedPlayerMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
 					return true;
@@ -160,7 +159,7 @@ public class CenotaphCommand implements CommandExecutor {
 				if (args.length == 1)
 					return false;
 
-				TombBlock tBlock = getBlockByIndex(playerName, args.length < 3 ? "last" : args[2]);
+				TombBlock tBlock = CenotaphUtil.getBlockByIndex(playerName, args.length < 3 ? "last" : args[2]);
 				if (tBlock == null) {
 					CenotaphMessaging.sendPrefixedPlayerMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
 					return true;
@@ -227,24 +226,6 @@ public class CenotaphCommand implements CommandExecutor {
 			return true;
 		}
 		return false;
-	}
-
-	private TombBlock getBlockByIndex(String playerName,String index) {
-		ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
-		int slot = 0;
-
-		if (pList == null) return null;
-
-		try {
-			slot = Integer.parseInt(index);
-		} catch (NumberFormatException e) {
-			slot = pList.size();
-		}
-		slot -= 1;
-
-		if (slot < 0 || slot >= pList.size()) return null;
-
-		return pList.get(slot);
 	}
 }
 

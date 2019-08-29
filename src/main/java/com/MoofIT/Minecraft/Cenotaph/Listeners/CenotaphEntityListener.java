@@ -68,6 +68,17 @@ public class CenotaphEntityListener implements Listener {
 			}
 		}
 	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onEntityExplodeMonitor(EntityExplodeEvent event) {
+		if (event.isCancelled()) 
+			return;
+		for (Block block : event.blockList()) {
+			if (CenotaphUtil.isTombBlock(block))
+				if (!event.isCancelled())
+					plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+		}
+	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onEntityDeath(EntityDeathEvent event) {

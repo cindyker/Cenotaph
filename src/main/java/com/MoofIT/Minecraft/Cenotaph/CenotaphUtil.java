@@ -1,5 +1,7 @@
 package com.MoofIT.Minecraft.Cenotaph;
 
+import java.util.ArrayList;
+
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -19,6 +21,24 @@ public class CenotaphUtil {
 			return null;
 		else 
 			return tBlock;
+	}
+	
+	public static TombBlock getBlockByIndex(String playerName,String index) {
+		ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
+		int slot = 0;
+
+		if (pList == null) return null;
+
+		try {
+			slot = Integer.parseInt(index);
+		} catch (NumberFormatException e) {
+			slot = pList.size();
+		}
+		slot -= 1;
+
+		if (slot < 0 || slot >= pList.size()) return null;
+
+		return pList.get(slot);
 	}
 	
 	public static String[] signMessage = {

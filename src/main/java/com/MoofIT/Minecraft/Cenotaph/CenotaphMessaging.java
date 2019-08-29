@@ -39,6 +39,12 @@ public class CenotaphMessaging {
 		return msg;
 	}
 	
+	/** 
+	 * Attempts to send an ActionBar message to the player if the server is using Spigot.
+	 * Falls back to standard sendPrefixedPlayerMessage if Spigot is not being used.
+	 * @param player
+	 * @param message
+	 */
 	public static void sendActionBarPlayerMessage(Player player, String message) {
 		if (!Cenotaph.isSpigot)
 			sendPrefixedPlayerMessage(player, message);

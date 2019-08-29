@@ -12,15 +12,11 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
-
-import java.util.Iterator;
 import java.util.List;
 
 public class CenotaphBlockListener implements Listener {
@@ -63,76 +59,92 @@ public class CenotaphBlockListener implements Listener {
 
 	@EventHandler
 	public void onPistonRetract(BlockPistonRetractEvent event) {
+		if (event.isCancelled()) 
+			return;
 		List<Block> blockList = event.getBlocks();
 		for (Block block : blockList) {
 			if (!CenotaphUtil.isTombBlock(block))
 				return;
 			else if (CenotaphUtil.getTombBlock(block).isSecured())
 				event.setCancelled(true);
-			else
-				// Someone's destroying/moving part of a cenotaph so we'll just take it out of the database.
-				plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
 		}
 	}
-	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPistonRetractMonitor(BlockPistonRetractEvent event) {
+		if (event.isCancelled()) 
+			return;
+		List<Block> blockList = event.getBlocks();
+		for (Block block : blockList) {
+			if (!CenotaphUtil.isTombBlock(block))
+				return;
+			plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+		}
+	}
+
 	@EventHandler
 	public void onPistonExtend(BlockPistonExtendEvent event) {
+		if (event.isCancelled()) 
+			return;
 		List<Block> blockList = event.getBlocks();
 		for (Block block : blockList) {
 			if (!CenotaphUtil.isTombBlock(block))
 				return;
 			else if (CenotaphUtil.getTombBlock(block).isSecured())
 				event.setCancelled(true);
-			else
-				// Someone's destroying/moving part of a cenotaph so we'll just take it out of the database.
-				plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPistonExtendMonitor(BlockPistonExtendEvent event) {
+		if (event.isCancelled()) 
+			return;
+		List<Block> blockList = event.getBlocks();
+		for (Block block : blockList) {
+			if (!CenotaphUtil.isTombBlock(block))
+				return;
+			plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
 		}
 	}
 	
 	@EventHandler
 	public void onBlockIgnite(BlockIgniteEvent event) {
+		if (event.isCancelled()) 
+			return;
 		Block block = event.getBlock();
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
 		else if (CenotaphUtil.getTombBlock(block).isSecured())
 			event.setCancelled(true);
 	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onBlockIgniteMonitor(BlockIgniteEvent event) {
+		if (event.isCancelled()) 
+			return;
+		Block block = event.getBlock();
+		if (!CenotaphUtil.isTombBlock(block))
+			return;
+		plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+	}
 	
 	@EventHandler
 	public void onBlockBurn(BlockBurnEvent event) {
+		if (event.isCancelled()) 
+			return;
 		Block block = event.getBlock();		
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
 		else if (CenotaphUtil.getTombBlock(block).isSecured())
 			event.setCancelled(true);
-		else
-			plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
 	}
-	
 
-
-	// TODO: decide if this is doing anything.
-	//Handle Explosions...
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onEntityExplode(EntityExplodeEvent event) {
-		Iterator<Block> iter = event.blockList().iterator();
-		while (iter.hasNext()) {
-			Block block = iter.next();
-			if (block.getType() != Material.CHEST && Tag.SIGNS.isTagged( block.getType()) ) continue;
-
-			TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
-
-			if (tBlock == null) continue;
-			//plugin.getLogger().info("Found Cenotaph in an explosion!");
-			//its an cenotaph block.. prevent TNT.
-			if( CenotaphSettings.explosionProtection()) {
-			//	plugin.getLogger().info("Protecting Cenotaph from the explosion!");
-				iter.remove();
-			}
-			else if (event.isCancelled()) {
-			//	plugin.getLogger().info("Removing Cenotaph from the list");
-				plugin.removeTomb(tBlock, true);
-			} else return;
-		}
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onBlockBurnMonitor(BlockBurnEvent event) {
+		if (event.isCancelled()) 
+			return;
+		Block block = event.getBlock();		
+		if (!CenotaphUtil.isTombBlock(block))
+			return;
+		plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
 	}
 }
