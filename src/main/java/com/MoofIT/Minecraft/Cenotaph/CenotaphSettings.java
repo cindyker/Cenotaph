@@ -174,12 +174,8 @@ public class CenotaphSettings {
 		return getBoolean(ConfigNodes.CORE_ONE_BLOCK_UP_CHECK);
 	}
 	
-	public static boolean creeperProtection() {
-		return getBoolean(ConfigNodes.CORE_CREEPER_PROTECTION);
-	}
-	
-	public static boolean tntProtection() {
-		return getBoolean(ConfigNodes.CORE_TNT_PROTECTION);		
+	public static boolean explosionProtection() {
+		return getBoolean(ConfigNodes.CORE_EXPLOSION_PROTECTION);		
 	}
 	
 	public static String signLine1() {

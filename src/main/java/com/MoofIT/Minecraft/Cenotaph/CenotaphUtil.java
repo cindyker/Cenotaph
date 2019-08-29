@@ -1,8 +1,25 @@
 package com.MoofIT.Minecraft.Cenotaph;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 
 public class CenotaphUtil {
+	
+	public static boolean isTombBlock(Block block) {
+		TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
+		if (tBlock == null)
+			return false;
+		else 
+			return true;
+	}
+	
+	public static TombBlock getTombBlock(Block block) {
+		TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
+		if (tBlock == null)
+			return null;
+		else 
+			return tBlock;
+	}
 	
 	public static String[] signMessage = {
 		CenotaphSettings.signLine1(),

@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -92,7 +91,8 @@ public class Cenotaph extends JavaPlugin {
 	public static boolean dynmapEnabled = false;
 	public static boolean worldguardEnabled = false;
 	private String version = "2.0.0";
-	public static Economy econ = null;	
+	public static Economy econ = null;
+	public static boolean isSpigot = false;
 
 	@Override
 	public void onEnable() {
@@ -110,6 +110,7 @@ public class Cenotaph extends JavaPlugin {
 			onDisable();
 		}
 
+		isSpigot = isSpigot();
 		economyEnabled = setupEconomy();
 		dynmapEnabled = setupDynmap();
 		worldguardEnabled = setupWorldGuard();		
@@ -128,7 +129,16 @@ public class Cenotaph extends JavaPlugin {
 		return version;
 	}
 
-    boolean loadSettings() {
+	public static boolean isSpigot() {
+		try {
+			Class.forName("org.bukkit.entity.Player$Spigot");
+			return true;
+		} catch (Throwable tr) {
+			return false;
+		}
+	}
+	
+	boolean loadSettings() {
         
         try {
             CenotaphSettings.loadConfig(this.getDataFolder() + File.separator + "config.yml", getVersion());
@@ -319,10 +329,6 @@ public class Cenotaph extends JavaPlugin {
 			saveCenotaphList(tBlock.getBlock().getWorld().getName());
 	}
 
-	public void sendMessage(Player player, String message) {
-		player.sendMessage(ChatColor.GOLD + "[Cenotaph] " + ChatColor.WHITE + message);
-	}
-
 	public void destroyCenotaph(Location loc) {
 		destroyCenotaph(tombBlockList.get(loc));
 	}
@@ -341,7 +347,7 @@ public class Cenotaph extends JavaPlugin {
 		Player p = null;
 		if (tBlock.getOwnerUUID() != null)
 			p = getServer().getPlayer(tBlock.getOwnerUUID());
-		if (p != null) sendMessage(p, "Your cenotaph has broken.");
+		if (p != null) CenotaphMessaging.sendPrefixedPlayerMessage(p, "Your cenotaph has broken.");
 	}
 
 	public HashMap<String, ArrayList<TombBlock>> getCenotaphList() {

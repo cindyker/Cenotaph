@@ -12,7 +12,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 
 public class CenotaphPlayerListener implements Listener {
@@ -22,7 +24,6 @@ public class CenotaphPlayerListener implements Listener {
 		this.plugin = instance;
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
@@ -30,11 +31,11 @@ public class CenotaphPlayerListener implements Listener {
 		Block b = event.getClickedBlock();
 		if (!b.getType().equals(Material.CHEST))
 			return;
-		TombBlock tBlock = Cenotaph.tombBlockList.get(b.getLocation());
-		if (tBlock == null)
+		if (!CenotaphUtil.isTombBlock(b))
 			return;
+		TombBlock tBlock = CenotaphUtil.getTombBlock(b);
 		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId())) {
-			plugin.sendMessage(event.getPlayer(), "This cenotaph is secured."); //TODO: add a nicer message for denial of access.
+			CenotaphMessaging.sendActionBarPlayerMessage(event.getPlayer(), "This cenotaph is secured.");
 			event.setCancelled(true);
 			return;
 		}		

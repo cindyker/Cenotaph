@@ -8,13 +8,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class CenotaphBlockListener implements Listener {
 	private Cenotaph plugin;
@@ -31,18 +38,18 @@ public class CenotaphBlockListener implements Listener {
 		if (b.getType() != Material.CHEST && !Tag.SIGNS.isTagged( b.getType()))
 			return;
 
-		TombBlock tBlock = Cenotaph.tombBlockList.get(b.getLocation());
-		if (tBlock == null)
+		if (!CenotaphUtil.isTombBlock(b))
 			return;
-
+		TombBlock tBlock = CenotaphUtil.getTombBlock(b);
+		
 		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId()) && !p.hasPermission("cenotaph.admin")) {
-			plugin.sendMessage(p, "This cenotaph is secured."); //TODO: add a nicer message for denial of access.
+			CenotaphMessaging.sendActionBarPlayerMessage(p, "This cenotaph is secured.");
 			event.setCancelled(true);
 			return;
 		}
 				
 		if (CenotaphSettings.noDestroy() && !p.hasPermission("cenotaph.admin")) {
-			plugin.sendMessage(p, "You cannot break this cenotaph.");
+			CenotaphMessaging.sendActionBarPlayerMessage(p, "You cannot break this cenotaph.");
 			event.setCancelled(true);
 			return;
 		}
@@ -51,10 +58,60 @@ public class CenotaphBlockListener implements Listener {
 		if (tBlock.getOwnerUUID() != null)
 			owner = plugin.getServer().getPlayer(tBlock.getOwnerUUID());
 		plugin.removeTomb(tBlock, true);
-		if (owner != null) plugin.sendMessage(owner, "Your cenotaph has been destroyed by " + p.getName() + "!");
+		if (owner != null) CenotaphMessaging.sendPrefixedPlayerMessage(owner, "Your cenotaph has been destroyed by " + p.getName() + "!");
 	}
 
+	@EventHandler
+	public void onPistonRetract(BlockPistonRetractEvent event) {
+		List<Block> blockList = event.getBlocks();
+		for (Block block : blockList) {
+			if (!CenotaphUtil.isTombBlock(block))
+				return;
+			else if (CenotaphUtil.getTombBlock(block).isSecured())
+				event.setCancelled(true);
+			else
+				// Someone's destroying/moving part of a cenotaph so we'll just take it out of the database.
+				plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+		}
+	}
+	
+	@EventHandler
+	public void onPistonExtend(BlockPistonExtendEvent event) {
+		List<Block> blockList = event.getBlocks();
+		for (Block block : blockList) {
+			if (!CenotaphUtil.isTombBlock(block))
+				return;
+			else if (CenotaphUtil.getTombBlock(block).isSecured())
+				event.setCancelled(true);
+			else
+				// Someone's destroying/moving part of a cenotaph so we'll just take it out of the database.
+				plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+		}
+	}
+	
+	@EventHandler
+	public void onBlockIgnite(BlockIgniteEvent event) {
+		Block block = event.getBlock();
+		if (!CenotaphUtil.isTombBlock(block))
+			return;
+		else if (CenotaphUtil.getTombBlock(block).isSecured())
+			event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onBlockBurn(BlockBurnEvent event) {
+		Block block = event.getBlock();		
+		if (!CenotaphUtil.isTombBlock(block))
+			return;
+		else if (CenotaphUtil.getTombBlock(block).isSecured())
+			event.setCancelled(true);
+		else
+			plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+	}
+	
 
+
+	// TODO: decide if this is doing anything.
 	//Handle Explosions...
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onEntityExplode(EntityExplodeEvent event) {
@@ -68,7 +125,7 @@ public class CenotaphBlockListener implements Listener {
 			if (tBlock == null) continue;
 			//plugin.getLogger().info("Found Cenotaph in an explosion!");
 			//its an cenotaph block.. prevent TNT.
-			if( CenotaphSettings.tntProtection()) {
+			if( CenotaphSettings.explosionProtection()) {
 			//	plugin.getLogger().info("Protecting Cenotaph from the explosion!");
 				iter.remove();
 			}
