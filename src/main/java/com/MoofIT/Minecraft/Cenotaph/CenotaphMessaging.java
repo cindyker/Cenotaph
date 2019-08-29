@@ -1,6 +1,8 @@
 package com.MoofIT.Minecraft.Cenotaph;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.ChatMessageType;
@@ -50,5 +52,12 @@ public class CenotaphMessaging {
 			sendPrefixedPlayerMessage(player, message);
 		else 
 			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+	}
+
+	public static void sendPrefixedAdminMessage(CommandSender sender, String string) {
+		if (sender instanceof Player)
+			sendPrefixedPlayerMessage((Player) sender, string);
+		else 
+			Bukkit.getConsoleSender().sendMessage("[Cenotaph] " + string);
 	}
 }
