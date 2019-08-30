@@ -47,11 +47,6 @@ public enum ConfigNodes {
 			"true",
 			"",
 			"# Save Cenotaph listing between server stop and starts if true."),
-	CORE_NO_INTERFERE(
-			"core.no_interfere",
-			"true",
-			"",
-			"# Stop Cenotaph creation next to existing chests if true."),
 	CORE_VOID_CHECK(
 			"core.void_check",
 			"true",

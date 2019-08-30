@@ -151,12 +151,6 @@ public class CenotaphEntityListener implements Listener {
 			return;
 		}
 
-		// Check if there is a nearby chest
-		if (CenotaphSettings.noInterfere() && checkChest(block)) {
-			CenotaphMessaging.sendPrefixedPlayerMessage(p, "Existing chest interfering with chest placement. Inv dropped.");
-			return;
-		}
-
 		int removeChestCount = 1;
 		int removeSignCount = 0;
 
@@ -490,28 +484,15 @@ public class CenotaphEntityListener implements Listener {
 		// Check all 4 sides for air.
 		Block exp;
 		exp = base.getRelative(BlockFace.NORTH);
-		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
+		if (canReplace(exp.getType())) return exp;
 		exp = base.getRelative(BlockFace.EAST);
-		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
+		if (canReplace(exp.getType())) return exp;
 		exp = base.getRelative(BlockFace.SOUTH);
-		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
+		if (canReplace(exp.getType())) return exp;
 		exp = base.getRelative(BlockFace.WEST);
-		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
+		if (canReplace(exp.getType())) return exp;
 		return null;
 	}
 
-	boolean checkChest(Block base) {
-		// Check all 4 sides for a chest.
-		Block exp;
-		exp = base.getWorld().getBlockAt(base.getX() - 1, base.getY(), base.getZ());
-		if (exp.getType() == Material.CHEST) return true;
-		exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() - 1);
-		if (exp.getType() == Material.CHEST) return true;
-		exp = base.getWorld().getBlockAt(base.getX() + 1, base.getY(), base.getZ());
-		if (exp.getType() == Material.CHEST) return true;
-		exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() + 1);
-		if (exp.getType() == Material.CHEST) return true;
-		return false;
-	}
 
 }

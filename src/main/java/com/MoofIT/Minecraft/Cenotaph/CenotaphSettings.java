@@ -161,10 +161,6 @@ public class CenotaphSettings {
 	public static boolean saveCenotaphList() {
 		return getBoolean(ConfigNodes.CORE_SAVE_CENOTAPH_LIST);
 	}
-	
-	public static boolean noInterfere() {
-		return getBoolean(ConfigNodes.CORE_NO_INTERFERE);		
-	}
 
 	public static boolean voidCheck() {
 		return getBoolean(ConfigNodes.CORE_VOID_CHECK);
