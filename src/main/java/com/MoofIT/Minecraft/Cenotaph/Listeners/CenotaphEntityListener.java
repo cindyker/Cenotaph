@@ -3,7 +3,6 @@ package com.MoofIT.Minecraft.Cenotaph.Listeners;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import org.bukkit.*;
@@ -12,6 +11,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.type.Chest.Type;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
@@ -36,11 +36,9 @@ import net.milkbowl.vault.economy.EconomyResponse;
 
 public class CenotaphEntityListener implements Listener {
 	private Cenotaph plugin;
-	private HashSet<Material> blockNoReplaceList = new HashSet<Material>();
 
 	public CenotaphEntityListener(Cenotaph instance) {
-		this.plugin = instance;
-		initNoReplaceList();
+		this.plugin = instance;		
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -98,15 +96,9 @@ public class CenotaphEntityListener implements Listener {
 			return;
 		}
 
-
 		// Get the current player location.
 		Location loc = p.getLocation();
 		Block block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-
-		// If we run into something we don't want to destroy, go one up.
-		if (blockNoReplaceList.contains(block.getType())) {
-			block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() + 1, loc.getBlockZ());
-		}
 
 		//Don't create the chest if it or its sign would be in the void
 		if (CenotaphSettings.voidCheck() && ((CenotaphSettings.cenotaphSign() && block.getY() > p.getWorld().getMaxHeight() - 1) || (!CenotaphSettings.cenotaphSign() && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) {
@@ -151,8 +143,9 @@ public class CenotaphEntityListener implements Listener {
 			return;
 		}
 
+		boolean smallChest = event.getDrops().size() < 28;
 		// Check if we can replace the block.
-		block = findPlace(block,false);
+		block = findPlace(block, smallChest);
 		if ( block == null ) {
 			CenotaphMessaging.sendPrefixedPlayerMessage(p, "No room to place chest. Inv dropped.");
 			return;
@@ -372,23 +365,6 @@ public class CenotaphEntityListener implements Listener {
 		});
 	}
 
-	private void initNoReplaceList() {
-		for(Material mat: Tag.SLABS.getValues()) {
-			blockNoReplaceList.add(mat);
-		}
-		blockNoReplaceList.add(Material.TORCH);
-		blockNoReplaceList.add(Material.REDSTONE_WIRE);
-		for(Material mat: Tag.RAILS.getValues()) {
-			blockNoReplaceList.add(mat);
-		}
-		blockNoReplaceList.add(Material.STONE_PRESSURE_PLATE);
-		for(Material mat:Tag.WOODEN_PRESSURE_PLATES.getValues()) {
-			blockNoReplaceList.add(mat);
-		}
-		blockNoReplaceList.add(Material.REDSTONE_TORCH);
-		blockNoReplaceList.add(Material.CAKE);
-	}
-
 	private String getCause(EntityDamageEvent dmg) {
 		try {
 			switch (dmg.getCause()) {
@@ -449,42 +425,31 @@ public class CenotaphEntityListener implements Listener {
 	/**
 	 * Find a block near the base block to place the tombstone
 	 * @param base
+	 * @param smallChest 
 	 * @return
 	 */
-	Block findPlace(Block base, Boolean CardinalSearch) {
-		if (canReplace(base.getType())) return base;
+	Block findPlace(Block base, boolean smallChest) {
+		if (canReplace(base.getType()) && smallChest) return base;
 		int baseX = base.getX();
 		int baseY = base.getY();
 		int baseZ = base.getZ();
 		World w = base.getWorld();
 
-		if (CardinalSearch) {
-			Block b;
-			b = w.getBlockAt(baseX - 1, baseY, baseZ);
-			if (canReplace(b.getType())) return b;
-
-			b = w.getBlockAt(baseX + 1, baseY, baseZ);
-			if (canReplace(b.getType())) return b;
-
-			b = w.getBlockAt(baseX, baseY, baseZ - 1);
-			if (canReplace(b.getType())) return b;
-
-			b = w.getBlockAt(baseX, baseY, baseZ + 1);
-			if (canReplace(b.getType())) return b;
-
-			b = w.getBlockAt(baseX, baseY, baseZ);
-			if (canReplace(b.getType())) return b;
-
-			return null;
-		}
-
 		for (int x = baseX - 1; x < baseX + 1; x++) {
 			for (int z = baseZ - 1; z < baseZ + 1; z++) {
 				Block b = w.getBlockAt(x, baseY, z);
-				if (canReplace(b.getType())) return b;
+				if (canReplace(b.getType()) && smallChest) 
+					return b;
+				else if (canReplace(b.getType())) { 
+					// When there ought to be a double chest we should test to see if there's space for a double chest and force a oneBlockUpCheck for it.
+					// Previously if you died in a 1x1x1 hole only a small chest would form, causing overflow.
+					if (canReplace(b.getRelative(BlockFace.NORTH).getType())) return b;
+					else if (canReplace(b.getRelative(BlockFace.EAST).getType())) return b;
+					else if (canReplace(b.getRelative(BlockFace.WEST).getType())) return b;
+					else if (canReplace(b.getRelative(BlockFace.SOUTH).getType())) return b;
+				}
 			}
 		}
-
 		if(CenotaphSettings.oneBlockUpCheck()) {
 			//Check block one up, in case of Carpeting/
 			for (int x = baseX - 1; x < baseX + 1; x++) {
@@ -494,42 +459,43 @@ public class CenotaphEntityListener implements Listener {
 				}
 			}
 		}
-
 		return null;
 	}
 
 	Boolean canReplace(Material mat) {
 		return (mat == Material.AIR ||
-				mat == Material.ACACIA_SAPLING ||
-				mat == Material.BIRCH_SAPLING ||
-				mat == Material.OAK_SAPLING ||
-				mat == Material.DARK_OAK_SAPLING ||
-				mat == Material.JUNGLE_SAPLING ||
-				mat == Material.SPRUCE_SAPLING ||
 				mat == Material.WATER ||
 				mat == Material.LAVA ||
+				mat == Material.COBWEB || 
 				mat == Material.SUNFLOWER ||
-				mat == Material.POPPY ||
+				mat == Material.LILAC ||
+				mat == Material.PEONY ||
+				mat == Material.ROSE_BUSH ||
 				mat == Material.BROWN_MUSHROOM ||
 				mat == Material.RED_MUSHROOM ||
 				mat == Material.FIRE ||
-				mat == Material.WHEAT ||
 				mat == Material.SNOW ||
 				mat == Material.SUGAR_CANE ||
 				mat == Material.GRAVEL ||
-				mat == Material.SAND);
+				mat == Material.SAND ||
+				mat == Material.GRASS ||
+				mat == Material.TALL_GRASS ||
+				(mat.createBlockData() instanceof Ageable) ||
+				Tag.SMALL_FLOWERS.isTagged(mat) ||
+				Tag.SAPLINGS.isTagged(mat)
+				);
 	}
 
 	Block findLarge(Block base) {
 		// Check all 4 sides for air.
 		Block exp;
-		exp = base.getWorld().getBlockAt(base.getX() - 1, base.getY(), base.getZ());
+		exp = base.getRelative(BlockFace.NORTH);
 		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
-		exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() - 1);
+		exp = base.getRelative(BlockFace.EAST);
 		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
-		exp = base.getWorld().getBlockAt(base.getX() + 1, base.getY(), base.getZ());
+		exp = base.getRelative(BlockFace.SOUTH);
 		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
-		exp = base.getWorld().getBlockAt(base.getX(), base.getY(), base.getZ() + 1);
+		exp = base.getRelative(BlockFace.WEST);
 		if (canReplace(exp.getType()) && (!CenotaphSettings.noInterfere() || !checkChest(exp))) return exp;
 		return null;
 	}
