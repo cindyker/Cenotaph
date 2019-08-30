@@ -37,11 +37,6 @@ public enum ConfigNodes {
 			"",
 			"# Place a sign on the top of the Cenotaph if true. Displays info about the deceased."
 			),
-	CORE_NO_DESTROY(
-			"core.no_destroy",
-			"true",
-			"",
-			"# Prevet non-Op players from destroying cenotaphs if true (destroyQuickLoot overrides this setting."),
 	CORE_SAVE_CENOTAPH_LIST(
 			"core.save_cenotaph_list",
 			"true",

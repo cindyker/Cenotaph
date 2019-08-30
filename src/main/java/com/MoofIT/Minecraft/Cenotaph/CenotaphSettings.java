@@ -154,10 +154,6 @@ public class CenotaphSettings {
 		return getBoolean(ConfigNodes.CORE_CENOTAPH_SIGN);		
 	}
 	
-	public static boolean noDestroy() {
-		return getBoolean(ConfigNodes.CORE_NO_DESTROY);		
-	}
-	
 	public static boolean saveCenotaphList() {
 		return getBoolean(ConfigNodes.CORE_SAVE_CENOTAPH_LIST);
 	}

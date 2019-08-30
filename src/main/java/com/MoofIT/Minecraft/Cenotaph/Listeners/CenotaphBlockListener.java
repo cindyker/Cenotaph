@@ -14,7 +14,6 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
-import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 import java.util.List;
@@ -40,12 +39,6 @@ public class CenotaphBlockListener implements Listener {
 		
 		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId()) && !p.hasPermission("cenotaph.admin")) {
 			CenotaphMessaging.sendActionBarPlayerMessage(p, "This cenotaph is secured.");
-			event.setCancelled(true);
-			return;
-		}
-				
-		if (CenotaphSettings.noDestroy() && !p.hasPermission("cenotaph.admin")) {
-			CenotaphMessaging.sendActionBarPlayerMessage(p, "You cannot break this cenotaph.");
 			event.setCancelled(true);
 			return;
 		}
