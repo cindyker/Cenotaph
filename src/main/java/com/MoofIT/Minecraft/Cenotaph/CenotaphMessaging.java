@@ -60,4 +60,28 @@ public class CenotaphMessaging {
 		else 
 			Bukkit.getConsoleSender().sendMessage("[Cenotaph] " + string);
 	}
+
+	public static void sendEnabledGraphic(String hooked) {
+
+		Cenotaph.log.info("        __.....__                      ");
+		Cenotaph.log.info("      .'         ':,                   ");
+		Cenotaph.log.info("     /  __  _  __  \\\\                ");
+		Cenotaph.log.info("     | |_)) || |_))||                  ");
+		Cenotaph.log.info("     | | \\\\ || |   ||                ");
+		Cenotaph.log.info("     |             ||   _,             ");
+		Cenotaph.log.info("     |             ||.-(_{}            ");
+		Cenotaph.log.info("     |             |/    `             ");
+		Cenotaph.log.info("     |        ,_ (\\;|/)              ");
+		Cenotaph.log.info("   \\\\|       {}_)-,||`               ");
+		Cenotaph.log.info("   \\\\;/,,;;;;;;;,\\|//,              ");
+		Cenotaph.log.info("  .;;;;;;;;;;;;;;;;,                   ");
+		Cenotaph.log.info(" \\,;;;;;;;;;;;;;;;;,//                ");
+		Cenotaph.log.info("\\\\;;;;;;;;;;;;;;;;,//                ");
+		Cenotaph.log.info(",\\';;;;;;;;;;;;;;;;'                  ");
+		Cenotaph.log.info("jgs;;;;;;;;;;;'''`                     ");
+		if (hooked.length() > 0)
+			Cenotaph.log.info("  Cenotaph Hooked into: " + hooked.substring(0, hooked.length() - 2));
+		Cenotaph.log.info("  Cenotaph " + Cenotaph.plugin.getDescription().getVersion() + " by " + Cenotaph.plugin.getDescription().getAuthors().toString() + " is enabled.");
+
+	}
 }

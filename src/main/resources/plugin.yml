@@ -3,7 +3,7 @@ main: com.MoofIT.Minecraft.Cenotaph.Cenotaph
 version: ${project.version}
 description: Dead Man's Chest mod for Bukkit. Forked from Tombstone by Drakia (TheDgtl) 
 author: Southpaw018
-authors: [cindyker]
+authors: [cindyker, LlmDl]
 website: http://www.moofit.com
 softdepend: [WorldGuard, Vault, dynmap]
 api-version: ${project.bukkitAPIVersion}

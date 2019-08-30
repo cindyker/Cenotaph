@@ -93,6 +93,7 @@ public class Cenotaph extends JavaPlugin {
 	private String version = "2.0.0";
 	public static Economy econ = null;
 	public static boolean isSpigot = false;
+	private String hooked = "";
 
 	@Override
 	public void onEnable() {
@@ -122,7 +123,8 @@ public class Cenotaph extends JavaPlugin {
 		if (CenotaphSettings.cenotaphRemove())
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(this), 0L, 100L);
 		
-		log.info("Cenotaph " + getDescription().getVersion() + " is enabled.");
+		CenotaphMessaging.sendEnabledGraphic(hooked);
+		
 	}
 	
 	public String getVersion() {
@@ -154,7 +156,7 @@ public class Cenotaph extends JavaPlugin {
 	        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 	        if (economyProvider != null) {
 	            econ = economyProvider.getProvider();
-	            log.info("Cenotaph hooked into Vault.");
+	            hooked += "Vault, ";
 	        }
 	        return (econ != null);
         } else {
@@ -167,7 +169,7 @@ public class Cenotaph extends JavaPlugin {
     			return false;
     		else {
     			dynThread.activate((DynmapAPI) pm.getPlugin("dynmap"));
-    			log.info("Cenotaph hooked into DynMap.");
+    			hooked += "DynMap, ";
     			return true;
     		}
     	} 
@@ -178,7 +180,7 @@ public class Cenotaph extends JavaPlugin {
     		if (!CenotaphSettings.worldguardEnable())
     			return false;
     		else {
-    			log.info("Cenotaph hooked into WorldGuard.");
+    			hooked += "WorldGuard, ";
     			return true;
     		}
     	}
