@@ -28,8 +28,7 @@ public enum ConfigNodes {
 			"# This is the current version of Cenotaph.  Please do not edit."),
 	LAST_RUN_VERSION(
 			"version.last_run_version",
-			"",
-			"# This is for showing the changelog on updates.  Please do not edit."),	
+			""),	
 	CORE_HEADER("core", "core",""),
 	CORE_CENOTAPH_SIGN(
 			"core.cenotaph_sign",
@@ -70,7 +69,7 @@ public enum ConfigNodes {
 			"# {date} for day of death",
 			"# {time} for time of death (server time)",
 			"# {reason} for cause of death",
-			"# REMEMBER: LINES ARE LIMITED TO 15 CHARACTERS, AND DON'T FORGET THE QUOTES!"),
+			"# REMEMBER: LINES ARE LIMITED TO 15 CHARACTERS!"),
 	CORE_SIGN_LINE1(
 			"core.Sign.Line1",
 			"{name}"),
