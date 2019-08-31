@@ -26,7 +26,7 @@ public class CenotaphPlayerListener implements Listener {
 		Block b = event.getClickedBlock();
 		if ( !Tag.SIGNS.isTagged( b.getType() ) && b.getType() != Material.CHEST) return;
 		// We'll do quickloot on rightclick of chest if we're going to destroy it anyways
-		if (b.getType() == Material.CHEST && (!plugin.destroyQuickLoot || !plugin.noDestroy)) return;
+		if (b.getType() == Material.CHEST && (!CenotaphSettings.destroyQuickloot() || !CenotaphSettings.noDestroy())) return;
 		if (!event.getPlayer().hasPermission("cenotaph.quickloot")) return;
 
 		TombBlock tBlock = Cenotaph.tombBlockList.get(b.getLocation());
@@ -73,7 +73,7 @@ public class CenotaphPlayerListener implements Listener {
 			event.setUseItemInHand(Result.DENY); //TODO: Minor bug here - if you're holding a sign, it'll still pop up
 			event.setCancelled(true);
 
-			if (plugin.destroyQuickLoot) {
+			if (CenotaphSettings.destroyQuickloot()) {
 				plugin.destroyCenotaph(tBlock);
 			}
 		}

@@ -40,7 +40,7 @@ public class CenotaphCommand implements CommandExecutor {
 				String message;
 				message = " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")";
 				if (tomb.getLocketteSign() != null) {
-					message = message + " [Locked " + plugin.convertTime( (int) (plugin.securityTimeout - (cTime - tomb.getTime())) ) + "]";
+					message = message + " [Locked " + plugin.convertTime( (int) (CenotaphSettings.securityTimeOut() - (cTime - tomb.getTime())) ) + "]";
 				}				
 				plugin.sendMessage(p, message);
 			}
@@ -165,18 +165,9 @@ public class CenotaphCommand implements CommandExecutor {
 				return true;
 			} else if (args[0].equalsIgnoreCase("version")) {
 				String message;
-				message = plugin.versionCheck(false);
+				message = plugin.getVersion();
 				plugin.sendMessage(p, message);
 
-				if (plugin.configVer == 0) {
-					plugin.sendMessage(p, "Using default config.");
-				}
-				else if (plugin.configVer < plugin.configCurrent) {
-					plugin.sendMessage(p, "Your config file is out of date.");
-				}
-				else if (plugin.configVer == plugin.configCurrent) {
-					plugin.sendMessage(p, "Your config file is up to date.");
-				}
 			} else if (args[0].equalsIgnoreCase("remove")) {
 				if (!p.hasPermission("cenotaph.admin.remove")) {
 					plugin.sendMessage(p, "Permission Denied");
@@ -206,7 +197,7 @@ public class CenotaphCommand implements CommandExecutor {
 					plugin.sendMessage(p, "Permission Denied");
 					return true;
 				}
-				plugin.loadConfig();
+				plugin.loadSettings();
 				Cenotaph.log.info("[Cenotaph] Configuration reloaded from file.");
 				plugin.sendMessage(p, "Configuration reloaded from file.");
 			} else {
@@ -243,21 +234,21 @@ public class CenotaphCommand implements CommandExecutor {
 	private String centimeMsg(TombBlock tBlock) {
 		long cTime = System.currentTimeMillis() / 1000;
 
-		int breakTime = (plugin.levelBasedRemoval ? Math.min(tBlock.getOwnerLevel() + 1 * plugin.levelBasedTime,plugin.removeTime) : plugin.removeTime);
-		int secTimeLeft = (int)((tBlock.getTime() + plugin.securityTimeout) - cTime);
+		int breakTime = (CenotaphSettings.levelBasedRemoval() ? Math.min(tBlock.getOwnerLevel() + 1 * CenotaphSettings.levelBasedTime(), CenotaphSettings.cenotaphRemoveTime()) : CenotaphSettings.cenotaphRemoveTime());
+		int secTimeLeft = (int)((tBlock.getTime() + CenotaphSettings.securityTimeOut()) - cTime);
 		int remTimeLeft = (int)((tBlock.getTime() + breakTime) - cTime);
 
 		String msg = ChatColor.YELLOW + "Security: " + ChatColor.WHITE;
 		if (tBlock.getLwcEnabled()) msg += "LWC ";
 		else if (tBlock.getLocketteSign() != null) msg += "Lockette ";
 		else msg += "None ";
-		if (plugin.securityRemove) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (plugin.securityTimeout < breakTime && plugin.cenotaphRemove && !plugin.keepUntilEmpty ? plugin.convertTime(secTimeLeft) : "Inf" ) + " ";
-		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (plugin.cenotaphRemove ? plugin.convertTime(remTimeLeft) : "Inf") + " ";
-		if (plugin.removeWhenEmpty || plugin.keepUntilEmpty) {
+		if (CenotaphSettings.securityRemove()) msg += ChatColor.YELLOW + "SecTime: " + ChatColor.WHITE + (CenotaphSettings.securityTimeOut() < breakTime && CenotaphSettings.cenotaphRemove() && !CenotaphSettings.keepUntilEmpty() ? plugin.convertTime(secTimeLeft) : "Inf" ) + " ";
+		msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (CenotaphSettings.cenotaphRemove() ? plugin.convertTime(remTimeLeft) : "Inf") + " ";
+		if (CenotaphSettings.removeWhenEmpty() || CenotaphSettings.keepUntilEmpty()) {
 			msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
-			if (plugin.removeWhenEmpty) msg += "Break on empty";
-			if (plugin.removeWhenEmpty && plugin.keepUntilEmpty) msg += " & ";
-			if (plugin.keepUntilEmpty) msg += "Keep until empty";
+			if (CenotaphSettings.removeWhenEmpty()) msg += "Break on empty";
+			if (CenotaphSettings.removeWhenEmpty() && CenotaphSettings.keepUntilEmpty()) msg += " & ";
+			if (CenotaphSettings.keepUntilEmpty()) msg += "Keep until empty";
 		}
 
 		return msg;
