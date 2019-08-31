@@ -243,23 +243,15 @@ public class CenotaphSettings {
 		return getBoolean(ConfigNodes.SECURITY_ENABLE);
 	}
 	
-//	public static boolean locketteEnable() {
-//		return getBoolean(ConfigNodes.SECURITY_LOCKETTE_ENABLE);
-//	}
-//	
-//	public static boolean lwcEnable() {
-//		return getBoolean(ConfigNodes.SECURITY_LWC_ENABLE);
-//	}
-//	
-//	public static boolean lwcPublic() {
-//		return getBoolean(ConfigNodes.SECURITY_LWC_PUBLIC);
-//	}
-	
 	public static boolean securityRemove() {
 		return getBoolean(ConfigNodes.SECURITY_REMOVE);	
 	}
 	
 	public static int securityTimeOut() {
 		return getInt(ConfigNodes.SECURITY_TIMEOUT);
+	}
+	
+	public static boolean enableAscii() {
+		return getBoolean(ConfigNodes.STARTUP_ENABLE_ASCII);
 	}
 }

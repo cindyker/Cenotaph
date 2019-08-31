@@ -163,7 +163,14 @@ public enum ConfigNodes {
 			"security.security_time_out",
 			"900",
 			"",
-			"# Number of seconds before the security is removed on the cenotaph, if securityRemove is true. Default of 15 minutes.");
+			"# Number of seconds before the security is removed on the cenotaph, if securityRemove is true. Default of 15 minutes."),
+	STARTUP_HEADER("startup","startup",""),
+	STARTUP_ENABLE_ASCII(
+			"startup.enable_ascii",
+			"true",
+			"",
+			"# For people that want a short startup and that do not appreciate a good ascii tombstone.",
+			"# Ascii graphic by jgs");
 
 	private final String Root;
 	private final String Default;
