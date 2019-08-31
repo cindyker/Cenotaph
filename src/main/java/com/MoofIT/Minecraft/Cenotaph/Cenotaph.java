@@ -156,7 +156,7 @@ public class Cenotaph extends JavaPlugin {
 	        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 	        if (economyProvider != null) {
 	            econ = economyProvider.getProvider();
-	            hooked += "Vault, ";
+	            hooked += econ.getName() + " via Vault, ";
 	        }
 	        return (econ != null);
         } else {

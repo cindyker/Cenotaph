@@ -64,22 +64,24 @@ public class CenotaphMessaging {
 	public static void sendEnabledGraphic(String hooked) {
 
 		if (CenotaphSettings.enableAscii()) {
-			Cenotaph.log.info("        __.....__                      ");
-			Cenotaph.log.info("      .'         ':,                   ");
-			Cenotaph.log.info("     /  __  _  __  \\\\                ");
-			Cenotaph.log.info("     | |_)) || |_))||                  ");
-			Cenotaph.log.info("     | | \\\\ || |   ||                ");
-			Cenotaph.log.info("     |             ||   _,             ");
-			Cenotaph.log.info("     |             ||.-(_{}            ");
-			Cenotaph.log.info("     |             |/    `             ");
-			Cenotaph.log.info("     |        ,_ (\\;|/)              ");
-			Cenotaph.log.info("   \\\\|       {}_)-,||`               ");
-			Cenotaph.log.info("   \\\\;/,,;;;;;;;,\\|//,              ");
-			Cenotaph.log.info("  .;;;;;;;;;;;;;;;;,                   ");
-			Cenotaph.log.info(" \\,;;;;;;;;;;;;;;;;,//                ");
-			Cenotaph.log.info("\\\\;;;;;;;;;;;;;;;;,//                ");
-			Cenotaph.log.info(",\\';;;;;;;;;;;;;;;;'                  ");
-			Cenotaph.log.info("jgs;;;;;;;;;;;'''`                     ");
+			Cenotaph.log.info(" ");
+			Cenotaph.log.info("  C             __.....__               C");
+			Cenotaph.log.info("              .'         ':,             ");
+			Cenotaph.log.info("  E          /  __  _  __  \\\\           E");
+			Cenotaph.log.info("             | |_)) || |_))||            ");
+			Cenotaph.log.info("  N          | | \\\\ || |   ||           N");
+			Cenotaph.log.info("             |             ||   _,       ");
+			Cenotaph.log.info("  O          |             ||.-(_{}     O");
+			Cenotaph.log.info("             |             |/    `       ");
+			Cenotaph.log.info("  T          |        ,_ (\\;|/)         T");
+			Cenotaph.log.info("           \\\\|       {}_)-,||`         ");
+			Cenotaph.log.info("  A        \\\\;/,,;;;;;;;,\\\\|//,         A");
+			Cenotaph.log.info("          .;;;;;;;;;;;;;;;;,             ");
+			Cenotaph.log.info("  P      \\,;;;;;;;;;;;;;;;;,//          P");
+			Cenotaph.log.info("        \\\\;;;;;;;;;;;;;;;;,//          ");
+			Cenotaph.log.info("  H    ,\\';;;;;;;;;;;;;;;;'             H");
+			Cenotaph.log.info("      jgs;;;;;;;;;;;'''`                 ");
+			Cenotaph.log.info(" ");
 		}
 		if (hooked.length() > 0)
 			Cenotaph.log.info("  Cenotaph Hooked into: " + hooked.substring(0, hooked.length() - 2)); // Cut off trailing ", " from the hooked string.
