@@ -123,8 +123,7 @@ public class Cenotaph extends JavaPlugin {
 		if (CenotaphSettings.cenotaphRemove())
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(this), 0L, 100L);
 		
-		CenotaphMessaging.sendEnabledGraphic(hooked);
-		
+		CenotaphMessaging.sendEnabledGraphic(hooked);		
 	}
 	
 	public String getVersion() {
@@ -159,9 +158,9 @@ public class Cenotaph extends JavaPlugin {
 	            hooked += econ.getName() + " via Vault, ";
 	        }
 	        return (econ != null);
-        } else {
-        	return false;
-        }
+        } else if (CenotaphSettings.cenotaphCost() > 0)
+        	log.severe("[Cenotaph] Unable to find Vault. Cenotaph cost will be ignored!");
+        return false;        
     }
     private boolean setupDynmap() {
     	if (pm.isPluginEnabled("dynmap")) {
@@ -169,10 +168,11 @@ public class Cenotaph extends JavaPlugin {
     			return false;
     		else {
     			dynThread.activate((DynmapAPI) pm.getPlugin("dynmap"));
-    			hooked += "DynMap, ";
+    			hooked += "Dynmap, ";
     			return true;
     		}
-    	} 
+    	} else if (CenotaphSettings.dynmapEnable())
+    		log.severe("[Cenotaph] Unabled to find Dynmap. Dynmap not hooked!"); 
     	return false;
     }
     private boolean setupWorldGuard() {
@@ -183,7 +183,8 @@ public class Cenotaph extends JavaPlugin {
     			hooked += "WorldGuard, ";
     			return true;
     		}
-    	}
+    	} else if (CenotaphSettings.worldguardEnable())
+    		log.severe("[Cenotaph] Unabled to find WorldGuard. WorldGuard not hooked!");    	
     	return false;
     }
     
@@ -299,7 +300,7 @@ public class Cenotaph extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
-		if (CenotaphSettings.dynmapEnable() && dynmapEnabled) dynThread.cenotaphLayer.cleanup();
+		if (dynmapEnabled) dynThread.cenotaphLayer.cleanup();
 		getServer().getScheduler().cancelTasks(this);
 	}
 

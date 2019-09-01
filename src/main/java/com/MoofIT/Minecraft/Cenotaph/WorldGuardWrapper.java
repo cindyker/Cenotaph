@@ -18,12 +18,10 @@ package com.MoofIT.Minecraft.Cenotaph;
  * This class is based on a similar class in GriefPrevention.
  */
 
-import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
 
 import com.sk89q.worldguard.protection.flags.Flags;
-import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.LocalPlayer;
@@ -35,39 +33,26 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class WorldGuardWrapper
 {
-    private static WorldGuardPlugin worldGuard = null;
-
-    public WorldGuardWrapper() throws ClassNotFoundException
-    {
-        this.worldGuard = (WorldGuardPlugin)Cenotaph.plugin.getServer().getPluginManager().getPlugin("WorldGuard");
-    }
-
+	static WorldGuardPlugin worldGuard = (WorldGuardPlugin) Cenotaph.plugin.getServer().getPluginManager().getPlugin("WorldGuard");
+	
     public static boolean canBuild(Player creatingPlayer)
     {
-
-        if (worldGuard == null)
-        {
-            Cenotaph.log.info("WorldGuard is out of date and not enabled. Please update or remove WorldGuard.");
-            return true;
-        }
-
         //If they are Op they can build anywhere!
         if( creatingPlayer.isOp() ){
-            Cenotaph.log.info("Player is op. Can build anywhere.");
             return true;
-        }
+        }        
 
-        WorldGuardPlatform p = WorldGuard.getInstance().getPlatform();
+        WorldGuardPlatform plat = WorldGuard.getInstance().getPlatform();
 
-        com.sk89q.worldedit.entity.Player wp = worldGuard.wrapPlayer(creatingPlayer);
+        com.sk89q.worldedit.entity.Player wPlayer = worldGuard.wrapPlayer(creatingPlayer);
 
-        RegionManager manager = p.getRegionContainer().get(wp.getWorld());
+        RegionManager manager = plat.getRegionContainer().get(wPlayer.getWorld());
 
         if(manager != null)
         {
             LocalPlayer localPlayer = worldGuard.wrapPlayer(creatingPlayer);
 
-            ApplicableRegionSet testRegion = p.getRegionContainer().createQuery().getApplicableRegions(localPlayer.getLocation());
+            ApplicableRegionSet testRegion = plat.getRegionContainer().createQuery().getApplicableRegions(localPlayer.getLocation());
 
             for (ProtectedRegion r : testRegion.getRegions()) {
 

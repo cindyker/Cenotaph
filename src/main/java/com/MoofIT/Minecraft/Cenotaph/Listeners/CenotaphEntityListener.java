@@ -108,7 +108,6 @@ public class CenotaphEntityListener implements Listener {
 
 		//WorldGuard support
 		if (Cenotaph.worldguardEnabled){
-			//plugin.getLogger().info("Checking WorlGuard...");
 			if (!WorldGuardWrapper.canBuild(p)){
 				CenotaphMessaging.sendPrefixedPlayerMessage(p, "In a WorldGuard protected area. Inv dropped.");
 				return;
