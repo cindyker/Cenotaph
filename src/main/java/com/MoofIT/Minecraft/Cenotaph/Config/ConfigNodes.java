@@ -132,7 +132,7 @@ public enum ConfigNodes {
 			"removal.level_based_removal",
 			"false",
 			"",
-			"# Set cenotaph removal time based on player level, with the above removeTime setting the maximum cap"),
+			"# Set cenotaph removal time based on player level, with the above removeTime setting the maximum cap."),
 	REMOVAL_LEVEL_BASED_TIME(
 			"removal.level_based_time",
 			"60",
@@ -142,12 +142,12 @@ public enum ConfigNodes {
 			"removal.remove_when_empty",
 			"false",
 			"",
-			"# Immediately remove cenotaph once it is empty, overriding all other timeout options"),
+			"# Immediately remove cenotaph once it is empty, overriding all other timeout options."),
 	REMOVAL_KEEP_UNTIL_EMPTY(
 			"removal.keep_until_empty",
 			"false",
 			"",
-			"# Never remove a cenotaph unless it is empty"),
+			"# Never remove a cenotaph unless it is empty."),
 	SECURITY_HEADER("security","security",""),
 	SECURITY_ENABLE(
 			"security.security_enable",
@@ -170,7 +170,7 @@ public enum ConfigNodes {
 			"true",
 			"",
 			"# For people that want a short startup and that do not appreciate a good ascii tombstone.",
-			"# Ascii graphic by jgs");
+			"# Ascii graphic by jgs.");
 
 	private final String Root;
 	private final String Default;

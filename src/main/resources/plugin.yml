@@ -39,27 +39,35 @@ commands:
     description: Admin commands for Cenotaph
     usage: /<command> for more usage instructions 
     aliases: [cenotaphadmin]
+    permission: cenotaph.admin
   cenadmin reload:
     description: Admin command to reload the config.yml
     usage: /<command>
+    permission: cenotaph.admin
   cenadmin list:
     description: Admin command to list all players with cenotaphs.
-    usage: /<command>    
+    usage: /<command>
+    permission: cenotaph.admin
   cenadmin list:
     description: Admin command to list a player's cenotaphs.
     usage: /<command> [player]
+    permission: cenotaph.admin
   cenadmin find:
     description: Admin command to find a player's cenotaph.
     usage: /<command> [player] [#]
+    permission: cenotaph.admin
   cenadmin info:
     description: Admin command to see security/time remaining on a player's cenotaph.
     usage: /<command> [player] [#]
+    permission: cenotaph.admin
   cenadmin remove:
     description: Admin command to remove a player's cenotaph.
     usage: /<command> [player] [#]
+    permission: cenotaph.admin
   cenadmin version:
     description: Admin command to see Cenotaph version.
     usage: /<command>
+    permission: cenotaph.admin
 
 permissions:
   cenotaph.use:
