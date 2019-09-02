@@ -7,7 +7,7 @@ package com.MoofIT.Minecraft.Cenotaph.Config;
  * written when value is completely removed from an existing config.
  * 
  * To add config options follow these instructions.
- *  - Must have 3 or more values.
+ *  - Must have 2 or more values.
  *  - First value is where the option will be placed: section1.subsection2.subsubsection3
  *  - Second value is the default.
  *  - Third and onwards are lines of comments added to the block. 
@@ -28,60 +28,40 @@ public enum ConfigNodes {
 			"# This is the current version of Cenotaph.  Please do not edit."),
 	LAST_RUN_VERSION(
 			"version.last_run_version",
-			"",
-			"# This is for showing the changelog on updates.  Please do not edit."),	
+			""),	
 	CORE_HEADER("core", "core",""),
 	CORE_CENOTAPH_SIGN(
-			"core.cenotaphSign",
+			"core.cenotaph_sign",
 			"true",
 			"",
 			"# Place a sign on the top of the Cenotaph if true. Displays info about the deceased."
 			),
-	CORE_NO_DESTROY(
-			"core.noDestroy",
-			"true",
-			"",
-			"# Prevet non-Op players from destroying cenotaphs if true (destroyQuickLoot overrides this setting."),
 	CORE_SAVE_CENOTAPH_LIST(
-			"core.SaveCenotaphList",
+			"core.save_cenotaph_list",
 			"true",
 			"",
 			"# Save Cenotaph listing between server stop and starts if true."),
-	CORE_NO_INTERFERE(
-			"core.noInterfere",
-			"true",
-			"",
-			"# Stop Cenotaph creation next to existing chests if true."),
 	CORE_VOID_CHECK(
-			"core.voidCheck",
+			"core.void_check",
 			"true",
 			"",
 			"# Cenotaph normally checks to make sure it isn't trying to create a chest in the void.",
 			"# If you handle or modify the void with another plugin, you can disable that check here.",
 			"# This option should be true for most servers."),
 	CORE_ONE_BLOCK_UP_CHECK(
-			"core.oneBlockUpCheck",
+			"core.one_block_up_check",
 			"true",
 			"",
 			"# Cenotaph will normally only check the world around the player for chst placement.",
 			"# But if they are standing on a carpeted floor, it will fail to find a good place for",
 			"# the chest. This check will allow Cenotaph to look one block up for a safe place."),
-	CORE_CREEPER_PROTECTION(
-			"core.creeperProtection",
-			"false",
-			"",
-			"# If you are not locking your chests with Lockette or LWC but still want them to be",
-			"# protected against Creeper explosions, or you want your chests to be protected even",
-			"# after they are unlocked, enable this."),
-	CORE_TNT_PROTECTION(
-			"core.tntProtection",
+	CORE_EXPLOSION_PROTECTION(
+			"core.explosion_protection",
 			"true",
 			"",
-			"# If you are not locking your chests with Lockette or LWC but still want them to be",
-			"# protected against TnT explosions, or you want your chests to be protected even",
-			"# after they are unlocked, enable this."),
+			"# Keeps cenotaphs protected against all explosions, even after they are unlocked."),			
 	CORE_SIGN(
-			"core.Sign",
+			"core.sign",
 			"",
 			"",
 			"# Each line may be one of any custom text OR:",
@@ -89,7 +69,7 @@ public enum ConfigNodes {
 			"# {date} for day of death",
 			"# {time} for time of death (server time)",
 			"# {reason} for cause of death",
-			"# REMEMBER: LINES ARE LIMITED TO 15 CHARACTERS, AND DON'T FORGET THE QUOTES!"),
+			"# REMEMBER: LINES ARE LIMITED TO 15 CHARACTERS!"),
 	CORE_SIGN_LINE1(
 			"core.Sign.Line1",
 			"{name}"),
@@ -103,30 +83,30 @@ public enum ConfigNodes {
 			"core.Sign.Line4",
 			"{time}"),
 	CORE_SIGN_DATE_FORMAT(
-			"core.Sign.dateFormat",
+			"core.Sign.date_format",
 			"MM/dd/yyyy",
 			"",
 			"#For formatting, see http://download.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html"),
 	CORE_SIGN_TIME_FORMAT(
-			"core.Sign.timeFormat",
+			"core.Sign.time_format",
 			"hh:mm a"),
 	CORE_DISABLE_IN_WORLDS(
-			"core.disableInWorlds",
+			"core.disable_in_worlds",
 			"someworldyoudontwantcenotaphworkingin,someotherworld",
 			"",
 			"# List of disabled worlds."),
 	CORE_DYNMAP_ENABLE(
-			"core.dynmapEnable",
+			"core.dynmap_enable",
 			"false",
 			"",
 			"# Enables dynmap integration, displaying cenotaphs on the map."),
 	CORE_WORLDGUARD_ENABLE(
-			"core.worldguardEnable",
+			"core.worldguard_enable",
 			"false",
 			"",
 			"# Enables WorldGuard integration, preventing cenotaphs from being created in regions the player cannot build."),
 	CORE_CENOTAPH_COST(
-			"core.cenotaphCost",
+			"core.cenotaph_cost",
 			"0.0",
 			"",
 			"# If set to more than 0.0, the player will need to pay the amount before a cenotaph is made.", 
@@ -134,65 +114,63 @@ public enum ConfigNodes {
 	REMOVAL_HEADER(
 			"removal", "removal", ""),
 	REMOVAL_DESTROY_QUICKLOOT(
-			"removal.destroyQuickLoot",
+			"removal.destroy_quick_loot",
 			"true",
 			"",
 			"# Destroy cenotaph on player quickloot if true."),
 	REMOVAL_CENOTAPH_REMOVE(
-			"removal.cenotaphRemove",
+			"removal.cenotaph_remove",
 			"true",
 			"",
 			"# Remove cenotaph after removeTime seconds if true."),
 	REMOVAL_REMOVE_TIME(
-			"removal.removeTime",
+			"removal.remove_time",
 			"3600",
-			""),
+			"",
+			"# 3600 seconds = 1 hour."),
 	REMOVAL_LEVEL_BASED_REMOVAL(
-			"removal.levelBasedRemoval",
+			"removal.level_based_removal",
 			"false",
 			"",
-			"# Set cenotaph removal time based on player level, with the above removeTime setting the maximum cap"),
+			"# Set cenotaph removal time based on player level, with the above removeTime setting the maximum cap."),
 	REMOVAL_LEVEL_BASED_TIME(
-			"removal.levelBasedTime",
+			"removal.level_based_time",
 			"60",
-			""),
+			"",
+			"# Default of 60, means 60 seconds per level at time of death."),
 	REMOVAL_REMOVE_WHEN_EMPTY(
-			"removal.removeWhenEmpty",
+			"removal.remove_when_empty",
 			"false",
 			"",
-			"# Immediately remove cenotaph once it is empty, overriding all other timeout options"),
+			"# Immediately remove cenotaph once it is empty, overriding all other timeout options."),
 	REMOVAL_KEEP_UNTIL_EMPTY(
-			"removal.keepUntilEmpty",
+			"removal.keep_until_empty",
 			"false",
 			"",
-			"# Never remove a cenotaph unless it is empty"),
+			"# Never remove a cenotaph unless it is empty."),
 	SECURITY_HEADER("security","security",""),
-	SECURITY_LOCKETTE_ENABLE(
-			"security.locketteEnable",
+	SECURITY_ENABLE(
+			"security.security_enable",
 			"true",
 			"",
-			"# If true, Cenotaph will add a sign on the chest which matches the format of Lockette, Deadbolt."),
-	SECURITY_LWC("security.lwc","",""),	
-	SECURITY_LWC_ENABLE(
-			"security.lwc.enable",
-			"false",
-			"",
-			"# If true, Cenotaph will attempt to lock the chest with LWC for the deceased player."),
-	SECURITY_LWC_PUBLIC(
-			"security.lwc.public",
-			"false",
-			"",
-			"# Set LWC protection to Public instead of removing it after the timeout."),
+			"# If true, Cenotaph will self-protect the tombblock from looters and explosions."),
 	SECURITY_REMOVE(
-			"security.securityRemove",
+			"security.security_remove",
 			"true",
 			"",
-			"# If true the security protection set above will be removed after the below timeOut."),
+			"# If true the security protection set above will be removed after the below timeout."),
 	SECURITY_TIMEOUT(
-			"security.securityTimeOut",
+			"security.security_time_out",
 			"900",
 			"",
-			"# Number of seconds before the security is removed on the cenotaph. Default of 15 minutes.");
+			"# Number of seconds before the security is removed on the cenotaph, if securityRemove is true. Default of 15 minutes."),
+	STARTUP_HEADER("startup","startup",""),
+	STARTUP_ENABLE_ASCII(
+			"startup.enable_ascii",
+			"true",
+			"",
+			"# For people that want a short startup and that do not appreciate a good ascii tombstone.",
+			"# Ascii graphic by jgs.");
 
 	private final String Root;
 	private final String Default;

@@ -6,7 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class TombThread extends Thread {
@@ -17,7 +16,6 @@ public class TombThread extends Thread {
 	}
 
 	public void run() {
-		long cTime = System.currentTimeMillis() / 1000;
 		for (Iterator<TombBlock> iter = Cenotaph.tombList.iterator(); iter.hasNext();) {
 			TombBlock tBlock = iter.next();
 			boolean bRemoved = false;
@@ -30,7 +28,6 @@ public class TombThread extends Thread {
 					iter.remove();
 					continue;
 				}
-			//	if(tBlock.getBlock().getState() instanceof Chest)
 				Location loc = tBlock.getBlock().getLocation();
 				Block b = loc.getWorld().getBlockAt((int)loc.getX(),(int)loc.getY(),(int)loc.getZ());
 				if (b.getType() == Material.CHEST) {
@@ -69,41 +66,13 @@ public class TombThread extends Thread {
 				}
 			}
 
-			//Security removal check
-			if (CenotaphSettings.securityRemove()) {
-				Player p = plugin.getServer().getPlayer(tBlock.getOwnerUUID());
-
-				if (cTime >= (tBlock.getTime() + CenotaphSettings.securityTimeOut())) {
-					if (tBlock.getLwcEnabled() && plugin.lwcPlugin != null) {
-						plugin.deactivateLWC(tBlock, false);
-						tBlock.setLwcEnabled(false);
-						if (p != null)
-							plugin.sendMessage(p, "LWC protection disabled on your cenotaph!");
-					}
-					if (tBlock.getLocketteSign() != null && CenotaphSettings.locketteEnable()) {
-						plugin.deactivateLockette(tBlock);
-						if (p != null)
-							plugin.sendMessage(p, "Lockette protection disabled on your cenotaph!");
-					}
-				}
-			}
 			//Block removal check
-			if (CenotaphSettings.cenotaphRemove()) {
-				if (CenotaphSettings.levelBasedRemoval()) {
-					if (cTime > Math.min(tBlock.getTime() + tBlock.getOwnerLevel() * CenotaphSettings.levelBasedTime(), tBlock.getTime() + CenotaphSettings.cenotaphRemoveTime())) {
-						plugin.destroyCenotaph(tBlock);
-						if(!bRemoved)
-							iter.remove();
-					}
+			if (CenotaphSettings.cenotaphRemove())
+				if (tBlock.removalTimeLeft() < 0 ) {
+					plugin.destroyCenotaph(tBlock);
+					if(!bRemoved)
+						iter.remove();
 				}
-				else {
-					if (cTime > (tBlock.getTime() + CenotaphSettings.cenotaphRemoveTime())) {
-						plugin.destroyCenotaph(tBlock);
-						if(!bRemoved)
-							iter.remove();
-					}
-				}
-			}
 		}
 	}
 }

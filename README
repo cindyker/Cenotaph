@@ -17,14 +17,13 @@ If the player is allowed, and is carrying two chests, a large chest will spawn t
 Possible for specific groups/players to be given free chests with no need to carry one with them
 Any items that won't fit in the chest will still drop to the ground!
 Supports the Permissions plugin, will default to allowing everyone to use basic tombstone if not available
-Supports LWC for chest AND sign protection if it is installed
-Configurable timeout for LWC unprotection
 Configurable timeout for destruction of tombstones, works in unloaded chunks as well
+Configurable security for tombstones to protect from looters. Can have a timeout.
 Quickloot support, right click the sign on a tombstone to loot all items in it (Your tombstone only!)
 Place a sign on top of the chest stating the players name and time of death
-The ability to point your compass at your tombstones! (Broken in 1.4)
+The ability to point your compass at your tombstones!
 Configurable messages on Cenotaph signs
-Admin commands for management
+Admin commands for management via console and in-game.
 
 =============
  Permissions
@@ -32,11 +31,8 @@ Admin commands for management
 cenotaph.use - Allow the player/group to use the cenotaph mod
 cenotaph.freechest - Allow the player to get a chest whether they are carrying a chest or not
 cenotaph.large - Allow the player to spawn a large chest if carrying two chests and if one will fit
-cenotaph.lwc - Protect the placed chest if LWC is enabled
-cenotaph.lockette - Protect the placed chest if LocketteEnable config is true (you need lockette or deadbolt for this to work right)
 cenotaph.sign - Whether the player gets a sign on their cenotaph chest
 cenotaph.freesign - Allow the player to get a free sign whether they are carrying one or not.
-cenotaph.freelockettesign - Give the player an additional free sign for Lockette
 cenotaph.quickloot - Whether to allow a player/group to quickloot by right clicking the cenotaph sign.
 cenotaph.nocost - Allow the player to not pay for the chest.
 
@@ -82,7 +78,8 @@ Admin commands:
 =============
  Config
 =============
-See default config file for options and instructions.
+See default config file for options and instructions. Config will update itself smartly as you update to newer Cenotaph versions, 
+keeping the values you've set in earlier versions and adding new values at their default settings.
 
 ==============
 To Build yourself
@@ -97,11 +94,44 @@ All dependencies should be located at their respective repos.
 Drakia: Cenotaph was originally Tombstone, by Drakia (TheDgtl). Many thanks to him for his hard work on the original plugin. You can access his Github repository here: https://github.com/TheDgtl/Tombstone
 Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the Lockette integration working as I stumbled by way though picking up Java was invaluable. :)
 cindyker: I removed the hard dependency on lockette for being available. Deadbolt and Lockette use the same sign types. So now it will just use the config to decide.
-
-LlmDl: making lockette support all it should be
+LlmDl: I helped with lockette support on earlier versions and did some major changes on versions 5.1->5.3.
 =============
  Changes
 =============
+[Version 5.3]
+  - New database schema. Old databases will auto-convert.
+  - Removed lockette and LWC support and replaced it with built-in security system that requires no signs.
+  - Moved various things over to a new CenotaphUtil.
+  - Moved listeners to their own package.
+  - Cleaned up startup sequence.
+  - Fixed double chests spawning as two separate single chests. (Showed up as a bug in MC 1.13)
+  - Made signs on top of double chests always face the 'foot' of the tomb, enhancing the realism of the blocky tomb-like sign/chest combination.
+  - Fixed dynmap support.
+  - Added protection from pistons/explosions/burning to built-in security.
+  - Replaced TNT/Creeper Protection with generalized explosions protection.
+  - Changed from bukkit to spigot for development.
+  - Added actionbar messages for Denial of access to secured/protected chests, this will lessen some of the chat spam.
+  - Created CenotaphMessaging to handle messages.
+  - Added the ability for /cenadmin to be used by the console.
+  - Added a CenotaphMessaging function that can smartly send to player or console (if the sender is not a player.)
+  - Fix up the findPlace function for finding good spots for chests.
+    - No longer will dying with a full inventory in a 1x1x1 hole cause only one chest to be used while the rest overflows onto the ground.
+    - When double chests are required the oneBlockUpCheck is always tried for (if enabled.)
+  - Remove noReplaceList which wasn't actually doing anything that the OneBlockUpCheck does better.
+  - Update list of blocks that can be replaced in the canReplace(mat) function.
+    - Covers crops via Ageable, use tags for small flowers and saplings.
+  - Remove the noDestroy option from the config, which became redundant after the security became built-in.
+    - Set your config's security to not time-out and you have the exact same effect.
+[Version 5.2]
+  - Completely replaced the config with dumptruckman's CommentedConfiguration system.
+    - This means you don't have to regenerate your config.yml after updating Cenotaph.
+    - System is used by Towny/TownyChat and many other plugins.
+    - New config options in the future will add themselves with default settings.
+  - Removed the deathmessages section of the config.yml
+    - For now entity names are pulled from the server, meaning new entities are automatically handled.
+    - Environmental deathcauses are hardcoded to English for the time being.
+  - Removed version checker option from config, I don't think this worked.
+  - Cleaned up some of the TODO's that were done.
 [Version 5.1]
   - Update to much of the Lockette/Sign code to make it not use deprecated API.
   - Update to use UUIDs in TombBlocks, allowing us to use less deprecated methods.

@@ -7,7 +7,7 @@
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
     <packaging>jar</packaging>
-    <version>5.2</version>
+    <version>5.3</version>
     
     <properties>
         <project.bukkitAPIVersion>1.14</project.bukkitAPIVersion>
@@ -30,25 +30,15 @@
             <id>dynamap</id>
             <url>http://repo.mikeprimm.com</url>
         </repository>
-        <repository>
-        	<id>minebench-lwc-hookup</id>
-        	<url>https://repo.minebench.de</url>
-        </repository>
     </repositories>
 
 
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.14.4-R0.1-SNAPSHOT</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>com.griefcraft</groupId>
-            <artifactId>lwc</artifactId>
-    		<version>4.7.0-SNAPSHOT</version>
-            <scope>provided</scope>
+           <groupId>org.spigotmc</groupId>
+           <artifactId>spigot-api</artifactId>
+           <version>1.14.4-R0.1-SNAPSHOT</version>
+           <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>us.dynmap</groupId>
@@ -73,6 +63,12 @@
             <artifactId>worldedit-bukkit</artifactId>
             <version>7.1.0-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.fusesource.jansi/jansi -->
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.18</version>
         </dependency>
     </dependencies>
 
