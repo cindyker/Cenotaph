@@ -109,6 +109,8 @@ public class Cenotaph extends JavaPlugin {
 			log.info("Cenotaph config.yml couldn't load.");
 			onDisable();
 		}
+		if (CenotaphSettings.enableAscii())
+			CenotaphMessaging.sendSweetAsciiArt();
 
 		isSpigot = isSpigot();
 		economyEnabled = setupEconomy();

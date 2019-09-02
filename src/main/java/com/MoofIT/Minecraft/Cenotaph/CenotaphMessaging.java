@@ -65,27 +65,6 @@ public class CenotaphMessaging {
 	}
 
 	public static void sendEnabledMessage(String hooked) {
-		if (CenotaphSettings.enableAscii()) {
-			Cenotaph.log.info(" ");
-			Cenotaph.log.info("  C              __.....__               C");
-			Cenotaph.log.info("               .'         ':,             ");
-			Cenotaph.log.info("  E           /  __  _  __  \\\\           E");
-			Cenotaph.log.info("              | |_)) || |_))||            ");
-			Cenotaph.log.info("  N           | | \\\\ || |   ||           N");
-			Cenotaph.log.info("              |             ||   _,       ");
-			Cenotaph.log.info("  O           |             ||.-(_{}     O");
-			Cenotaph.log.info("              |             |/    `       ");
-			Cenotaph.log.info("  T           |        ,_ (\\;|/)         T");
-			Cenotaph.log.info("            \\\\|       {}_)-,||`         ");
-			Cenotaph.log.info("  A         \\\\;/,,;;;;;;;,\\\\|//,         A");
-			Cenotaph.log.info("           .;;;;;;;;;;;;;;;;,             ");
-			Cenotaph.log.info("  P       \\,;;;;;;;;;;;;;;;;,//          P");
-			Cenotaph.log.info("         \\\\;;;;;;;;;;;;;;;;,//          ");
-			Cenotaph.log.info("  H     ,\\';;;;;;;;;;;;;;;;'             H");
-			Cenotaph.log.info("       jgs;;;;;;;;;;;'''`                 ");
-			Cenotaph.log.info(" ");
-		}
-
 		if (hooked.length() > 0) {
 		    hooked = "  Cenotaph Hooked into: " + hooked.substring(0, hooked.length() - 2) + ".";
 		    sendInfoConsoleMessage(hooked);
@@ -98,7 +77,7 @@ public class CenotaphMessaging {
 	
 	public static void sendSevereConsoleMessage(String message) {
 	    String lineSeparator =  Ansi.ansi().fg(Ansi.Color.WHITE) + System.lineSeparator() + Ansi.ansi().fg(Ansi.Color.RED).toString()+ " ";
-	    String error = WordUtils.wrap(Ansi.ansi().fg(Ansi.Color.RED).toString() + "[Cenotaph] " + message + Ansi.ansi().fg(Ansi.Color.WHITE), 44, lineSeparator, true);
+	    String error = "  " + WordUtils.wrap(Ansi.ansi().fg(Ansi.Color.RED).toString() + "[Cenotaph] " + message + Ansi.ansi().fg(Ansi.Color.WHITE), 41, lineSeparator, true);
 	    for (String line : error.split(System.lineSeparator()))
             Cenotaph.log.severe(line);	    
 	}
@@ -107,5 +86,26 @@ public class CenotaphMessaging {
 	    String split = "  " + WordUtils.wrap(message, 41, System.lineSeparator() + "  ", true); 
 	    for (String line : split.split(System.lineSeparator()))
             Cenotaph.log.info(line);
+	}
+	
+	public static void sendSweetAsciiArt() {
+		Cenotaph.log.info(" ");
+		Cenotaph.log.info("  C              __.....__               C");
+		Cenotaph.log.info("               .'         ':,             ");
+		Cenotaph.log.info("  E           /  __  _  __  \\\\           E");
+		Cenotaph.log.info("              | |_)) || |_))||            ");
+		Cenotaph.log.info("  N           | | \\\\ || |   ||           N");
+		Cenotaph.log.info("              |             ||   _,       ");
+		Cenotaph.log.info("  O           |             ||.-(_{}     O");
+		Cenotaph.log.info("              |             |/    `       ");
+		Cenotaph.log.info("  T           |        ,_ (\\;|/)         T");
+		Cenotaph.log.info("            \\\\|       {}_)-,||`         ");
+		Cenotaph.log.info("  A         \\\\;/,,;;;;;;;,\\\\|//,         A");
+		Cenotaph.log.info("           .;;;;;;;;;;;;;;;;,             ");
+		Cenotaph.log.info("  P       \\,;;;;;;;;;;;;;;;;,//          P");
+		Cenotaph.log.info("         \\\\;;;;;;;;;;;;;;;;,//          ");
+		Cenotaph.log.info("  H     ,\\';;;;;;;;;;;;;;;;'             H");
+		Cenotaph.log.info("       jgs;;;;;;;;;;;'''`                 ");
+		Cenotaph.log.info(" ");		
 	}
 }
