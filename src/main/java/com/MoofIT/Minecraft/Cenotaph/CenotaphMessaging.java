@@ -77,7 +77,7 @@ public class CenotaphMessaging {
 	
 	public static void sendSevereConsoleMessage(String message) {
 	    String lineSeparator =  Ansi.ansi().fg(Ansi.Color.WHITE) + System.lineSeparator() + Ansi.ansi().fg(Ansi.Color.RED).toString()+ " ";
-	    String error = "  " + WordUtils.wrap(Ansi.ansi().fg(Ansi.Color.RED).toString() + "[Cenotaph] " + message + Ansi.ansi().fg(Ansi.Color.WHITE), 41, lineSeparator, true);
+	    String error = " " + WordUtils.wrap(Ansi.ansi().fg(Ansi.Color.RED).toString() + "[Cenotaph] " + message + Ansi.ansi().fg(Ansi.Color.WHITE), 42, lineSeparator, true);
 	    for (String line : error.split(System.lineSeparator()))
             Cenotaph.log.severe(line);	    
 	}
