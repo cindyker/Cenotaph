@@ -105,6 +105,8 @@ public class Cenotaph extends JavaPlugin {
 		pm.registerEvents(entityListener,this);
 		pm.registerEvents(blockListener,this);
 		pm.registerEvents(playerListener,this);
+		if (CenotaphSettings.enableAscii())
+			CenotaphMessaging.sendSweetAsciiArt();
 				
 		if (!loadSettings()) {
 			log.info("Cenotaph config.yml couldn't load.");
