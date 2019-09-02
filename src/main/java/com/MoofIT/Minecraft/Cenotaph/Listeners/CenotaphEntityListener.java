@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -135,11 +134,8 @@ public class CenotaphEntityListener implements Listener {
 		for (ItemStack item : event.getDrops()) {
 			if (item == null) continue;
 			if (item.getType() == Material.CHEST) pChestCount += item.getAmount();
-
-			for(Material mat: Tag.SIGNS.getValues()) {
-				if(item.getType() == mat)
-					pSignCount += item.getAmount();
-			}
+			if (item.getType() == Material.SIGN)
+				pSignCount += item.getAmount();
 		}
 
 		if (pChestCount == 0 && !p.hasPermission("cenotaph.freechest")) {
@@ -281,15 +277,12 @@ public class CenotaphEntityListener implements Listener {
 					continue;
 				}
 			}
-
-
-			for(Material mat: Tag.SIGNS.getValues()) {
-				if(item.getType() == mat)
-					pSignCount += item.getAmount();
-			}
+		
+			if(item.getType() == Material.SIGN)
+				pSignCount += item.getAmount();
 
 			// Take a sign
-			if (removeSignCount > 0 && Tag.SIGNS.isTagged( item.getType() )){
+			if (removeSignCount > 0 && item.getType() == Material.SIGN) {
 				item.setAmount(item.getAmount() - 1);
 				removeSignCount -= 1;
 				if (item.getAmount() == 0) {
@@ -337,7 +330,7 @@ public class CenotaphEntityListener implements Listener {
 			reason = getCause(dmg);
 		}
 
-		signBlock.setType(Material.OAK_SIGN);
+		signBlock.setType(Material.SIGN);
 		//Lets make the sign appear to look downwards towards the foot of the long chests.
 		org.bukkit.block.data.type.Sign sBlockData = (org.bukkit.block.data.type.Sign) signBlock.getBlockData();
 		sBlockData.setRotation(bf);
@@ -479,8 +472,23 @@ public class CenotaphEntityListener implements Listener {
 				mat == Material.GRASS ||
 				mat == Material.TALL_GRASS ||
 				(mat.createBlockData() instanceof Ageable) ||
-				Tag.SMALL_FLOWERS.isTagged(mat) ||
-				Tag.SAPLINGS.isTagged(mat)
+				mat == Material.DANDELION ||
+				mat == Material.AZURE_BLUET ||
+				mat == Material.BLUE_ORCHID ||
+				mat == Material.FERN ||
+				mat == Material.ALLIUM ||
+				mat == Material.OXEYE_DAISY ||
+				mat == Material.POPPY ||
+				mat == Material.ORANGE_TULIP ||
+				mat == Material.PINK_TULIP ||
+				mat == Material.RED_TULIP ||
+				mat == Material.WHITE_TULIP ||
+				mat == Material.ACACIA_SAPLING ||
+				mat == Material.BIRCH_SAPLING ||
+				mat == Material.JUNGLE_SAPLING ||
+				mat == Material.DARK_OAK_SAPLING ||
+				mat == Material.OAK_SAPLING ||
+				mat == Material.SPRUCE_SAPLING
 				);
 	}
 

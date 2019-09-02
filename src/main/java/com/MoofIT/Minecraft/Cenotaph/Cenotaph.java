@@ -44,7 +44,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapAPI;
-
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphBlockListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphEntityListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphPlayerListener;
@@ -123,7 +122,7 @@ public class Cenotaph extends JavaPlugin {
 		if (CenotaphSettings.cenotaphRemove())
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new TombThread(this), 0L, 100L);
 		
-		CenotaphMessaging.sendEnabledGraphic(hooked);		
+		CenotaphMessaging.sendEnabledMessage(hooked);		
 	}
 	
 	public String getVersion() {
@@ -159,7 +158,7 @@ public class Cenotaph extends JavaPlugin {
 	        }
 	        return (econ != null);
         } else if (CenotaphSettings.cenotaphCost() > 0)
-        	log.severe("[Cenotaph] Unable to find Vault. Cenotaph cost will be ignored!");
+            CenotaphMessaging.sendSevereConsoleMessage("Unable to find Vault. Cenotaph cost will be ignored!");
         return false;        
     }
     private boolean setupDynmap() {
@@ -172,7 +171,7 @@ public class Cenotaph extends JavaPlugin {
     			return true;
     		}
     	} else if (CenotaphSettings.dynmapEnable())
-    		log.severe("[Cenotaph] Unabled to find Dynmap. Dynmap not hooked!"); 
+    	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find Dynmap. Dynmap not hooked!");
     	return false;
     }
     private boolean setupWorldGuard() {
@@ -184,7 +183,7 @@ public class Cenotaph extends JavaPlugin {
     			return true;
     		}
     	} else if (CenotaphSettings.worldguardEnable())
-    		log.severe("[Cenotaph] Unabled to find WorldGuard. WorldGuard not hooked!");    	
+    	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find WorldGuard. WorldGuard not hooked!");
     	return false;
     }
     

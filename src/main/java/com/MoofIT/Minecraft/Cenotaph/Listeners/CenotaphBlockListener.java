@@ -1,8 +1,8 @@
 package com.MoofIT.Minecraft.Cenotaph.Listeners;
 
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,7 +30,7 @@ public class CenotaphBlockListener implements Listener {
 		Block b = event.getBlock();
 		Player p = event.getPlayer();
 
-		if (b.getType() != Material.CHEST && !Tag.SIGNS.isTagged( b.getType()))
+		if (b.getType() != Material.CHEST && b.getType() != Material.SIGN)
 			return;
 
 		if (!CenotaphUtil.isTombBlock(b))

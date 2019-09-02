@@ -10,7 +10,7 @@
     <version>5.3</version>
     
     <properties>
-        <project.bukkitAPIVersion>1.14</project.bukkitAPIVersion>
+        <project.bukkitAPIVersion>1.13</project.bukkitAPIVersion>
     </properties>
 
     <repositories>
@@ -37,7 +37,7 @@
         <dependency>
            <groupId>org.spigotmc</groupId>
            <artifactId>spigot-api</artifactId>
-           <version>1.14.4-R0.1-SNAPSHOT</version>
+           <version>1.13.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
         </dependency>
         <dependency>
@@ -57,12 +57,17 @@
             <version>7.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
             <version>7.1.0-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.fusesource.jansi/jansi -->
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.18</version>
         </dependency>
     </dependencies>
 
