@@ -2,75 +2,66 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 
 public class TombBlock {
 	private Block block;
 	private Block lBlock;
 	private Block sign;
-	private Block locketteSign;
 	private long time;
-	private String owner;
 	private int ownerLevel;
-	private boolean lwcEnabled = false;
 	private UUID ownerUUID;
-
-	TombBlock(Block block, Block lBlock, Block sign, String owner, int ownerLevel, long time, UUID ownerUUID) {
+	
+	public TombBlock(Block block, Block lBlock, Block sign, long time, int ownerLevel, UUID ownerUUID) {
 		this.block = block;
 		this.lBlock = lBlock;
 		this.sign = sign;
-		this.owner = owner;
-		this.ownerUUID = ownerUUID;
-		this.ownerLevel = ownerLevel;
 		this.time = time;
-		
-	}
-	TombBlock(Block block, Block lBlock, Block sign, String owner,  int ownerLevel, long time, boolean lwc, Block locketteSign, UUID ownerUUID) {
-		this.block = block;
-		this.lBlock = lBlock;
-		this.sign = sign;
-		this.owner = owner;
-		this.ownerUUID = ownerUUID;
 		this.ownerLevel = ownerLevel;
-		this.time = time;
-		this.lwcEnabled = lwc;
-		this.locketteSign = locketteSign;
+		this.ownerUUID = ownerUUID;
 	}
 
-	long getTime() {
+	public long getTime() {
 		return time;
 	}
-	Block getBlock() {
+	public Block getBlock() {
 		return block;
 	}
-	Block getLBlock() {
+	public Block getLBlock() {
 		return lBlock;
 	}
-	Block getSign() {
+	public Block getSign() {
 		return sign;
 	}
-	Block getLocketteSign() {
-		return locketteSign;
+	public String getOwner() {
+		return Bukkit.getOfflinePlayer(ownerUUID).getName();
 	}
-	String getOwner() {
-		return owner;
-	}
-	UUID getOwnerUUID() {
+	public UUID getOwnerUUID() {
 		return ownerUUID;
 	}
 	int getOwnerLevel() {
 		return ownerLevel;
 	}
-	boolean getLwcEnabled() {
-		return lwcEnabled;
+	public boolean isSecured() {
+		if (!CenotaphSettings.securityEnable()) 
+			return false;
+		if (!CenotaphSettings.securityRemove())
+			return true;
+		
+		if (securityTimeLeft() > 0 )
+			return true;
+		else
+			return false;		
 	}
-	void setLwcEnabled(boolean val) {
-		lwcEnabled = val;
+	public int securityTimeLeft() {
+		long cTime = System.currentTimeMillis() / 1000;
+		return (int) (CenotaphSettings.securityTimeOut() - (cTime - getTime()));
 	}
-	void setLocketteSign(Block signBlock) {
-		this.locketteSign = signBlock;
+	public int removalTimeLeft() {
+		int time = (CenotaphSettings.levelBasedRemoval() ? Math.min(ownerLevel + 1 * CenotaphSettings.levelBasedTime(), CenotaphSettings.cenotaphRemoveTime()) : CenotaphSettings.cenotaphRemoveTime());
+		long cTime = System.currentTimeMillis() / 1000;
+		return (int) (time - (cTime - getTime()));
 	}
-	void removeLocketteSign() {
-		this.locketteSign = null;
-	}
+
 }

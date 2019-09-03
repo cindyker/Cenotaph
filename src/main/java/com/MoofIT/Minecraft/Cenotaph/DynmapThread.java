@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.dynmap.DynmapAPI;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerIcon;
@@ -29,28 +28,23 @@ public class DynmapThread extends Thread {
 		String labelfmt;
 		Map<String, Marker> markers = new HashMap<String, Marker>();
 
-		public Layer(String id, FileConfiguration cfg, String deflabel, String deficon, String deflabelfmt) {
+		public Layer(String id, String deflabel, String deficon, String deflabelfmt) {
 			set = markerapi.getMarkerSet("cenotaph." + id);
 			if(set == null)
-				set = markerapi.createMarkerSet("cenotaph."+id, cfg.getString("layer."+id+".name", deflabel), null, false);
-			else
-				set.setMarkerSetLabel(cfg.getString("layer."+id+".name", deflabel));
+				set = markerapi.createMarkerSet("cenotaph."+id, deflabel, null, false);
 			if(set == null) {
 				Cenotaph.log.severe("[Cenotaph] Dynmap integration: Error creating " + deflabel + " marker set");
 				return;
 			}
-			set.setLayerPriority(cfg.getInt("layer."+id+".layerprio", 10));
-			set.setHideByDefault(cfg.getBoolean("layer."+id+".hidebydefault", false));
-			int minzoom = cfg.getInt("layer."+id+".minzoom", 0);
-			if(minzoom > 0) /* Don't call if non-default - lets us work with pre-0.28 dynmap */
-				set.setMinZoom(minzoom);
-			String icon = cfg.getString("layer."+id+".deficon", deficon);
+			set.setLayerPriority(10);
+			set.setHideByDefault(false);
+			String icon = "chest";
 			this.deficon = markerapi.getMarkerIcon(icon);
 			if(this.deficon == null) {
 				Cenotaph.log.info("[Cenotaph] Dynmap integration: Unable to load default icon '" + icon + "' - using default '"+deficon+"'");
 				this.deficon = markerapi.getMarkerIcon(deficon);
 			}
-			labelfmt = cfg.getString("layer."+id+".labelfmt", deflabelfmt);
+			labelfmt = deflabelfmt;
 		}
 
 		public void cleanup() {
@@ -99,8 +93,8 @@ public class DynmapThread extends Thread {
 	}
 
 	public class cenotaphLayer extends Layer {
-		public cenotaphLayer(FileConfiguration cfg, String fmt) {
-			super("cenotaphs", cfg, "Cenotaphs", "chest", fmt);
+		public cenotaphLayer(String fmt) {
+			super("cenotaphs", "Cenotaphs", "chest", fmt);
 		}
 		/* Get current markers, by ID with location */
 		public Map<String,Location> getMarkers() {
@@ -145,11 +139,10 @@ public class DynmapThread extends Thread {
 			Cenotaph.log.severe("[Cenotaph] Dynmap integration: Error loading Dynmap marker API!");
 			return;
 		}
-		cenotaphLayer = new cenotaphLayer(plugin.config, "[%name%]"); //TODO: find out why this works, even though it isn't saved by the config.
+		cenotaphLayer = new cenotaphLayer("[%name%]");
 
 		/* Set up update job - based on period */
-		double per = plugin.config.getDouble("update.period", 5.0);  //TODO: find out why this works, even though it isn't saved by the config.
-		if(per < 2.0) per = 2.0;
+		double per = 5.0;
 		updperiod = (long)(per*20.0);
 		stop = false;
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new MarkerUpdate(), 5*20);

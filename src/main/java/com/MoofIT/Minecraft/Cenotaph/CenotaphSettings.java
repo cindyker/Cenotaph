@@ -150,21 +150,12 @@ public class CenotaphSettings {
 		return file.exists() || file.mkdirs() || file.isDirectory();
 	}
 	
-	
 	public static boolean cenotaphSign() {		
 		return getBoolean(ConfigNodes.CORE_CENOTAPH_SIGN);		
 	}
 	
-	public static boolean noDestroy() {
-		return getBoolean(ConfigNodes.CORE_NO_DESTROY);		
-	}
-	
 	public static boolean saveCenotaphList() {
 		return getBoolean(ConfigNodes.CORE_SAVE_CENOTAPH_LIST);
-	}
-	
-	public static boolean noInterfere() {
-		return getBoolean(ConfigNodes.CORE_NO_INTERFERE);		
 	}
 
 	public static boolean voidCheck() {
@@ -175,12 +166,8 @@ public class CenotaphSettings {
 		return getBoolean(ConfigNodes.CORE_ONE_BLOCK_UP_CHECK);
 	}
 	
-	public static boolean creeperProtection() {
-		return getBoolean(ConfigNodes.CORE_CREEPER_PROTECTION);
-	}
-	
-	public static boolean tntProtection() {
-		return getBoolean(ConfigNodes.CORE_TNT_PROTECTION);		
+	public static boolean explosionProtection() {
+		return getBoolean(ConfigNodes.CORE_EXPLOSION_PROTECTION);		
 	}
 	
 	public static String signLine1() {
@@ -198,7 +185,7 @@ public class CenotaphSettings {
 	public static String signLine4() {
 		return getString(ConfigNodes.CORE_SIGN_LINE4);
 	}
-	
+
 	public static String dateFormat() {
 		return getString(ConfigNodes.CORE_SIGN_DATE_FORMAT);		
 	}
@@ -252,16 +239,8 @@ public class CenotaphSettings {
 		return getBoolean(ConfigNodes.REMOVAL_KEEP_UNTIL_EMPTY);
 	}
 	
-	public static boolean locketteEnable() {
-		return getBoolean(ConfigNodes.SECURITY_LOCKETTE_ENABLE);
-	}
-	
-	public static boolean lwcEnable() {
-		return getBoolean(ConfigNodes.SECURITY_LWC_ENABLE);
-	}
-	
-	public static boolean lwcPublic() {
-		return getBoolean(ConfigNodes.SECURITY_LWC_PUBLIC);
+	public static boolean securityEnable() {
+		return getBoolean(ConfigNodes.SECURITY_ENABLE);
 	}
 	
 	public static boolean securityRemove() {
@@ -270,5 +249,9 @@ public class CenotaphSettings {
 	
 	public static int securityTimeOut() {
 		return getInt(ConfigNodes.SECURITY_TIMEOUT);
+	}
+	
+	public static boolean enableAscii() {
+		return getBoolean(ConfigNodes.STARTUP_ENABLE_ASCII);
 	}
 }
