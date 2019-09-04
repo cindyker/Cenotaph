@@ -5,7 +5,7 @@ description: Dead Man's Chest mod for Bukkit. Forked from Tombstone by Drakia (T
 author: Southpaw018
 authors: [cindyker, LlmDl]
 website: http://www.moofit.com
-softdepend: [WorldGuard, Vault, dynmap]
+softdepend: [WorldGuard, Vault, dynmap, HolographicDisplays]
 api-version: ${project.bukkitAPIVersion}
 commands:
   cenlist:

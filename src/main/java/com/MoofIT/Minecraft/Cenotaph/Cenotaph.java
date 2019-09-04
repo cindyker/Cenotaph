@@ -36,6 +36,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -48,6 +49,10 @@ import org.dynmap.DynmapAPI;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphBlockListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphEntityListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphPlayerListener;
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.DynmapThread;
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import net.milkbowl.vault.economy.Economy;
 
 /*
@@ -86,10 +91,11 @@ public class Cenotaph extends JavaPlugin {
 	public static HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
 	public static HashMap<String, ArrayList<TombBlock>> playerTombList = new HashMap<String, ArrayList<TombBlock>>();
 	public static HashMap<String, EntityDamageEvent> deathCause = new HashMap<String, EntityDamageEvent>();
-
+	
 	public static boolean economyEnabled = false;
 	public static boolean dynmapEnabled = false;
 	public static boolean worldguardEnabled = false;
+	public static boolean hologramsEnabled = false;
 	private String version = "2.0.0";
 	public static Economy econ = null;
 	public static boolean isSpigot = false;
@@ -117,7 +123,8 @@ public class Cenotaph extends JavaPlugin {
 		isSpigot = isSpigot();
 		economyEnabled = setupEconomy();
 		dynmapEnabled = setupDynmap();
-		worldguardEnabled = setupWorldGuard();		
+		worldguardEnabled = setupWorldGuard();
+		hologramsEnabled = setupHolograms();
 
 		for (World w : getServer().getWorlds())
 			loadTombList(w.getName());
@@ -188,6 +195,19 @@ public class Cenotaph extends JavaPlugin {
     		}
     	} else if (CenotaphSettings.worldguardEnable())
     	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find WorldGuard. WorldGuard not hooked!");
+    	return false;
+    }
+    private boolean setupHolograms() {
+    	if (pm.isPluginEnabled("HolographicDisplays")) {
+    		if (!CenotaphSettings.hologramsEnable())
+    			return false;
+    		else {
+    			hooked += "HolographicDisplays, ";
+    			HolographicDisplays.loadHolograms();
+    			return true;
+    		}
+    	} else if (CenotaphSettings.hologramsEnable())
+    	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find HolographicDisplays. Holograms will not be used!");
     	return false;
     }
     
@@ -285,6 +305,8 @@ public class Cenotaph extends JavaPlugin {
 			log.info("[Cenotaph] Error saving cenotaph list: " + e);
 		}
 	}
+	
+
 
 	private String printBlock(Block b) {
 		if (b == null) return null;
@@ -303,6 +325,7 @@ public class Cenotaph extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
+		if (hologramsEnabled) HolographicDisplays.saveHolograms();
 		if (dynmapEnabled) dynThread.cenotaphLayer.cleanup();
 		getServer().getScheduler().cancelTasks(this);
 	}
@@ -347,6 +370,15 @@ public class Cenotaph extends JavaPlugin {
 		tBlock.getBlock().setType(Material.AIR);
 		if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
 		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
+		if (hologramsEnabled) {
+			for (Hologram holo : HologramsAPI.getHolograms(plugin)) {
+				if (holo.getLocation().equals(tBlock.getBlock().getRelative(BlockFace.UP,2).getLocation())) {
+					holo.delete();
+					HolographicDisplays.holograms.remove(holo);
+				}
+			}
+				
+		}
 
 		removeTomb(tBlock, true);
 

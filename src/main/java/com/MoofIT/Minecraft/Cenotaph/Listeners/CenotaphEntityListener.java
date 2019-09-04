@@ -1,8 +1,6 @@
 package com.MoofIT.Minecraft.Cenotaph.Listeners;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 
 import org.bukkit.Bukkit;
@@ -15,17 +13,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
-import org.bukkit.block.Sign;
-import org.bukkit.block.data.Ageable;
-import org.bukkit.block.data.type.Chest.Type;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -36,7 +27,8 @@ import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
-import com.MoofIT.Minecraft.Cenotaph.WorldGuardWrapper;
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 public class CenotaphEntityListener implements Listener {
@@ -111,7 +103,7 @@ public class CenotaphEntityListener implements Listener {
 			return;
 		}
 
-		//WorldGuard support
+		//WorldGuard support, see if the player could build where they've died. Disallow a cenotaph if they cannot build.
 		if (Cenotaph.worldguardEnabled){
 			if (!WorldGuardWrapper.canBuild(p)){
 				CenotaphMessaging.sendPrefixedPlayerMessage(p, "In a WorldGuard protected area. Inv dropped.");
@@ -120,7 +112,7 @@ public class CenotaphEntityListener implements Listener {
 		}
 		
 		if (Cenotaph.economyEnabled) {
-			//Check balance
+			//Check balance to see if they can pay for their cenotaph.
 			if (!p.hasPermission("cenotaph.nocost") && CenotaphSettings.cenotaphCost() > 0){
 				if (Cenotaph.econ.getBalance(p) < CenotaphSettings.cenotaphCost()){
 					CenotaphMessaging.sendPrefixedPlayerMessage(p, "Not enough money! Inv dropped.");
@@ -149,7 +141,7 @@ public class CenotaphEntityListener implements Listener {
 
 		boolean smallChest = event.getDrops().size() < 28;
 		// Check if we can replace the block.
-		block = findPlace(block, smallChest);
+		block = CenotaphUtil.findPlace(block, smallChest);
 		if ( block == null ) {
 			CenotaphMessaging.sendPrefixedPlayerMessage(p, "No room to place chest. Inv dropped.");
 			return;
@@ -159,7 +151,7 @@ public class CenotaphEntityListener implements Listener {
 		int removeSignCount = 0;
 
 		// Do the check for a large chest block here so we can check for interference
-		Block lBlock = findLarge(block);
+		Block lBlock = CenotaphUtil.findLarge(block);
 
 		// Set the current block to a chest, init some variables for later use.
 		block.setType(Material.CHEST);
@@ -181,34 +173,7 @@ public class CenotaphEntityListener implements Listener {
 				removeChestCount = 2;
 				// Check if the player has enough chests
 				if (pChestCount >= removeChestCount || p.hasPermission("cenotaph.freechest")) {
-					lBlock.setType(Material.CHEST);
-					// This fun stuff is required post-1.13 when they made chests not snap together. 
-					org.bukkit.block.data.type.Chest blockChestData = (org.bukkit.block.data.type.Chest) block.getBlockData();
-					org.bukkit.block.data.type.Chest lBlockChestData = (org.bukkit.block.data.type.Chest) lBlock.getBlockData();
-					relativeFace = block.getFace(lBlock);
-					if (relativeFace.equals(BlockFace.WEST)) {
-						blockChestData.setFacing(BlockFace.SOUTH);
-						lBlockChestData.setFacing(BlockFace.SOUTH);
-						blockChestData.setType(Type.LEFT);
-						lBlockChestData.setType(Type.RIGHT);
-					} else if (relativeFace.equals(BlockFace.EAST)) {
-						//Chests face North by default so Eastwards lBlock doesn't need the chest faced.
-						blockChestData.setType(Type.LEFT);
-						lBlockChestData.setType(Type.RIGHT);
-					} else if (relativeFace.equals(BlockFace.SOUTH)) {
-						blockChestData.setFacing(BlockFace.EAST);
-						lBlockChestData.setFacing(BlockFace.EAST);
-						blockChestData.setType(Type.LEFT);
-						lBlockChestData.setType(Type.RIGHT);
-					} else if (relativeFace.equals(BlockFace.NORTH)) {
-						blockChestData.setFacing(BlockFace.WEST);
-						lBlockChestData.setFacing(BlockFace.WEST);
-						blockChestData.setType(Type.LEFT);
-						lBlockChestData.setType(Type.RIGHT);							
-					}
-					block.setBlockData(blockChestData,true);
-					lBlock.setBlockData(lBlockChestData,true);
-					
+					CenotaphUtil.createLargeChest(block, lBlock, relativeFace);
 					lChest = (Chest)lBlock.getState();
 					maxSlot = maxSlot * 2;
 				} else {
@@ -221,19 +186,22 @@ public class CenotaphEntityListener implements Listener {
 		if (p.hasPermission("cenotaph.freechest"))
 			removeChestCount = 0;
 
-		// Check if we have signs enabled, if the player can use signs, and if the player has a sign or gets a free sign
+		// We are either going to make a hologram with the information on it, or we're going to make a sign (if a sign can be placed.)
 		Block sBlock = null;
-		if (CenotaphSettings.cenotaphSign() && p.hasPermission("cenotaph.sign") &&
+		if (Cenotaph.hologramsEnabled)
+			HolographicDisplays.createHolo(block, p);
+		// Check if we have signs enabled, if the player can use signs, and if the player has a sign or gets a free sign
+		else if (CenotaphSettings.cenotaphSign() && p.hasPermission("cenotaph.sign") &&
 			(pSignCount > 0 || p.hasPermission("cenotaph.freesign"))) {
 			// Find a place to put the sign, then place the sign.
 			sBlock = sChest.getWorld().getBlockAt(sChest.getX(), sChest.getY() + 1, sChest.getZ());
-			if (canReplace(sBlock.getType())) {
-				createSign(sBlock, p, relativeFace);
+			if (CenotaphUtil.canReplace(sBlock.getType())) {
+				CenotaphUtil.createSign(sBlock, p, relativeFace);
 				removeSignCount += 1;
 			} else if (lChest != null) {
 				sBlock = lChest.getWorld().getBlockAt(lChest.getX(), lChest.getY() + 1, lChest.getZ());
-				if (canReplace(sBlock.getType())) {
-					createSign(sBlock, p, relativeFace);
+				if (CenotaphUtil.canReplace(sBlock.getType())) {
+					CenotaphUtil.createSign(sBlock, p, relativeFace.getOppositeFace());
 					removeSignCount += 1;
 				}
 			}
@@ -262,6 +230,8 @@ public class CenotaphEntityListener implements Listener {
 		pList.add(tBlock);
 
 		plugin.saveCenotaphList(p.getWorld().getName());
+		if (Cenotaph.hologramsEnabled)
+			HolographicDisplays.saveHolograms();
 
 		// Next get the players inventory using the getDrops() method.
 		for (Iterator<ItemStack> iter = event.getDrops().listIterator(); iter.hasNext();) {
@@ -324,179 +294,4 @@ public class CenotaphEntityListener implements Listener {
 			}
 		}
 	}
-
-	private void createSign(Block signBlock, Player p, BlockFace bf) {
-		String date = new SimpleDateFormat(CenotaphSettings.dateFormat()).format(new Date());
-		String time = new SimpleDateFormat(CenotaphSettings.timeFormat()).format(new Date());
-		String name = p.getName();
-		String reason = "Unknown";
-
-		EntityDamageEvent dmg = Cenotaph.deathCause.get(name);
-		if (dmg != null) {
-			Cenotaph.deathCause.remove(name);
-			reason = getCause(dmg);
-		}
-
-		signBlock.setType(Material.OAK_SIGN);
-		//Lets make the sign appear to look downwards towards the foot of the long chests.
-		org.bukkit.block.data.type.Sign sBlockData = (org.bukkit.block.data.type.Sign) signBlock.getBlockData();
-		sBlockData.setRotation(bf);
-		signBlock.setBlockData(sBlockData);
-		
-		final Sign sign = (Sign)signBlock.getState();
-
-		for (int x = 0; x < 4; x++) {
-			String line = CenotaphUtil.signMessage[x];
-			line = line.replace("{name}", name);
-			line = line.replace("{date}", date);
-			line = line.replace("{time}", time);
-			line = line.replace("{reason}", reason);
-
-			if (line.length() > 15) line = line.substring(0, 15);
-			sign.setLine(x, line);
-		}
-
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				sign.update();
-			}
-		});
-	}
-
-	private String getCause(EntityDamageEvent dmg) {
-		try {
-			switch (dmg.getCause()) {
-				case ENTITY_ATTACK:
-				{
-					EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
-					Entity e = event.getDamager();
-					if (e == null) {
-						return "Dispenser";
-					} else if (e instanceof Player) {
-						return ((Player) e).getDisplayName();
-					} else {
-						return e.getName();
-					}
-				}
-				case CONTACT:
-					return "Cactus";
-				case SUFFOCATION:
-					return "Suffocation";
-				case FALL:
-					return "Fall";
-				case FIRE:
-					return "Fire";
-				case FIRE_TICK:
-					return "Burning";
-				case LAVA:
-					return "Lava";
-				case DROWNING:
-					return "Drowning";
-				case BLOCK_EXPLOSION:
-					return "Explosion";
-				case ENTITY_EXPLOSION:
-				{
-					try {
-						EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
-						Entity e = event.getDamager();
-						if (e instanceof TNTPrimed) return "TNT";
-						else if (e instanceof Fireball) return "Ghast";
-						else return "Creeper";
-					} catch (Exception e) {
-						return "Explosion";
-					}
-				}
-				case VOID:
-					return "The Void";
-				case LIGHTNING:
-					return "Lightning";
-				default:
-					return "Unknown";
-			}
-		} catch (NullPointerException e) {
-			Cenotaph.log.severe("[Cenotaph] Error processing death cause: " + dmg.getCause().toString());
-			e.printStackTrace();
-			return ChatColor.RED + "ERROR" + ChatColor.BLACK;
-		}
-	}
-
-	/**
-	 * Find a block near the base block to place the tombstone
-	 * @param base
-	 * @param smallChest 
-	 * @return
-	 */
-	Block findPlace(Block base, boolean smallChest) {
-		if (canReplace(base.getType()) && smallChest) return base;
-		int baseX = base.getX();
-		int baseY = base.getY();
-		int baseZ = base.getZ();
-		World w = base.getWorld();
-
-		for (int x = baseX - 1; x < baseX + 1; x++) {
-			for (int z = baseZ - 1; z < baseZ + 1; z++) {
-				Block b = w.getBlockAt(x, baseY, z);
-				if (canReplace(b.getType()) && smallChest) 
-					return b;
-				else if (canReplace(b.getType())) { 
-					// When there ought to be a double chest we should test to see if there's space for a double chest and force a oneBlockUpCheck for it.
-					// Previously if you died in a 1x1x1 hole only a small chest would form, causing overflow.
-					if (canReplace(b.getRelative(BlockFace.NORTH).getType())) return b;
-					else if (canReplace(b.getRelative(BlockFace.EAST).getType())) return b;
-					else if (canReplace(b.getRelative(BlockFace.WEST).getType())) return b;
-					else if (canReplace(b.getRelative(BlockFace.SOUTH).getType())) return b;
-				}
-			}
-		}
-		if(CenotaphSettings.oneBlockUpCheck()) {
-			//Check block one up, in case of Carpeting/
-			for (int x = baseX - 1; x < baseX + 1; x++) {
-				for (int z = baseZ - 1; z < baseZ + 1; z++) {
-					Block b = w.getBlockAt(x, baseY + 1, z);
-					if (canReplace(b.getType())) return b;
-				}
-			}
-		}
-		return null;
-	}
-
-	Boolean canReplace(Material mat) {
-		return (mat == Material.AIR ||
-				mat == Material.WATER ||
-				mat == Material.LAVA ||
-				mat == Material.COBWEB || 
-				mat == Material.SUNFLOWER ||
-				mat == Material.LILAC ||
-				mat == Material.PEONY ||
-				mat == Material.ROSE_BUSH ||
-				mat == Material.BROWN_MUSHROOM ||
-				mat == Material.RED_MUSHROOM ||
-				mat == Material.FIRE ||
-				mat == Material.SNOW ||
-				mat == Material.SUGAR_CANE ||
-				mat == Material.GRAVEL ||
-				mat == Material.SAND ||
-				mat == Material.GRASS ||
-				mat == Material.TALL_GRASS ||
-				(mat.createBlockData() instanceof Ageable) ||
-				Tag.SMALL_FLOWERS.isTagged(mat) ||
-				Tag.SAPLINGS.isTagged(mat)
-				);
-	}
-
-	Block findLarge(Block base) {
-		// Check all 4 sides for air.
-		Block exp;
-		exp = base.getRelative(BlockFace.NORTH);
-		if (canReplace(exp.getType())) return exp;
-		exp = base.getRelative(BlockFace.EAST);
-		if (canReplace(exp.getType())) return exp;
-		exp = base.getRelative(BlockFace.SOUTH);
-		if (canReplace(exp.getType())) return exp;
-		exp = base.getRelative(BlockFace.WEST);
-		if (canReplace(exp.getType())) return exp;
-		return null;
-	}
-
-
 }

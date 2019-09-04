@@ -105,6 +105,11 @@ public enum ConfigNodes {
 			"false",
 			"",
 			"# Enables WorldGuard integration, preventing cenotaphs from being created in regions the player cannot build."),
+	CORE_HOLOGRAMS_ENABLE(
+			"core.holographic_displays_enable",
+			"false",
+			"",
+			"# Enables HolographicDisplays integration, holograms will appear above cenotaphs instead of signs."),
 	CORE_CENOTAPH_COST(
 			"core.cenotaph_cost",
 			"0.0",

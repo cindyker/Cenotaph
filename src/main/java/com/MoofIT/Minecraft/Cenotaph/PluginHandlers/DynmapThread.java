@@ -1,4 +1,4 @@
-package com.MoofIT.Minecraft.Cenotaph;
+package com.MoofIT.Minecraft.Cenotaph.PluginHandlers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,10 @@ import org.dynmap.DynmapAPI;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerIcon;
 import org.dynmap.markers.MarkerSet;
+
+import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.TombBlock;
+
 import org.dynmap.markers.Marker;
 
 public class DynmapThread extends Thread {
@@ -22,7 +26,7 @@ public class DynmapThread extends Thread {
 		this.plugin = instance;
 	}
 
-	abstract class Layer {
+	public abstract class Layer {
 		MarkerSet set;
 		MarkerIcon deficon;
 		String labelfmt;
@@ -112,7 +116,7 @@ public class DynmapThread extends Thread {
 	}
 
 	/* Warps layer settings */
-	Layer cenotaphLayer;
+	public Layer cenotaphLayer;
 
 	long updperiod;
 	long playerupdperiod;
@@ -131,7 +135,7 @@ public class DynmapThread extends Thread {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new MarkerUpdate(), updperiod);
 	}
 
-	void activate(DynmapAPI api) {
+	public void activate(DynmapAPI api) {
 		/* Now, get markers API */
 		this.api = api;
 		markerapi = api.getMarkerAPI();
