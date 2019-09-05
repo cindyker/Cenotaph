@@ -2,11 +2,14 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 
 public class CenotaphCommand implements CommandExecutor {
 	private Cenotaph plugin;
@@ -101,6 +104,7 @@ public class CenotaphCommand implements CommandExecutor {
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin find <player> <#>");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin remove <player> <#>");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin version");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin deletehologram");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin reload");
 				return;
 			}
@@ -236,6 +240,17 @@ public class CenotaphCommand implements CommandExecutor {
 				plugin.loadSettings();
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Configuration reloaded from file.");
 				return;
+			} else if (args[0].equalsIgnoreCase("deletehologram")) {
+				if (isConsole) {
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Command cannot be used from the console.");
+					return;
+				} else {
+					if (!sender.hasPermission("cenotaph.admin.deletehologram")) {
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						return;
+					}
+				}
+				HolographicDisplays.deleteHolo(Bukkit.getServer().getPlayer(sender.getName()), Bukkit.getServer().getPlayer(sender.getName()).getLocation());				
 			} else {
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Invalid command");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin list");
@@ -244,6 +259,7 @@ public class CenotaphCommand implements CommandExecutor {
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin find <player> <#>");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin remove <player> <#>");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin version");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin deletehologram");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin reload");
 				return;
 			}

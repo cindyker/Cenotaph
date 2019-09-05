@@ -64,6 +64,10 @@ commands:
     description: Admin command to remove a player's cenotaph.
     usage: /<command> [player] [#]
     permission: cenotaph.admin
+  cenadmin deletehologram:
+    description: Admin command to remove holograms within 5 blocks.
+    usage: /<command>
+    permission: cenotaph.admin
   cenadmin version:
     description: Admin command to see Cenotaph version.
     usage: /<command>

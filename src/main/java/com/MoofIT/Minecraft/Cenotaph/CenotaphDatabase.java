@@ -16,13 +16,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 
 public class CenotaphDatabase {
 	public static ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
@@ -174,8 +172,8 @@ public class CenotaphDatabase {
 		if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
 		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
 		if (Cenotaph.hologramsEnabled) {
-			for (Hologram holo : HologramsAPI.getHolograms(Cenotaph.plugin)) {
-				if (holo.getLocation().equals(tBlock.getBlock().getRelative(BlockFace.UP,2).getLocation())) {
+			for (Hologram holo : HolographicDisplays.holograms) {
+				if (holo.getLocation().equals(tBlock.getBlock().getLocation().add(0.5, 2.0, 0.5))) {
 					holo.delete();
 					HolographicDisplays.holograms.remove(holo);
 				}

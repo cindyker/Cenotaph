@@ -14,12 +14,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
@@ -41,7 +41,7 @@ public class HolographicDisplays {
 			reason = CenotaphUtil.getCause(dmg);
 		}
 
-		Hologram holo = HologramsAPI.createHologram(Cenotaph.plugin, block.getRelative(BlockFace.UP,2).getLocation());
+		Hologram holo = HologramsAPI.createHologram(Cenotaph.plugin, block.getLocation().add(0.5, 2.0, 0.5));
 		for (int x = 0; x < 4; x++) {
 			String line = CenotaphUtil.signMessage[x];
 			line = line.replace("{name}", name);
@@ -50,8 +50,25 @@ public class HolographicDisplays {
 			line = line.replace("{reason}", reason);
 			holo.appendTextLine(line);					
 		}				 
-		HolographicDisplays.holograms.add(holo);
-		
+		HolographicDisplays.holograms.add(holo);		
+	}
+	
+	public static void deleteHolo(Player player, Location location) {
+		int removed = 0;
+		for (Hologram holo : holograms) {
+			if (holo.getLocation().getChunk().equals(location.getChunk())) {
+				if (holo.getLocation().distanceSquared(location) <= 5) {
+					holo.delete();
+					holograms.remove(holo);
+					removed++;
+				}
+			}				
+		}
+		if (removed > 0) {
+			CenotaphMessaging.sendPrefixedPlayerMessage(player, "Removed " + removed + " hologram(s).");
+			saveHolograms();			
+		} else 
+			CenotaphMessaging.sendPrefixedPlayerMessage(player, "No holograms found within 5 blocks. You must be in the same chunk as the hologram.");
 	}
 	
 	public static void saveHolograms() {
