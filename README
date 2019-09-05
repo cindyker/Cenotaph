@@ -46,6 +46,8 @@ cenotaph.admin.list - Allow this user to see all cenotaphs with /cenadmin list
 cenotaph.admin.find - Allow this user to find any cenotaph with /cenadmin find
 cenotaph.admin.info - Allow this user to check the time left on any cenotaph with /cenadmin time
 cenotaph.admin.remove - Allow this user to destroy any cenotaph with /cenadmin remove
+cenotaph.admin.version - Allow this user to see the cenotaph version.
+cenotaph.admin.deletehologram - Allow this user to kill off holograms.
 cenotaph.admin.reload - Allow this user to reload Cenotaph's configuration from config.yml
 
 =============
@@ -74,6 +76,10 @@ Admin commands:
       Destroys the indicated cenotaph, dropping its contents on the ground.
   /cenadmin version
       Displays the current version of this plugin and checks for a new version
+  /cenadmin deletehologram
+      Kills off holograms from cenotaph within a 5 block radius, must be in same chunk as the hologram too.
+  /cenadmin reload
+      Reloads the config settings.
 
 =============
  Config
@@ -98,6 +104,13 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
 =============
  Changes
 =============
+[Version 5.4]
+  - Added support for HolographicDisplays
+    - When present, and enabled in the config, Cenotaph will spawn a hologram on top of the cenotaph rather than a sign.
+  - Added command: /cenadmin deletehologram
+    - Removes orphaned holograms from cenotaphs
+    - Must be in same chunk and within 5 blocks distance of the hologram
+    - Requires cenotaph.admin.deletehologram permission node.
 [Version 5.3]
   - New database schema. Old databases will auto-convert.
   - Removed lockette and LWC support and replaced it with built-in security system that requires no signs.

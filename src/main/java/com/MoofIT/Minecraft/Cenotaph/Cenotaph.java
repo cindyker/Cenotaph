@@ -19,35 +19,22 @@ package com.MoofIT.Minecraft.Cenotaph;
  * along with this program.If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Scanner;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapAPI;
-
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphBlockListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphEntityListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphPlayerListener;
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.DynmapThread;
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 import net.milkbowl.vault.economy.Economy;
 
 /*
@@ -79,17 +66,13 @@ public class Cenotaph extends JavaPlugin {
 	public final DynmapThread dynThread = new DynmapThread(this);
 	public static Logger log;
 	public static Cenotaph plugin;
-	
-	PluginManager pm;
 
-	public static ConcurrentLinkedQueue<TombBlock> tombList = new ConcurrentLinkedQueue<TombBlock>();
-	public static HashMap<Location, TombBlock> tombBlockList = new HashMap<Location, TombBlock>();
-	public static HashMap<String, ArrayList<TombBlock>> playerTombList = new HashMap<String, ArrayList<TombBlock>>();
-	public static HashMap<String, EntityDamageEvent> deathCause = new HashMap<String, EntityDamageEvent>();
+	PluginManager pm;
 
 	public static boolean economyEnabled = false;
 	public static boolean dynmapEnabled = false;
 	public static boolean worldguardEnabled = false;
+	public static boolean hologramsEnabled = false;
 	private String version = "2.0.0";
 	public static Economy econ = null;
 	public static boolean isSpigot = false;
@@ -110,17 +93,18 @@ public class Cenotaph extends JavaPlugin {
 			log.info("Cenotaph config.yml couldn't load.");
 			onDisable();
 		}
-		
+
 		if (CenotaphSettings.enableAscii())
 			CenotaphMessaging.sendSweetAsciiArt();
 
 		isSpigot = isSpigot();
 		economyEnabled = setupEconomy();
 		dynmapEnabled = setupDynmap();
-		worldguardEnabled = setupWorldGuard();		
+		worldguardEnabled = setupWorldGuard();
+		hologramsEnabled = setupHolograms();
 
 		for (World w : getServer().getWorlds())
-			loadTombList(w.getName());
+			CenotaphDatabase.loadTombList(w.getName());
 
 		// Start removal timer. Run every 5 seconds (20 ticks per second)
 		if (CenotaphSettings.cenotaphRemove())
@@ -190,119 +174,24 @@ public class Cenotaph extends JavaPlugin {
     	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find WorldGuard. WorldGuard not hooked!");
     	return false;
     }
-    
+    private boolean setupHolograms() {
+    	if (pm.isPluginEnabled("HolographicDisplays")) {
+    		if (!CenotaphSettings.hologramsEnable())
+    			return false;
+    		else {
+    			hooked += "HolographicDisplays, ";
+    			HolographicDisplays.loadHolograms();
+    			return true;
+    		}
+    	} else if (CenotaphSettings.hologramsEnable())
+    	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find HolographicDisplays. Holograms will not be used!");
+    	return false;
+    }
 
-	public void loadTombList(String world) {
-		if (!CenotaphSettings.saveCenotaphList()) return;
-		try {
-			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
-			if (!fh.exists()) return;
-			Scanner scanner = new Scanner(fh);
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine().trim();
-				String[] split = line.split(":");
-				Block block, lBlock, sign = null;
-				long time;
-				int level;
-				UUID ownerUUID;				
-				
-				//Try and load old databases first.
-				if (split.length > 6) {
-					//block:lblock:sign:owner:level:time:lwc:locketteSign
-					block = readBlock(split[0]);
-					lBlock = readBlock(split[1]);
-					sign = readBlock(split[2]);									
-					level = Integer.valueOf(split[4]);
-					time = Long.valueOf(split[5]);
-					if (split.length == 8) {
-						ownerUUID = null;
-						continue;
-					} else {
-						ownerUUID = UUID.fromString(split[8]);
-					}
-				//Must be a new database Cenotaph 5.3+
-				} else {
-					//block:lblock:sign:time:ownerlevel:ownerUUID
-					block = readBlock(split[0]);
-					lBlock = readBlock(split[1]);
-					sign = readBlock(split[2]);
-					time = Long.valueOf(split[3]);
-					level = Integer.valueOf(split[4]);
-					ownerUUID = UUID.fromString(split[5]);
-				}
-				if (block == null ) {
-					log.info("[Cenotaph] Invalid entry in database " + fh.getName());
-					continue;
-				}
-				
-				TombBlock tBlock = new TombBlock(block, lBlock, sign, time, level, ownerUUID);
-				tombList.offer(tBlock);
-				// Used for quick tombStone lookup
-				tombBlockList.put(block.getLocation(), tBlock);
-				if (lBlock != null) tombBlockList.put(lBlock.getLocation(), tBlock);
-				if (sign != null) tombBlockList.put(sign.getLocation(), tBlock);
-				ArrayList<TombBlock> pList = playerTombList.get(Bukkit.getOfflinePlayer(ownerUUID).getName());
-				if (pList == null) {
-					pList = new ArrayList<TombBlock>();
-					playerTombList.put(Bukkit.getOfflinePlayer(ownerUUID).getName(), pList);
-				}
-				pList.add(tBlock);
-			}
-			scanner.close();
-		} catch (IOException e) {
-			log.info("[Cenotaph] Error loading cenotaph list: " + e);
-		}
-	}
-
-	public void saveCenotaphList(String world) {
-		if (!CenotaphSettings.saveCenotaphList()) return;
-		try {
-			File fh = new File(this.getDataFolder().getPath(), "tombList-" + world + ".db");
-			BufferedWriter bw = new BufferedWriter(new FileWriter(fh));
-			for (Iterator<TombBlock> iter = tombList.iterator(); iter.hasNext();) {
-				TombBlock tBlock = iter.next();
-				// Skip not this world
-				if (!tBlock.getBlock().getWorld().getName().equalsIgnoreCase(world)) continue;
-
-				StringBuilder builder = new StringBuilder();
-
-				bw.append(printBlock(tBlock.getBlock()));
-				bw.append(":");
-				bw.append(printBlock(tBlock.getLBlock()));
-				bw.append(":");
-				bw.append(printBlock(tBlock.getSign()));
-				bw.append(":");
-				bw.append(String.valueOf(tBlock.getTime()));
-				bw.append(":");
-				bw.append(Integer.toString(tBlock.getOwnerLevel()));
-				bw.append(":");
-				bw.append(String.valueOf(tBlock.getOwnerUUID()));
-				bw.append(builder.toString());
-				bw.newLine();
-			}
-			bw.close();
-		} catch (IOException e) {
-			log.info("[Cenotaph] Error saving cenotaph list: " + e);
-		}
-	}
-
-	private String printBlock(Block b) {
-		if (b == null) return null;
-		return b.getWorld().getName() + "," + b.getX() + "," + b.getY() + "," + b.getZ();
-	}
-
-	private Block readBlock(String b) {
-		if (b.length() == 0) return null;
-		String[] split = b.split(",");
-		//world,x,y,z
-		World world = getServer().getWorld(split[0]);
-		if (world == null) return null;
-		return world.getBlockAt(Integer.valueOf(split[1]), Integer.valueOf(split[2]), Integer.valueOf(split[3]));
-	}
-	
 	@Override
 	public void onDisable() {
-		for (World w : getServer().getWorlds()) saveCenotaphList(w.getName());
+		for (World w : getServer().getWorlds()) CenotaphDatabase.saveCenotaphList(w.getName());
+		if (hologramsEnabled) HolographicDisplays.saveHolograms();
 		if (dynmapEnabled) dynThread.cenotaphLayer.cleanup();
 		getServer().getScheduler().cancelTasks(this);
 	}
@@ -310,53 +199,5 @@ public class Cenotaph extends JavaPlugin {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		return commandExec.onCommand(sender, command, label, args);
-	}
-
-	public void removeTomb(TombBlock tBlock, boolean removeList) {
-		if (tBlock == null) return;
-
-		tombBlockList.remove(tBlock.getBlock().getLocation());
-		if (tBlock.getLBlock() != null) tombBlockList.remove(tBlock.getLBlock().getLocation());
-		if (tBlock.getSign() != null) tombBlockList.remove(tBlock.getSign().getLocation());
-
-		// Remove just this tomb from tombList
-		ArrayList<TombBlock> tList = playerTombList.get(tBlock.getOwner());
-		if (tList != null) {
-			tList.remove(tBlock);
-			if (tList.size() == 0) {
-				playerTombList.remove(tBlock.getOwner());
-			}
-		}
-
-		if (removeList)
-			tombList.remove(tBlock);
-
-		if (tBlock.getBlock() != null)
-			saveCenotaphList(tBlock.getBlock().getWorld().getName());
-	}
-
-	public void destroyCenotaph(Location loc) {
-		destroyCenotaph(tombBlockList.get(loc));
-	}
-	public void destroyCenotaph(TombBlock tBlock) {
-		if (tBlock.getBlock().getChunk().load() == false) {
-			log.severe("[Cenotaph] Error loading world chunk trying to remove cenotaph at " + tBlock.getBlock().getX() + "," + tBlock.getBlock().getY() + "," + tBlock.getBlock().getZ() + " owned by " + tBlock.getOwner() + ".");
-			return;
-		}
-
-		tBlock.getBlock().setType(Material.AIR);
-		if (tBlock.getLBlock() != null) tBlock.getLBlock().setType(Material.AIR);
-		if (tBlock.getSign() != null) tBlock.getSign().setType(Material.AIR);
-
-		removeTomb(tBlock, true);
-
-		Player p = null;
-		if (tBlock.getOwnerUUID() != null)
-			p = getServer().getPlayer(tBlock.getOwnerUUID());
-		if (p != null) CenotaphMessaging.sendPrefixedPlayerMessage(p, "Your cenotaph has broken.");
-	}
-
-	public HashMap<String, ArrayList<TombBlock>> getCenotaphList() {
-		return playerTombList;
 	}
 }

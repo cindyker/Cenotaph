@@ -5,7 +5,7 @@ description: Dead Man's Chest mod for Bukkit. Forked from Tombstone by Drakia (T
 author: Southpaw018
 authors: [cindyker, LlmDl]
 website: http://www.moofit.com
-softdepend: [WorldGuard, Vault, dynmap]
+softdepend: [WorldGuard, Vault, dynmap, HolographicDisplays]
 api-version: ${project.bukkitAPIVersion}
 commands:
   cenlist:
@@ -63,6 +63,10 @@ commands:
   cenadmin remove:
     description: Admin command to remove a player's cenotaph.
     usage: /<command> [player] [#]
+    permission: cenotaph.admin
+  cenadmin deletehologram:
+    description: Admin command to remove holograms within 5 blocks.
+    usage: /<command>
     permission: cenotaph.admin
   cenadmin version:
     description: Admin command to see Cenotaph version.

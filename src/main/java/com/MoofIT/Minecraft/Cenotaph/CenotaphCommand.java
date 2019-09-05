@@ -2,11 +2,14 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 
 public class CenotaphCommand implements CommandExecutor {
 	private Cenotaph plugin;
@@ -26,7 +29,7 @@ public class CenotaphCommand implements CommandExecutor {
 		if (cmd.equalsIgnoreCase("cenlist")) {
 			if (args.length == 1)
 				return false;
-			ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(p.getName());
+			ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(p.getName());
 			if (pList == null) {
 				CenotaphMessaging.sendPrefixedPlayerMessage(p, "You have no cenotaphs.");
 				return true;
@@ -101,6 +104,7 @@ public class CenotaphCommand implements CommandExecutor {
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin find <player> <#>");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin remove <player> <#>");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin version");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin deletehologram");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin reload");
 				return;
 			}
@@ -122,17 +126,17 @@ public class CenotaphCommand implements CommandExecutor {
 				if (args.length == 1)
 					return;
 				if (args.length < 2) {
-					if (Cenotaph.playerTombList.keySet().isEmpty()) {
+					if (CenotaphDatabase.playerTombList.keySet().isEmpty()) {
 						CenotaphMessaging.sendPrefixedAdminMessage(sender, "There are no cenotaphs.");
 						return;
 					}
 					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Players with cenotaphs:");
-					for (String player : Cenotaph.playerTombList.keySet()) {
+					for (String player : CenotaphDatabase.playerTombList.keySet()) {
 						CenotaphMessaging.sendPrefixedAdminMessage(sender, player);
 					}
 					return;
 				}
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
+				ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(playerName);
 				if (pList == null) {
 					CenotaphMessaging.sendPrefixedAdminMessage(sender, "No cenotaphs found for " + playerName + ".");
 					return;
@@ -207,7 +211,7 @@ public class CenotaphCommand implements CommandExecutor {
 					}
 				if (args.length == 1)
 					return;
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
+				ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(playerName);
 				if (pList == null) {
 					CenotaphMessaging.sendPrefixedAdminMessage(sender, "No cenotaphs found for " + playerName + ".");
 					return;
@@ -225,7 +229,7 @@ public class CenotaphCommand implements CommandExecutor {
 					return;
 				}
 				TombBlock tBlock = pList.get(slot);
-				plugin.destroyCenotaph(tBlock);
+				CenotaphDatabase.destroyCenotaph(tBlock);
 				
 			} else if (args[0].equalsIgnoreCase("reload")) {
 				if (!isConsole)
@@ -236,6 +240,17 @@ public class CenotaphCommand implements CommandExecutor {
 				plugin.loadSettings();
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Configuration reloaded from file.");
 				return;
+			} else if (args[0].equalsIgnoreCase("deletehologram")) {
+				if (isConsole) {
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Command cannot be used from the console.");
+					return;
+				} else {
+					if (!sender.hasPermission("cenotaph.admin.deletehologram")) {
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						return;
+					}
+				}
+				HolographicDisplays.deleteHolo(Bukkit.getServer().getPlayer(sender.getName()), Bukkit.getServer().getPlayer(sender.getName()).getLocation());				
 			} else {
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Invalid command");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin list");
@@ -244,6 +259,7 @@ public class CenotaphCommand implements CommandExecutor {
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin find <player> <#>");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin remove <player> <#>");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin version");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin deletehologram");
 				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin reload");
 				return;
 			}

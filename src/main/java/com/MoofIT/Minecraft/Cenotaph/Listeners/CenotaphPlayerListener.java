@@ -12,12 +12,14 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 
 public class CenotaphPlayerListener implements Listener {
+	@SuppressWarnings("unused")
 	private Cenotaph plugin;
 
 	public CenotaphPlayerListener(Cenotaph instance) {
@@ -34,7 +36,7 @@ public class CenotaphPlayerListener implements Listener {
 		if (!CenotaphUtil.isTombBlock(b))
 			return;
 		TombBlock tBlock = CenotaphUtil.getTombBlock(b);
-		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId())) {
+		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId()) && !event.getPlayer().hasPermission("cenotaph.admin")) {
 			CenotaphMessaging.sendActionBarPlayerMessage(event.getPlayer(), "This cenotaph is secured.");
 			event.setCancelled(true);
 			return;
@@ -84,7 +86,7 @@ public class CenotaphPlayerListener implements Listener {
 			event.setCancelled(true);
 
 			if (CenotaphSettings.destroyQuickloot()) {
-				plugin.destroyCenotaph(tBlock);
+				CenotaphDatabase.destroyCenotaph(tBlock);
 			}
 		}
 
