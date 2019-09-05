@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -129,11 +128,8 @@ public class CenotaphEntityListener implements Listener {
 		for (ItemStack item : event.getDrops()) {
 			if (item == null) continue;
 			if (item.getType() == Material.CHEST) pChestCount += item.getAmount();
-
-			for(Material mat: Tag.SIGNS.getValues()) {
-				if(item.getType() == mat)
-					pSignCount += item.getAmount();
-			}
+			if (item.getType() == Material.SIGN)
+				pSignCount += item.getAmount();
 		}
 
 		if (pChestCount == 0 && !p.hasPermission("cenotaph.freechest")) {
@@ -253,15 +249,12 @@ public class CenotaphEntityListener implements Listener {
 					continue;
 				}
 			}
-
-
-			for(Material mat: Tag.SIGNS.getValues()) {
-				if(item.getType() == mat)
-					pSignCount += item.getAmount();
-			}
+		
+			if(item.getType() == Material.SIGN)
+				pSignCount += item.getAmount();
 
 			// Take a sign
-			if (removeSignCount > 0 && Tag.SIGNS.isTagged( item.getType() )){
+			if (removeSignCount > 0 && item.getType() == Material.SIGN) {
 				item.setAmount(item.getAmount() - 1);
 				removeSignCount -= 1;
 				if (item.getAmount() == 0) {

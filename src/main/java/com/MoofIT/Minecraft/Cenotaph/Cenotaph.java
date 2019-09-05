@@ -30,7 +30,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapAPI;
-
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphBlockListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphEntityListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphPlayerListener;
@@ -94,7 +93,7 @@ public class Cenotaph extends JavaPlugin {
 			log.info("Cenotaph config.yml couldn't load.");
 			onDisable();
 		}
-		
+
 		if (CenotaphSettings.enableAscii())
 			CenotaphMessaging.sendSweetAsciiArt();
 
