@@ -9,6 +9,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.inventory.ItemStack;
 
 public class TombThread extends Thread {
+	@SuppressWarnings("unused")
 	private Cenotaph plugin;
 
 	public TombThread(Cenotaph instance) {
@@ -16,7 +17,7 @@ public class TombThread extends Thread {
 	}
 
 	public void run() {
-		for (Iterator<TombBlock> iter = Cenotaph.tombList.iterator(); iter.hasNext();) {
+		for (Iterator<TombBlock> iter = CenotaphDatabase.tombList.iterator(); iter.hasNext();) {
 			TombBlock tBlock = iter.next();
 			boolean bRemoved = false;
 
@@ -58,7 +59,7 @@ public class TombThread extends Thread {
 					}
 					if (CenotaphSettings.removeWhenEmpty()) {
 						if (isEmpty) {
-							plugin.destroyCenotaph(tBlock);
+							CenotaphDatabase.destroyCenotaph(tBlock);
 							bRemoved = true;
 							iter.remove();
 						}
@@ -69,7 +70,7 @@ public class TombThread extends Thread {
 			//Block removal check
 			if (CenotaphSettings.cenotaphRemove())
 				if (tBlock.removalTimeLeft() < 0 ) {
-					plugin.destroyCenotaph(tBlock);
+					CenotaphDatabase.destroyCenotaph(tBlock);
 					if(!bRemoved)
 						iter.remove();
 				}

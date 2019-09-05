@@ -12,6 +12,7 @@ import org.dynmap.markers.MarkerIcon;
 import org.dynmap.markers.MarkerSet;
 
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 
 import org.dynmap.markers.Marker;
@@ -103,8 +104,8 @@ public class DynmapThread extends Thread {
 		/* Get current markers, by ID with location */
 		public Map<String,Location> getMarkers() {
 			HashMap<String,Location> map = new HashMap<String,Location>();
-			if(Cenotaph.tombBlockList != null) {
-				for(Entry<String, ArrayList<TombBlock>> playerCenotaphs : plugin.getCenotaphList().entrySet()) {
+			if(CenotaphDatabase.tombBlockList != null) {
+				for(Entry<String, ArrayList<TombBlock>> playerCenotaphs : CenotaphDatabase.getCenotaphList().entrySet()) {
 					String owner = playerCenotaphs.getKey();
 					for (TombBlock tBlock : playerCenotaphs.getValue()) {
 						map.put(owner,tBlock.getBlock().getLocation());

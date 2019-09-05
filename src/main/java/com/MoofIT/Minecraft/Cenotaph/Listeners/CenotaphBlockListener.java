@@ -13,6 +13,7 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
@@ -46,7 +47,7 @@ public class CenotaphBlockListener implements Listener {
 		Player owner = null;
 		if (tBlock.getOwnerUUID() != null)
 			owner = plugin.getServer().getPlayer(tBlock.getOwnerUUID());
-		plugin.removeTomb(tBlock, true);
+		CenotaphDatabase.removeTomb(tBlock, true);
 		if (owner != null) CenotaphMessaging.sendPrefixedPlayerMessage(owner, "Your cenotaph has been destroyed by " + p.getName() + "!");
 	}
 
@@ -70,7 +71,7 @@ public class CenotaphBlockListener implements Listener {
 		for (Block block : blockList) {
 			if (!CenotaphUtil.isTombBlock(block))
 				return;
-			plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+			CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
 		}
 	}
 
@@ -95,7 +96,7 @@ public class CenotaphBlockListener implements Listener {
 		for (Block block : blockList) {
 			if (!CenotaphUtil.isTombBlock(block))
 				return;
-			plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+			CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
 		}
 	}
 	
@@ -117,7 +118,7 @@ public class CenotaphBlockListener implements Listener {
 		Block block = event.getBlock();
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
-		plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+		CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
 	}
 	
 	@EventHandler
@@ -138,6 +139,6 @@ public class CenotaphBlockListener implements Listener {
 		Block block = event.getBlock();		
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
-		plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+		CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
 	}
 }

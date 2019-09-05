@@ -26,7 +26,7 @@ public class CenotaphCommand implements CommandExecutor {
 		if (cmd.equalsIgnoreCase("cenlist")) {
 			if (args.length == 1)
 				return false;
-			ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(p.getName());
+			ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(p.getName());
 			if (pList == null) {
 				CenotaphMessaging.sendPrefixedPlayerMessage(p, "You have no cenotaphs.");
 				return true;
@@ -122,17 +122,17 @@ public class CenotaphCommand implements CommandExecutor {
 				if (args.length == 1)
 					return;
 				if (args.length < 2) {
-					if (Cenotaph.playerTombList.keySet().isEmpty()) {
+					if (CenotaphDatabase.playerTombList.keySet().isEmpty()) {
 						CenotaphMessaging.sendPrefixedAdminMessage(sender, "There are no cenotaphs.");
 						return;
 					}
 					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Players with cenotaphs:");
-					for (String player : Cenotaph.playerTombList.keySet()) {
+					for (String player : CenotaphDatabase.playerTombList.keySet()) {
 						CenotaphMessaging.sendPrefixedAdminMessage(sender, player);
 					}
 					return;
 				}
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
+				ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(playerName);
 				if (pList == null) {
 					CenotaphMessaging.sendPrefixedAdminMessage(sender, "No cenotaphs found for " + playerName + ".");
 					return;
@@ -207,7 +207,7 @@ public class CenotaphCommand implements CommandExecutor {
 					}
 				if (args.length == 1)
 					return;
-				ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
+				ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(playerName);
 				if (pList == null) {
 					CenotaphMessaging.sendPrefixedAdminMessage(sender, "No cenotaphs found for " + playerName + ".");
 					return;
@@ -225,7 +225,7 @@ public class CenotaphCommand implements CommandExecutor {
 					return;
 				}
 				TombBlock tBlock = pList.get(slot);
-				plugin.destroyCenotaph(tBlock);
+				CenotaphDatabase.destroyCenotaph(tBlock);
 				
 			} else if (args[0].equalsIgnoreCase("reload")) {
 				if (!isConsole)

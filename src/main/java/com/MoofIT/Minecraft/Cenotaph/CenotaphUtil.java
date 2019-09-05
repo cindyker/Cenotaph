@@ -24,7 +24,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 public class CenotaphUtil {
 	
 	public static boolean isTombBlock(Block block) {
-		TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
+		TombBlock tBlock = CenotaphDatabase.tombBlockList.get(block.getLocation());
 		if (tBlock == null)
 			return false;
 		else 
@@ -32,7 +32,7 @@ public class CenotaphUtil {
 	}
 	
 	public static TombBlock getTombBlock(Block block) {
-		TombBlock tBlock = Cenotaph.tombBlockList.get(block.getLocation());
+		TombBlock tBlock = CenotaphDatabase.tombBlockList.get(block.getLocation());
 		if (tBlock == null)
 			return null;
 		else 
@@ -40,7 +40,7 @@ public class CenotaphUtil {
 	}
 	
 	public static TombBlock getBlockByIndex(String playerName,String index) {
-		ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(playerName);
+		ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(playerName);
 		int slot = 0;
 
 		if (pList == null) return null;
@@ -267,9 +267,9 @@ public class CenotaphUtil {
 		String name = p.getName();
 		String reason = "Unknown";
 
-		EntityDamageEvent dmg = Cenotaph.deathCause.get(name);
+		EntityDamageEvent dmg = CenotaphDatabase.deathCause.get(name);
 		if (dmg != null) {
-			Cenotaph.deathCause.remove(name);
+			CenotaphDatabase.deathCause.remove(name);
 			reason = CenotaphUtil.getCause(dmg);
 		}
 

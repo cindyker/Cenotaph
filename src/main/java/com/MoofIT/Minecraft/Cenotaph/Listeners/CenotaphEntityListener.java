@@ -23,6 +23,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
@@ -32,6 +33,7 @@ import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 public class CenotaphEntityListener implements Listener {
+	@SuppressWarnings("unused")
 	private Cenotaph plugin;
 
 	public CenotaphEntityListener(Cenotaph instance) {
@@ -46,7 +48,7 @@ public class CenotaphEntityListener implements Listener {
 		Player player = (Player)event.getEntity();
 		// Add them to the list if they're about to die
 		if (player.getHealth() - event.getDamage() <= 0) {
-			Cenotaph.deathCause.put(player.getName(), event);
+			CenotaphDatabase.deathCause.put(player.getName(), event);
 		}
 	}
 
@@ -71,7 +73,7 @@ public class CenotaphEntityListener implements Listener {
 		for (Block block : event.blockList()) {
 			if (CenotaphUtil.isTombBlock(block))
 				if (!event.isCancelled())
-					plugin.removeTomb(CenotaphUtil.getTombBlock(block), true);
+					CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
 		}
 	}
 
@@ -214,22 +216,22 @@ public class CenotaphEntityListener implements Listener {
 		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, (System.currentTimeMillis() / 1000), p.getLevel() + 1, p.getUniqueId());
 
 		// Add tombstone to list
-		Cenotaph.tombList.offer(tBlock);
+		CenotaphDatabase.tombList.offer(tBlock);
 
 		// Add tombstone blocks to tombBlockList
-		Cenotaph.tombBlockList.put(tBlock.getBlock().getLocation(), tBlock);
-		if (tBlock.getLBlock() != null) Cenotaph.tombBlockList.put(tBlock.getLBlock().getLocation(), tBlock);
-		if (tBlock.getSign() != null) Cenotaph.tombBlockList.put(tBlock.getSign().getLocation(), tBlock);
+		CenotaphDatabase.tombBlockList.put(tBlock.getBlock().getLocation(), tBlock);
+		if (tBlock.getLBlock() != null) CenotaphDatabase.tombBlockList.put(tBlock.getLBlock().getLocation(), tBlock);
+		if (tBlock.getSign() != null) CenotaphDatabase.tombBlockList.put(tBlock.getSign().getLocation(), tBlock);
 
 		// Add tombstone to player lookup list
-		ArrayList<TombBlock> pList = Cenotaph.playerTombList.get(p.getName());
+		ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(p.getName());
 		if (pList == null) {
 			pList = new ArrayList<TombBlock>();
-			Cenotaph.playerTombList.put(p.getName(), pList);
+			CenotaphDatabase.playerTombList.put(p.getName(), pList);
 		}
 		pList.add(tBlock);
 
-		plugin.saveCenotaphList(p.getWorld().getName());
+		CenotaphDatabase.saveCenotaphList(p.getWorld().getName());
 		if (Cenotaph.hologramsEnabled)
 			HolographicDisplays.saveHolograms();
 

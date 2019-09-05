@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
@@ -34,9 +35,9 @@ public class HolographicDisplays {
 		String name = p.getName();
 		String reason = "Unknown";
 
-		EntityDamageEvent dmg = Cenotaph.deathCause.get(name);
+		EntityDamageEvent dmg = CenotaphDatabase.deathCause.get(name);
 		if (dmg != null) {
-			Cenotaph.deathCause.remove(name);
+			CenotaphDatabase.deathCause.remove(name);
 			reason = CenotaphUtil.getCause(dmg);
 		}
 
