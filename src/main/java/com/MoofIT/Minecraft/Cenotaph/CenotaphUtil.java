@@ -242,7 +242,7 @@ public class CenotaphUtil {
 				mat == Material.GRASS ||
 				mat == Material.TALL_GRASS ||
 				(mat.createBlockData() instanceof Ageable) ||
-				Tag.SMALL_FLOWERS.isTagged(mat) ||
+				(Tag.SMALL_FLOWERS.isTagged(mat) && mat != Material.WITHER_ROSE) ||
 				Tag.SAPLINGS.isTagged(mat)
 				);
 	}
