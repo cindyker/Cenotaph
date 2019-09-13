@@ -104,6 +104,8 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
 =============
  Changes
 =============
+[Version 5.5]
+  - Remove Wither Roses from the canReplace list.
 [Version 5.4]
   - Added support for HolographicDisplays
     - When present, and enabled in the config, Cenotaph will spawn a hologram on top of the cenotaph rather than a sign.
