@@ -7,10 +7,10 @@
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
     <packaging>jar</packaging>
-    <version>5.3 for 1.13</version>
+    <version>5.3 for 1.12</version>
     
     <properties>
-        <project.bukkitAPIVersion>1.13</project.bukkitAPIVersion>
+        <project.bukkitAPIVersion>1.12</project.bukkitAPIVersion>
     </properties>
 
     <repositories>
