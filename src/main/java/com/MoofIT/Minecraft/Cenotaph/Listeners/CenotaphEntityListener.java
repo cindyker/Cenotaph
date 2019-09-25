@@ -15,8 +15,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.Ageable;
-import org.bukkit.block.data.type.Chest.Type;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -178,33 +176,7 @@ public class CenotaphEntityListener implements Listener {
 				// Check if the player has enough chests
 				if (pChestCount >= removeChestCount || p.hasPermission("cenotaph.freechest")) {
 					lBlock.setType(Material.CHEST);
-					// This fun stuff is required post-1.13 when they made chests not snap together. 
-					org.bukkit.block.data.type.Chest blockChestData = (org.bukkit.block.data.type.Chest) block.getBlockData();
-					org.bukkit.block.data.type.Chest lBlockChestData = (org.bukkit.block.data.type.Chest) lBlock.getBlockData();
-					relativeFace = block.getFace(lBlock);
-					if (relativeFace.equals(BlockFace.WEST)) {
-						blockChestData.setFacing(BlockFace.SOUTH);
-						lBlockChestData.setFacing(BlockFace.SOUTH);
-						blockChestData.setType(Type.LEFT);
-						lBlockChestData.setType(Type.RIGHT);
-					} else if (relativeFace.equals(BlockFace.EAST)) {
-						//Chests face North by default so Eastwards lBlock doesn't need the chest faced.
-						blockChestData.setType(Type.LEFT);
-						lBlockChestData.setType(Type.RIGHT);
-					} else if (relativeFace.equals(BlockFace.SOUTH)) {
-						blockChestData.setFacing(BlockFace.EAST);
-						lBlockChestData.setFacing(BlockFace.EAST);
-						blockChestData.setType(Type.LEFT);
-						lBlockChestData.setType(Type.RIGHT);
-					} else if (relativeFace.equals(BlockFace.NORTH)) {
-						blockChestData.setFacing(BlockFace.WEST);
-						lBlockChestData.setFacing(BlockFace.WEST);
-						blockChestData.setType(Type.LEFT);
-						lBlockChestData.setType(Type.RIGHT);							
-					}
-					block.setBlockData(blockChestData,true);
-					lBlock.setBlockData(lBlockChestData,true);
-					
+
 					lChest = (Chest)lBlock.getState();
 					maxSlot = maxSlot * 2;
 				} else {
@@ -331,10 +303,6 @@ public class CenotaphEntityListener implements Listener {
 		}
 
 		signBlock.setType(Material.SIGN);
-		//Lets make the sign appear to look downwards towards the foot of the long chests.
-		org.bukkit.block.data.type.Sign sBlockData = (org.bukkit.block.data.type.Sign) signBlock.getBlockData();
-		sBlockData.setRotation(bf);
-		signBlock.setBlockData(sBlockData);
 		
 		final Sign sign = (Sign)signBlock.getState();
 
@@ -457,11 +425,6 @@ public class CenotaphEntityListener implements Listener {
 		return (mat == Material.AIR ||
 				mat == Material.WATER ||
 				mat == Material.LAVA ||
-				mat == Material.COBWEB || 
-				mat == Material.SUNFLOWER ||
-				mat == Material.LILAC ||
-				mat == Material.PEONY ||
-				mat == Material.ROSE_BUSH ||
 				mat == Material.BROWN_MUSHROOM ||
 				mat == Material.RED_MUSHROOM ||
 				mat == Material.FIRE ||
@@ -470,25 +433,7 @@ public class CenotaphEntityListener implements Listener {
 				mat == Material.GRAVEL ||
 				mat == Material.SAND ||
 				mat == Material.GRASS ||
-				mat == Material.TALL_GRASS ||
-				(mat.createBlockData() instanceof Ageable) ||
-				mat == Material.DANDELION ||
-				mat == Material.AZURE_BLUET ||
-				mat == Material.BLUE_ORCHID ||
-				mat == Material.FERN ||
-				mat == Material.ALLIUM ||
-				mat == Material.OXEYE_DAISY ||
-				mat == Material.POPPY ||
-				mat == Material.ORANGE_TULIP ||
-				mat == Material.PINK_TULIP ||
-				mat == Material.RED_TULIP ||
-				mat == Material.WHITE_TULIP ||
-				mat == Material.ACACIA_SAPLING ||
-				mat == Material.BIRCH_SAPLING ||
-				mat == Material.JUNGLE_SAPLING ||
-				mat == Material.DARK_OAK_SAPLING ||
-				mat == Material.OAK_SAPLING ||
-				mat == Material.SPRUCE_SAPLING
+				mat == Material.SAPLING
 				);
 	}
 
