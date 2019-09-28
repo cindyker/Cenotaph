@@ -225,6 +225,8 @@ public class CenotaphUtil {
 
 	public static Boolean canReplace(Material mat) {
 		return (mat == Material.AIR ||
+				mat == Material.CAVE_AIR ||
+				mat == Material.BUBBLE_COLUMN ||
 				mat == Material.WATER ||
 				mat == Material.LAVA ||
 				mat == Material.COBWEB || 
