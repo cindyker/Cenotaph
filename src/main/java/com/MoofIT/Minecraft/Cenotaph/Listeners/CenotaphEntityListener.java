@@ -30,6 +30,8 @@ import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
+
+import me.mrCookieSlime.Slimefun.Setup.SlimefunManager;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 public class CenotaphEntityListener implements Listener {
@@ -127,7 +129,7 @@ public class CenotaphEntityListener implements Listener {
 		int pChestCount = 0;
 		int pSignCount = 0;
 		for (ItemStack item : event.getDrops()) {
-			if (item == null) continue;
+			if (item == null) continue;			
 			if (item.getType() == Material.CHEST) pChestCount += item.getAmount();
 			for(Material mat: Tag.SIGNS.getValues()) {
 				if(item.getType() == mat)	
@@ -238,6 +240,8 @@ public class CenotaphEntityListener implements Listener {
 		for (Iterator<ItemStack> iter = event.getDrops().listIterator(); iter.hasNext();) {
 			ItemStack item = iter.next();
 			if (item == null) continue;
+			//if (item.hasItemMeta() && item.getItemMeta().hasLore() && item.getItemMeta().getLore().contains(Color.GRAY + "Soulbound")) continue;
+			if (Cenotaph.slimefunEnabled && SlimefunManager.isItemSoulbound(item)) continue;
 			// Take the chest(s)
 			if (removeChestCount > 0 && item.getType() == Material.CHEST) {
 				if (item.getAmount() >= removeChestCount) {

@@ -76,6 +76,7 @@ public class Cenotaph extends JavaPlugin {
 	private String version = "2.0.0";
 	public static Economy econ = null;
 	public static boolean isSpigot = false;
+	public static boolean slimefunEnabled = false;
 	private String hooked = "";
 
 	@Override
@@ -102,6 +103,7 @@ public class Cenotaph extends JavaPlugin {
 		dynmapEnabled = setupDynmap();
 		worldguardEnabled = setupWorldGuard();
 		hologramsEnabled = setupHolograms();
+		slimefunEnabled = setupSlimefun();
 
 		for (World w : getServer().getWorlds())
 			CenotaphDatabase.loadTombList(w.getName());
@@ -185,6 +187,13 @@ public class Cenotaph extends JavaPlugin {
     		}
     	} else if (CenotaphSettings.hologramsEnable())
     	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find HolographicDisplays. Holograms will not be used!");
+    	return false;
+    }
+    private boolean setupSlimefun() {
+    	if (pm.isPluginEnabled("Slimefun")) {
+    		hooked += "SlimeFun, ";
+    		return true;
+    	}
     	return false;
     }
 

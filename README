@@ -104,6 +104,8 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
 =============
  Changes
 =============
+[Version 5.7]
+  - Add support for Slimefun's Soulbound items - these are no longer placed into cenotaphs.
 [Version 5.6]
   - Add CAVE_AIR & BUBBLE_COLUMN to replaceable materials list.
 [Version 5.5]
