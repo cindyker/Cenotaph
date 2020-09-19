@@ -95,6 +95,11 @@ public class Cenotaph extends JavaPlugin {
 			onDisable();
 		}
 
+		if (!versionCheck()) {
+			log.warning("Your previous Cenotaph version cannot be upgraded. Update to any version 5.3-5.7 and then update to this " + version);
+			onDisable();	
+		}
+
 		if (CenotaphSettings.enableAscii())
 			CenotaphMessaging.sendSweetAsciiArt();
 
@@ -115,6 +120,24 @@ public class Cenotaph extends JavaPlugin {
 		CenotaphMessaging.sendEnabledMessage(hooked);		
 	}
 	
+	/*
+	 * Nothing below Cenotaph 5.3 should be loaded.
+	 */
+	private boolean versionCheck() {
+		String lastRunVersion = CenotaphSettings.getLastRunVersion(version);
+		String[] numbers = lastRunVersion.split("/.");
+		int one = Integer.valueOf(numbers[0]);
+		int two = Integer.valueOf(numbers[1]);
+		System.out.println(one + " + " + two);
+		if (one < 6) {
+			if (one != 5)
+				return false;
+			if (two <=2)
+				return false;
+		}
+		return true;
+	}
+
 	public String getVersion() {
 		return version;
 	}

@@ -31,7 +31,7 @@ import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
 
-import me.mrCookieSlime.Slimefun.Setup.SlimefunManager;
+import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 public class CenotaphEntityListener implements Listener {
@@ -212,9 +212,11 @@ public class CenotaphEntityListener implements Listener {
 		// Don't remove a sign if they get a free one
 		if (p.hasPermission("cenotaph.freesign"))
 			removeSignCount -= 1;
+		
+		boolean secured = (CenotaphSettings.securityEnable() || p.hasPermission("cenotaph.security"));
 
 		// Create a TombBlock for this tombstone
-		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, (System.currentTimeMillis() / 1000), p.getLevel() + 1, p.getUniqueId());
+		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, (System.currentTimeMillis() / 1000), p.getLevel() + 1, p.getUniqueId(), secured);
 
 		// Add tombstone to list
 		CenotaphDatabase.tombList.offer(tBlock);
@@ -241,7 +243,7 @@ public class CenotaphEntityListener implements Listener {
 			ItemStack item = iter.next();
 			if (item == null) continue;
 			//if (item.hasItemMeta() && item.getItemMeta().hasLore() && item.getItemMeta().getLore().contains(Color.GRAY + "Soulbound")) continue;
-			if (Cenotaph.slimefunEnabled && SlimefunManager.isItemSoulbound(item)) continue;
+			if (Cenotaph.slimefunEnabled && SlimefunUtils.isSoulbound(item)) continue;
 			// Take the chest(s)
 			if (removeChestCount > 0 && item.getType() == Material.CHEST) {
 				if (item.getAmount() >= removeChestCount) {
