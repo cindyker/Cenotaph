@@ -29,6 +29,7 @@ public enum ConfigNodes {
 	LAST_RUN_VERSION(
 			"version.last_run_version",
 			""),	
+	LANGUAGE("language", "english.yml", "","# Set your language file here."),
 	CORE_HEADER("core", "core",""),
 	CORE_CENOTAPH_SIGN(
 			"core.cenotaph_sign",

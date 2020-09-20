@@ -24,6 +24,7 @@ public class CenotaphSettings {
 
 			setDefaults(version, file);
 
+			CenotaphMessaging.sendInfoConsoleMessage("Config.yml loaded.");
 			config.save();
 		}
 	}

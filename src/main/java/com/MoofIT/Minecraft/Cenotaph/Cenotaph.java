@@ -30,6 +30,8 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapAPI;
+
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphBlockListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphEntityListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphPlayerListener;
@@ -92,12 +94,12 @@ public class Cenotaph extends JavaPlugin {
 		pm.registerEvents(playerListener,this);
 		
 		if (!loadSettings()) {
-			log.info("Cenotaph config.yml couldn't load.");
+			CenotaphMessaging.sendSevereConsoleMessage("Cenotaph config.yml couldn't load.");
 			onDisable();
 		}
 
 		if (!versionCheck()) {
-			log.warning("Your previous Cenotaph version cannot be upgraded. Update to any version 5.3-5.7 and then update to this " + version);
+			CenotaphMessaging.sendSevereConsoleMessage("Your previous Cenotaph version cannot be upgraded. Update to any version 5.3-5.7 and then update to this " + version);
 			onDisable();	
 		}
 
@@ -127,10 +129,9 @@ public class Cenotaph extends JavaPlugin {
 	 */
 	private boolean versionCheck() {
 		String lastRunVersion = CenotaphSettings.getLastRunVersion(version);
-		String[] numbers = lastRunVersion.split("/.");
+		String[] numbers = lastRunVersion.split("\\.");
 		int one = Integer.valueOf(numbers[0]);
 		int two = Integer.valueOf(numbers[1]);
-		System.out.println(one + " + " + two);
 		if (one < 6) {
 			if (one != 5)
 				return false;
@@ -157,6 +158,7 @@ public class Cenotaph extends JavaPlugin {
         
         try {
             CenotaphSettings.loadConfig(this.getDataFolder() + File.separator + "config.yml", getVersion());
+            Lang.loadLanguage(this.getDataFolder().getPath(), "english.yml");
         } catch (IOException e) {
             e.printStackTrace();
             return false;

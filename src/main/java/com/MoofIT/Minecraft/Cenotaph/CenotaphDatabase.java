@@ -19,6 +19,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 
@@ -190,7 +191,7 @@ public class CenotaphDatabase {
 		Player p = null;
 		if (tBlock.getOwnerUUID() != null)
 			p = Cenotaph.plugin.getServer().getPlayer(tBlock.getOwnerUUID());
-		if (p != null) CenotaphMessaging.sendPrefixedPlayerMessage(p, "Your cenotaph has broken.");
+		if (p != null) CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("your_cenotaph_has_broken"));
 	}
 
 	public static HashMap<String, ArrayList<TombBlock>> getCenotaphList() {

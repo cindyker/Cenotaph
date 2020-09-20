@@ -28,6 +28,7 @@ import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -86,12 +87,12 @@ public class CenotaphEntityListener implements Listener {
 		if (!p.hasPermission("cenotaph.use")) return;
 
 		if (event.getDrops().size() == 0) {
-			CenotaphMessaging.sendPrefixedPlayerMessage(p, "Inv empty.");
+			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("inv_empty"));
 			return;
 		}
 
 		if (CenotaphSettings.disabledWorlds().contains(world.getName())) {
-			CenotaphMessaging.sendPrefixedPlayerMessage(p,"Cenotaph disabled in " + world.getName() + ". Inv dropped.");
+			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("cenotaph_disabled_in_world", world.getName()));
 			return;
 		}
 
@@ -101,7 +102,7 @@ public class CenotaphEntityListener implements Listener {
 
 		//Don't create the chest if it or its sign would be in the void
 		if (CenotaphSettings.voidCheck() && ((CenotaphSettings.cenotaphSign() && block.getY() > p.getWorld().getMaxHeight() - 1) || (!CenotaphSettings.cenotaphSign() && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) {
-			CenotaphMessaging.sendPrefixedPlayerMessage(p, "Chest would be in the Void. Inv dropped.");
+			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("chest_would_be_in_the_void"));
 			return;
 		}
 
@@ -116,7 +117,7 @@ public class CenotaphEntityListener implements Listener {
 			//Check balance to see if they can pay for their cenotaph.
 			if (!p.hasPermission("cenotaph.nocost") && CenotaphSettings.cenotaphCost() > 0){
 				if (Cenotaph.econ.getBalance(p) < CenotaphSettings.cenotaphCost()){
-					CenotaphMessaging.sendPrefixedPlayerMessage(p, "Not enough money! Inv dropped.");
+					CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("not_enough_money"));
 					return;
 				}
 			}
@@ -135,7 +136,7 @@ public class CenotaphEntityListener implements Listener {
 		}
 
 		if (pChestCount == 0 && !p.hasPermission("cenotaph.freechest")) {
-			CenotaphMessaging.sendPrefixedPlayerMessage(p, "No chest! Inv dropped.");
+			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("no_chest"));
 			return;
 		}
 
@@ -143,7 +144,7 @@ public class CenotaphEntityListener implements Listener {
 		// Check if we can replace the block.
 		block = CenotaphUtil.findPlace(block, smallChest);
 		if ( block == null ) {
-			CenotaphMessaging.sendPrefixedPlayerMessage(p, "No room to place chest. Inv dropped.");
+			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("no_room_to_place_chest"));
 			return;
 		}
 
@@ -158,7 +159,7 @@ public class CenotaphEntityListener implements Listener {
 		// We're running into issues with 1.3 where we can't cast to a Chest :(
 		BlockState state = block.getState();
 		if (!(state instanceof Chest)) {
-			CenotaphMessaging.sendPrefixedPlayerMessage(p, "Could not access chest. Inv dropped.");
+			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("could_not_access_chest"));
 			return;
 		}
 		Chest sChest = (Chest)state;
@@ -284,8 +285,8 @@ public class CenotaphEntityListener implements Listener {
 			} else if (removeChestCount == 0) break;
 		}
 
-		String msg = "Inv stored. ";
-		if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + "Overflow: " + ChatColor.WHITE + event.getDrops().size() + " ";
+		String msg = Lang.string("inv_stored");
+		if (event.getDrops().size() > 0) msg += ChatColor.YELLOW + Lang.string("overflow") + ChatColor.WHITE + event.getDrops().size() + " ";
 		msg += CenotaphMessaging.centimeMsg(tBlock);
 		CenotaphMessaging.sendPrefixedPlayerMessage(p, msg);
 		
@@ -293,7 +294,7 @@ public class CenotaphEntityListener implements Listener {
 		if (!p.hasPermission("cenotaph.nocost") && CenotaphSettings.cenotaphCost() > 0){
 			EconomyResponse r = Cenotaph.econ.withdrawPlayer(Bukkit.getOfflinePlayer(p.getUniqueId()), CenotaphSettings.cenotaphCost());
 			if (r.transactionSuccess()){
-				CenotaphMessaging.sendPrefixedPlayerMessage(p, CenotaphSettings.cenotaphCost() + " " + Cenotaph.econ.currencyNamePlural() + " has been taken from your account.");
+				CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("cenotaph_paid_for", CenotaphSettings.cenotaphCost(), Cenotaph.econ.currencyNamePlural()));
 			}
 		}
 	}

@@ -22,6 +22,7 @@ import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 
@@ -33,7 +34,7 @@ public class HolographicDisplays {
 		String date = new SimpleDateFormat(CenotaphSettings.dateFormat()).format(new Date());
 		String time = new SimpleDateFormat(CenotaphSettings.timeFormat()).format(new Date());
 		String name = p.getName();
-		String reason = "Unknown";
+		String reason = Lang.string("unknown");
 
 		EntityDamageEvent dmg = CenotaphDatabase.deathCause.get(name);
 		if (dmg != null) {
@@ -65,10 +66,10 @@ public class HolographicDisplays {
 			}				
 		}
 		if (removed > 0) {
-			CenotaphMessaging.sendPrefixedPlayerMessage(player, "Removed " + removed + " hologram(s).");
+			CenotaphMessaging.sendPrefixedPlayerMessage(player, Lang.string("removed_x_holograms", removed));
 			saveHolograms();			
 		} else 
-			CenotaphMessaging.sendPrefixedPlayerMessage(player, "No holograms found within 5 blocks. You must be in the same chunk as the hologram.");
+			CenotaphMessaging.sendPrefixedPlayerMessage(player, Lang.string("no_holograms_found"));
 	}
 	
 	public static void saveHolograms() {

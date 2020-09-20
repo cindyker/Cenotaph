@@ -12,18 +12,20 @@ Source: https://github.com/cindyker/Cenotaph
 =============
  Features
 =============
-If the player is carrying a chest when they die, place that chest and fill it with as much of their inventory as possible
-If the player is allowed, and is carrying two chests, a large chest will spawn to catch all of their inventory
-Possible for specific groups/players to be given free chests with no need to carry one with them
+If the player is carrying a chest when they die, place that chest and fill it with as much of their inventory as possible.
+If the player is allowed, and is carrying two chests, a large chest will spawn to catch all of their inventory.
+Possible for specific groups/players to be given free chests with no need to carry one with them.
 Any items that won't fit in the chest will still drop to the ground!
-Supports the Permissions plugin, will default to allowing everyone to use basic tombstone if not available
-Configurable timeout for destruction of tombstones, works in unloaded chunks as well
+Supports the Permissions plugin, will default to allowing everyone to use basic tombstone if not available.
+Configurable timeout for destruction of tombstones, works in unloaded chunks as well.
 Configurable security for tombstones to protect from looters. Can have a timeout.
 Quickloot support, right click the sign on a tombstone to loot all items in it (Your tombstone only!)
-Place a sign on top of the chest stating the players name and time of death
+Place a sign on top of the chest stating the players name and time of death.
 The ability to point your compass at your tombstones!
-Configurable messages on Cenotaph signs
+Configurable messages on Cenotaph signs.
 Admin commands for management via console and in-game.
+WorldGuard and Towny integration, to prevent players making cenotaphs where they cannot build.
+Fully Translatable.
 
 =============
  Permissions
@@ -80,7 +82,7 @@ Admin commands:
   /cenadmin deletehologram
       Kills off holograms from cenotaph within a 5 block radius, must be in same chunk as the hologram too.
   /cenadmin reload
-      Reloads the config settings.
+      Reloads the config and language file settings.
 
 =============
  Config
@@ -88,10 +90,22 @@ Admin commands:
 See default config file for options and instructions. Config will update itself smartly as you update to newer Cenotaph versions, 
 keeping the values you've set in earlier versions and adding new values at their default settings.
 
-==============
-To Build yourself
-==============
+======================
+ Custom Language Files
+======================
+In order to use a custom language file you must use a filename that Cenotaph does not already use for a language file.
+If you want to make a custom language file do the following:
+  1. Copy the supplied english.yml, 
+  2. Rename it to customenglish.yml (or the custom language of your choice,)
+  3. Set the language filename in the config.yml.
+  4. Edit the new custom file to your liking.
 
+If you do not rename your file, Cenotaph will overwrite it with the default english.yml.
+If you do use a custom language file remember to check if it needs updating when you update your Cenotaph.
+  
+=================
+ To Build yourself
+=================
 Convert to Maven Project and right click pom.xml > run as Maven Install.
 All dependencies should be located at their respective repos.
 
@@ -102,6 +116,7 @@ Drakia: Cenotaph was originally Tombstone, by Drakia (TheDgtl). Many thanks to h
 Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the Lockette integration working as I stumbled by way though picking up Java was invaluable. :)
 cindyker: I removed the hard dependency on lockette for being available. Deadbolt and Lockette use the same sign types. So now it will just use the config to decide.
 LlmDl: I helped with lockette support on earlier versions and did some major changes on versions 5.1->Current.
+
 =============
  Changes
 =============
@@ -112,6 +127,8 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
   - Update support for Slimefun's Soulbound items.
   - Added Towny support: Config now contains option to enable Towny support.
     - When enabled players must be able to build a chest where they have died or their inventory drops.
+  - Added english.yml.
+  - Added ability to translate all messages.
 [Version 5.7]
   - Add support for Slimefun's Soulbound items - these are no longer placed into cenotaphs.
 [Version 5.6]
@@ -312,9 +329,9 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
 [Version 1.3.0]
   - Converted from Tombstone to Cenotaph
 
-=============
+====================
  Config file changes
-=============
+====================
 16: Add option to disable Dynmap
 15: Removed a couple obsolete messaging options (logEvents and playerMessage)
 14: Add b1.8 monsters
@@ -332,9 +349,9 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
 2: Lockette added
 1: Converted from Tombstone to Cenotaph 
 
-=============
+======================================
  Drakia's original Tombstone changelog
-=============
+======================================
 [Version 1.2.9]
   - Fixed free double chests
   - Made freechest/freesign default to isOp() without permissions

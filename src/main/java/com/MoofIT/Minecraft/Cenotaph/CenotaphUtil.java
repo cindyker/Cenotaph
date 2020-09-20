@@ -21,6 +21,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
 import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
@@ -348,7 +349,7 @@ public class CenotaphUtil {
 		//WorldGuard support, see if the player could build where they've died. Disallow a cenotaph if they cannot build.
 		if (Cenotaph.worldguardEnabled) {
 			if (!WorldGuardWrapper.canBuild(player)) {
-				CenotaphMessaging.sendPrefixedPlayerMessage(player, "In a WorldGuard protected area. Inv dropped.");
+				CenotaphMessaging.sendPrefixedPlayerMessage(player, Lang.string("worldguard_area"));
 				return false;
 			}
 		}
@@ -356,7 +357,7 @@ public class CenotaphUtil {
 		//Towny support, see if the player could build where they've died. Disallow a cenotaph if they cannot build.
 		if (Cenotaph.townyEnabled) {
 			if (!PlayerCacheUtil.getCachePermission(player, loc, Material.CHEST, ActionType.BUILD)) {
-				CenotaphMessaging.sendPrefixedPlayerMessage(player, "In a protected Towny are. Inv dropped.");
+				CenotaphMessaging.sendPrefixedPlayerMessage(player, Lang.string("towny_area"));
 				return false;
 			}		
 		}
