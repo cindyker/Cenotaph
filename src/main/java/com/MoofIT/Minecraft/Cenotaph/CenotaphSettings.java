@@ -207,6 +207,10 @@ public class CenotaphSettings {
 		return getBoolean(ConfigNodes.CORE_WORLDGUARD_ENABLE);		
 	}
 	
+	public static boolean townyEnable() {
+		return getBoolean(ConfigNodes.CORE_TOWNY_ENABLE);
+	}
+	
 	public static boolean hologramsEnable() {
 		return getBoolean(ConfigNodes.CORE_HOLOGRAMS_ENABLE);
 	}

@@ -101,7 +101,7 @@ All dependencies should be located at their respective repos.
 Drakia: Cenotaph was originally Tombstone, by Drakia (TheDgtl). Many thanks to him for his hard work on the original plugin. You can access his Github repository here: https://github.com/TheDgtl/Tombstone
 Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the Lockette integration working as I stumbled by way though picking up Java was invaluable. :)
 cindyker: I removed the hard dependency on lockette for being available. Deadbolt and Lockette use the same sign types. So now it will just use the config to decide.
-LlmDl: I helped with lockette support on earlier versions and did some major changes on versions 5.1->5.3.
+LlmDl: I helped with lockette support on earlier versions and did some major changes on versions 5.1->Current.
 =============
  Changes
 =============
@@ -110,6 +110,8 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
   - New Permission Node: cenotaph.security.
     - When given to a player they will have a secured townblock, even when the cenotaph config has security disabled.
   - Update support for Slimefun's Soulbound items.
+  - Added Towny support: Config now contains option to enable Towny support.
+    - When enabled players must be able to build a chest where they have died or their inventory drops.
 [Version 5.7]
   - Add support for Slimefun's Soulbound items - these are no longer placed into cenotaphs.
 [Version 5.6]

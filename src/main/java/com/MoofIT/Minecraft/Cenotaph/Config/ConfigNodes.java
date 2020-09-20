@@ -105,6 +105,11 @@ public enum ConfigNodes {
 			"false",
 			"",
 			"# Enables WorldGuard integration, preventing cenotaphs from being created in regions the player cannot build."),
+	CORE_TOWNY_ENABLE(
+			"core.towny_enable",
+			"false",
+			"",
+			"# Enables Towny integration, preventing cenotaphs from being created in townblocks the player cannot build."),
 	CORE_HOLOGRAMS_ENABLE(
 			"core.holographic_displays_enable",
 			"false",

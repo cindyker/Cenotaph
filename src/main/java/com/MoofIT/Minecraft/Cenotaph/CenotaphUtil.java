@@ -21,6 +21,10 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
+import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
+import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+
 public class CenotaphUtil {
 	
 	public static boolean isTombBlock(Block block) {
@@ -330,6 +334,33 @@ public class CenotaphUtil {
 		block.setBlockData(blockChestData,true);
 		lBlock.setBlockData(lBlockChestData,true);
 		
+	}
+
+	/**
+	 * Tests to make sure a player can build where their cenotaph will be formed.
+	 * WorldGuard and Towny are supported, both must be enabled in the config.
+	 * 
+	 * @param player - Player that died.
+	 * @param loc - Location of the death.
+	 * @return true if they can build in configured protection plugins.
+	 */
+	public static boolean testRegionForBuildRights(Player player, Location loc) {
+		//WorldGuard support, see if the player could build where they've died. Disallow a cenotaph if they cannot build.
+		if (Cenotaph.worldguardEnabled) {
+			if (!WorldGuardWrapper.canBuild(player)) {
+				CenotaphMessaging.sendPrefixedPlayerMessage(player, "In a WorldGuard protected area. Inv dropped.");
+				return false;
+			}
+		}
+
+		//Towny support, see if the player could build where they've died. Disallow a cenotaph if they cannot build.
+		if (Cenotaph.townyEnabled) {
+			if (!PlayerCacheUtil.getCachePermission(player, loc, Material.CHEST, ActionType.BUILD)) {
+				CenotaphMessaging.sendPrefixedPlayerMessage(player, "In a protected Towny are. Inv dropped.");
+				return false;
+			}		
+		}
+		return true;
 	}
 
 }

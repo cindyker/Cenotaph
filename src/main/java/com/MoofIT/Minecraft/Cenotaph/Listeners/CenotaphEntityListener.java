@@ -29,8 +29,6 @@ import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
-import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
-
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import net.milkbowl.vault.economy.EconomyResponse;
 
@@ -107,12 +105,11 @@ public class CenotaphEntityListener implements Listener {
 			return;
 		}
 
-		//WorldGuard support, see if the player could build where they've died. Disallow a cenotaph if they cannot build.
-		if (Cenotaph.worldguardEnabled){
-			if (!WorldGuardWrapper.canBuild(p)){
-				CenotaphMessaging.sendPrefixedPlayerMessage(p, "In a WorldGuard protected area. Inv dropped.");
+		//Region checks. If they are unable to build the cenotaph will not be made.
+		if (Cenotaph.worldguardEnabled || Cenotaph.townyEnabled) {
+			//Unable to build? No cenotaph for you!
+			if (!CenotaphUtil.testRegionForBuildRights(p, block.getLocation()))
 				return;
-			}
 		}
 		
 		if (Cenotaph.economyEnabled) {

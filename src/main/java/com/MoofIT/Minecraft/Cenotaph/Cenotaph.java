@@ -72,6 +72,7 @@ public class Cenotaph extends JavaPlugin {
 	public static boolean economyEnabled = false;
 	public static boolean dynmapEnabled = false;
 	public static boolean worldguardEnabled = false;
+	public static boolean townyEnabled = false;
 	public static boolean hologramsEnabled = false;
 	private String version = "2.0.0";
 	public static Economy econ = null;
@@ -107,6 +108,7 @@ public class Cenotaph extends JavaPlugin {
 		economyEnabled = setupEconomy();
 		dynmapEnabled = setupDynmap();
 		worldguardEnabled = setupWorldGuard();
+		townyEnabled = setupTowny();
 		hologramsEnabled = setupHolograms();
 		slimefunEnabled = setupSlimefun();
 
@@ -197,6 +199,18 @@ public class Cenotaph extends JavaPlugin {
     		}
     	} else if (CenotaphSettings.worldguardEnable())
     	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find WorldGuard. WorldGuard not hooked!");
+    	return false;
+    }
+    private boolean setupTowny() {
+    	if (pm.isPluginEnabled("Towny")) {
+    		if (!CenotaphSettings.townyEnable())
+    			return false;
+    		else {
+    			hooked += "Towny, ";
+    			return true;
+    		}
+    	} else if (CenotaphSettings.townyEnable())
+    		CenotaphMessaging.sendSevereConsoleMessage("Unable to find Towny. Towny not hooked!");
     	return false;
     }
     private boolean setupHolograms() {
