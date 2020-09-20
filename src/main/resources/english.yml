@@ -1,4 +1,4 @@
-version: 0.2
+version: 0.1
 language: english
 
 permission_denied: 'Permission Denied'
@@ -48,5 +48,29 @@ overflow: 'Overflow: '
 cenotaph_paid_for: '%s %s has been taken from your account.'
 removed_x_holograms: 'Removed %s hologram(s).'
 no_holograms_found: 'No holograms found within 5 blocks. You must be in the same chunk as the hologram.'
+
+# Cardinal directions.
+north: 'North'
+northeast: 'Northeast'
+east: 'East'
+southeast: 'Southeast'
+south: 'South'
+southwest: 'Southwest'
+west: 'West'
+northwest: 'Northwest'
+
+# Death reasons.
 unknown: 'Unknown'
-testline: '1asdasaa'
+dispenser: 'Dispenser'
+cactus: 'Cactus'
+suffocaton: 'Suffocation'
+fall: 'Fall'
+burning: 'Burning'
+lava: 'Lava'
+drowning: 'Drowning'
+explosion: 'Explosion'
+tnt: 'TNT'
+ghast: 'Ghast'
+creeper: 'Creeper'
+void: 'The Void'
+lightning: 'Lightning'

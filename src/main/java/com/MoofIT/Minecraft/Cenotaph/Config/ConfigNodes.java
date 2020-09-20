@@ -29,7 +29,7 @@ public enum ConfigNodes {
 	LAST_RUN_VERSION(
 			"version.last_run_version",
 			""),	
-	LANGUAGE("language", "english.yml", "","# Set your language file here."),
+	LANGUAGE("language", "english.yml", "", "# Set your language file here."),
 	CORE_HEADER("core", "core",""),
 	CORE_CENOTAPH_SIGN(
 			"core.cenotaph_sign",
@@ -53,7 +53,7 @@ public enum ConfigNodes {
 			"core.one_block_up_check",
 			"true",
 			"",
-			"# Cenotaph will normally only check the world around the player for chst placement.",
+			"# Cenotaph will normally only check the world around the player for chest placement.",
 			"# But if they are standing on a carpeted floor, it will fail to find a good place for",
 			"# the chest. This check will allow Cenotaph to look one block up for a safe place."),
 	CORE_EXPLOSION_PROTECTION(
@@ -164,7 +164,9 @@ public enum ConfigNodes {
 			"security.security_enable",
 			"true",
 			"",
-			"# If true, Cenotaph will self-protect the tombblock from looters and explosions."),
+			"# If true, Cenotaph will self-protect the tombblock from looters and explosions.",
+			"# This setting is overriden by players who have the cenotaph.security permission node,",
+			"# which will give them a secured cenotaph even if this config setting is false."),
 	SECURITY_REMOVE(
 			"security.security_remove",
 			"true",
