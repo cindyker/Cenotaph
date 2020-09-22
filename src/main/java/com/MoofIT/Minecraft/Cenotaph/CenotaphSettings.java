@@ -220,6 +220,10 @@ public class CenotaphSettings {
 		return getDouble(ConfigNodes.CORE_CENOTAPH_COST);
 	}
 	
+	public static boolean isPVPKillsGetNoCenotaph() {
+		return getBoolean(ConfigNodes.CORE_PVP_KILLS_DONT_GET_CHESTS);
+	}
+	
 	public static boolean destroyQuickloot() { 
 		return getBoolean(ConfigNodes.REMOVAL_DESTROY_QUICKLOOT);
 	}

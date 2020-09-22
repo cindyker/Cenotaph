@@ -17,9 +17,11 @@ import org.bukkit.block.data.type.Chest.Type;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.projectiles.BlockProjectileSource;
 
 import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
@@ -130,43 +132,43 @@ public class CenotaphUtil {
 		degrees += 180;
 		return degrees;
 	}
-	
+
 	public static String getCause(EntityDamageEvent dmg) {
 		try {
 			switch (dmg.getCause()) {
+				case PROJECTILE:
+					Projectile p = (Projectile)getDamager((EntityDamageByEntityEvent) dmg);
+					if (p.getShooter() instanceof Player) {
+						return ((Player) p.getShooter()).getDisplayName();
+					} else if (p.getShooter() instanceof BlockProjectileSource){
+						return Lang.string("dispenser");
+					} else if (p.getShooter() instanceof Entity) {
+						return ((Entity)p.getShooter()).getType().name();
+					} else {
+						return p.getName();
+					}
 				case ENTITY_ATTACK:
 				{
-					EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
-					Entity e = event.getDamager();
-					if (e == null) {
-						return Lang.string("dispenser");
-					} else if (e instanceof Player) {
+					Entity e = getDamager((EntityDamageByEntityEvent) dmg);
+					if (e instanceof Player) {
 						return ((Player) e).getDisplayName();
 					} else {
-						return e.getName();
+						return e.getType().name();
 					}
 				}
-				case CONTACT:
-					return Lang.string("cactus");
-				case SUFFOCATION:
-					return Lang.string("suffocation");
-				case FALL:
-					return Lang.string("fall");
-				case FIRE:
-					return Lang.string("fire");
-				case FIRE_TICK:
-					return Lang.string("burning");
-				case LAVA:
-					return Lang.string("lava");
-				case DROWNING:
-					return Lang.string("drowning");
-				case BLOCK_EXPLOSION:
-					return Lang.string("explosion");
+				case ENTITY_SWEEP_ATTACK:
+				{
+					Entity e = getDamager((EntityDamageByEntityEvent) dmg);
+					if (e instanceof Player) {
+						return ((Player) e).getDisplayName();
+					} else {
+						return e.getType().name();
+					}
+				}
 				case ENTITY_EXPLOSION:
 				{
 					try {
-						EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
-						Entity e = event.getDamager();
+						Entity e = getDamager((EntityDamageByEntityEvent) dmg);
 						if (e instanceof TNTPrimed) return Lang.string("tnt");
 						else if (e instanceof Fireball) return Lang.string("ghast");
 						else return Lang.string("creeper");
@@ -174,10 +176,46 @@ public class CenotaphUtil {
 						return Lang.string("explosion");
 					}
 				}
-				case VOID:
-					return Lang.string("void");
+				case BLOCK_EXPLOSION:
+					return Lang.string("explosion");
+				case CONTACT:
+					return Lang.string("cactus");
+				case DRAGON_BREATH:
+					return Lang.string("dragonbreath");
+				case DROWNING:
+					return Lang.string("drowning");
+				case FALL:
+					return Lang.string("fall");
+				case FALLING_BLOCK:
+					return Lang.string("anvil");
+				case FLY_INTO_WALL:
+					return Lang.string("flyingintowall");
+				case FIRE:
+					return Lang.string("fire");
+				case FIRE_TICK:
+					return Lang.string("burning");
+				case HOT_FLOOR:
+					return Lang.string("hotfloor");
+				case LAVA:
+					return Lang.string("lava");
 				case LIGHTNING:
 					return Lang.string("lightning");
+				case MAGIC:
+					return Lang.string("magic");
+				case POISON:
+					return Lang.string("poison");
+				case STARVATION:
+					return Lang.string("starvation");
+				case SUFFOCATION:
+					return Lang.string("suffocation");
+				case SUICIDE:
+					return Lang.string("suicide");
+				case THORNS:
+					return Lang.string("thorns");
+				case VOID:
+					return Lang.string("void");
+				case WITHER:
+					return Lang.string("withereffect");
 				default:
 					return Lang.string("unknown");
 			}
@@ -186,6 +224,10 @@ public class CenotaphUtil {
 			e.printStackTrace();
 			return ChatColor.RED + "ERROR" + ChatColor.BLACK;
 		}
+	}
+
+	public static Entity getDamager(EntityDamageByEntityEvent dmg) {
+		return dmg.getDamager();		
 	}
 
 	/**

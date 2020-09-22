@@ -103,9 +103,9 @@ If you want to make a custom language file do the following:
 If you do not rename your file, Cenotaph will overwrite it with the default english.yml.
 If you do use a custom language file remember to check if it needs updating when you update your Cenotaph.
   
-=================
+==================
  To Build yourself
-=================
+==================
 Convert to Maven Project and right click pom.xml > run as Maven Install.
 All dependencies should be located at their respective repos.
 
@@ -113,8 +113,9 @@ All dependencies should be located at their respective repos.
  Credits
 =============
 Drakia: Cenotaph was originally Tombstone, by Drakia (TheDgtl). Many thanks to him for his hard work on the original plugin. You can access his Github repository here: https://github.com/TheDgtl/Tombstone
+Southpaw018: Took over Tombstone from Drakia, renaming it to Cenotaph. Developed Cenotaph from v1.3.0 up to v3.1.
 Acru: Thanks to Acru, the developer of Lockette, as well. His help getting the Lockette integration working as I stumbled by way though picking up Java was invaluable. :)
-cindyker: I removed the hard dependency on lockette for being available. Deadbolt and Lockette use the same sign types. So now it will just use the config to decide.
+cindyker: I removed the hard dependency on lockette for being available. Deadbolt and Lockette use the same sign types. So now it will just use the config to decide. Lead developer from v4.0 up to v5.0.
 LlmDl: I helped with lockette support on earlier versions and did some major changes on versions 5.1->Current.
 
 =============
@@ -130,6 +131,12 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
     - When enabled players must be able to build a chest where they have died or their inventory drops.
   - Added english.yml.
   - Added ability to translate all messages.
+  - New Config Option: core.pvp_kills_dont_get_chests
+    - default: false
+    - If set to true when players are killed by other players there is no cenotaph made.
+  - Added missing death causes.
+  - Added protection against hoppers and hoppercarts taking items from cenotaphs.
+  - Fix causes of deaths on signs when an arrow or other projectile killed the player.
 [Version 5.7]
   - Add support for Slimefun's Soulbound items - these are no longer placed into cenotaphs.
 [Version 5.6]
@@ -330,8 +337,8 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
 [Version 1.3.0]
   - Converted from Tombstone to Cenotaph
 
-====================
- Config file changes
+==================== 
+ Config file changes (Outdated)
 ====================
 16: Add option to disable Dynmap
 15: Removed a couple obsolete messaging options (logEvents and playerMessage)

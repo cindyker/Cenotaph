@@ -34,6 +34,7 @@ import org.dynmap.DynmapAPI;
 import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphBlockListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphEntityListener;
+import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphInventoryListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphPlayerListener;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.DynmapThread;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
@@ -64,6 +65,7 @@ public class Cenotaph extends JavaPlugin {
 	public final CenotaphEntityListener entityListener = new CenotaphEntityListener(this);
 	public final CenotaphBlockListener blockListener = new CenotaphBlockListener(this);
 	public final CenotaphPlayerListener playerListener = new CenotaphPlayerListener(this);
+	public final CenotaphInventoryListener inventoryListener = new CenotaphInventoryListener(this);
 	public final CenotaphCommand commandExec = new CenotaphCommand(this);
 	public final DynmapThread dynThread = new DynmapThread(this);
 	public static Logger log;
@@ -92,6 +94,7 @@ public class Cenotaph extends JavaPlugin {
 		pm.registerEvents(entityListener,this);
 		pm.registerEvents(blockListener,this);
 		pm.registerEvents(playerListener,this);
+		pm.registerEvents(inventoryListener, this);
 		
 		if (!loadSettings()) {
 			CenotaphMessaging.sendSevereConsoleMessage("Cenotaph config.yml couldn't load.");

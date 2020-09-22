@@ -13,15 +13,17 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
-
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
@@ -95,6 +97,24 @@ public class CenotaphEntityListener implements Listener {
 			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("cenotaph_disabled_in_world", world.getName()));
 			return;
 		}
+		
+		// If this was a PVP kill and PVP kills get no cenotaph, don't make a cenotaph.
+		if (CenotaphSettings.isPVPKillsGetNoCenotaph()) {
+			EntityDamageEvent dmg = CenotaphDatabase.deathCause.get(p.getName());
+			if (dmg != null && dmg.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
+				Entity e = CenotaphUtil.getDamager((EntityDamageByEntityEvent) dmg);
+				if (e != null && e instanceof Player && !e.equals(p)) {
+					CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("no_cenotaph_for_pvp_deaths"));
+					return;
+				}
+			} else if (dmg != null && dmg.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)) {
+				Entity e = CenotaphUtil.getDamager((EntityDamageByEntityEvent) dmg);
+				if (((Projectile)e).getShooter() != null && ((Projectile)e).getShooter() instanceof Player && !e.equals(p)) {
+					CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("no_cenotaph_for_pvp_deaths"));
+					return;
+				}
+			}
+		}
 
 		// Get the current player location.
 		Location loc = p.getLocation();
@@ -108,7 +128,7 @@ public class CenotaphEntityListener implements Listener {
 
 		//Region checks. If they are unable to build the cenotaph will not be made.
 		if (Cenotaph.worldguardEnabled || Cenotaph.townyEnabled) {
-			//Unable to build? No cenotaph for you!
+			//Unable to build? No cenotaph for you! Message to player is within testRegionForBuildRights method.
 			if (!CenotaphUtil.testRegionForBuildRights(p, block.getLocation()))
 				return;
 		}
@@ -211,10 +231,11 @@ public class CenotaphEntityListener implements Listener {
 		if (p.hasPermission("cenotaph.freesign"))
 			removeSignCount -= 1;
 		
+		// Give security to the cenotaph if it is enabled in the config, or if the player has the permission node.
 		boolean secured = (CenotaphSettings.securityEnable() || p.hasPermission("cenotaph.security"));
 
 		// Create a TombBlock for this tombstone
-		TombBlock tBlock = new TombBlock(sChest.getBlock(), (lChest != null) ? lChest.getBlock() : null, sBlock, (System.currentTimeMillis() / 1000), p.getLevel() + 1, p.getUniqueId(), secured);
+		TombBlock tBlock = new TombBlock(sChest.getBlock(), lChest != null ? lChest.getBlock() : null, sBlock, (System.currentTimeMillis() / 1000), p.getLevel() + 1, p.getUniqueId(), secured);
 
 		// Add tombstone to list
 		CenotaphDatabase.tombList.offer(tBlock);

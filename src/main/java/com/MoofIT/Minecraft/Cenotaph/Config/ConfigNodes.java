@@ -122,6 +122,11 @@ public enum ConfigNodes {
 			"",
 			"# If set to more than 0.0, the player will need to pay the amount before a cenotaph is made.", 
 			"# Requires Vault and a functioning economy plugin to be installed."),
+	CORE_PVP_KILLS_DONT_GET_CHESTS(
+			"core.pvp_kills_dont_get_chests",
+			"false",
+			"",
+			"# If set to true when players are killed by other players there is no cenotaph made."),
 	REMOVAL_HEADER(
 			"removal", "removal", ""),
 	REMOVAL_DESTROY_QUICKLOOT(
