@@ -125,7 +125,7 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
   - New Database Schema. Old DB's Cenotaph v5.3 and newer will convert.
     - Cenotaph will no longer load when updating from a version 5.2 or earlier.
   - New Permission Node: cenotaph.security.
-    - When given to a player they will have a secured townblock, even when the cenotaph config has security disabled.
+    - When given to a player they will have a secured tombblock, even when the cenotaph config has security disabled.
   - Update support for Slimefun's Soulbound items.
   - Added Towny support: Config now contains option to enable Towny support.
     - When enabled players must be able to build a chest where they have died or their inventory drops.
