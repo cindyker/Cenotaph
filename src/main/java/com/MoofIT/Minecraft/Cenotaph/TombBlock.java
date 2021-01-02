@@ -12,14 +12,16 @@ public class TombBlock {
 	private long time;
 	private int ownerLevel;
 	private UUID ownerUUID;
+	private boolean secured;
 	
-	public TombBlock(Block block, Block lBlock, Block sign, long time, int ownerLevel, UUID ownerUUID) {
+	public TombBlock(Block block, Block lBlock, Block sign, long time, int ownerLevel, UUID ownerUUID, boolean secured) {
 		this.block = block;
 		this.lBlock = lBlock;
 		this.sign = sign;
 		this.time = time;
 		this.ownerLevel = ownerLevel;
 		this.ownerUUID = ownerUUID;
+		this.secured = secured;
 	}
 
 	public long getTime() {
@@ -44,7 +46,7 @@ public class TombBlock {
 		return ownerLevel;
 	}
 	public boolean isSecured() {
-		if (!CenotaphSettings.securityEnable()) 
+		if (!CenotaphSettings.securityEnable() && !secured) 
 			return false;
 		if (!CenotaphSettings.securityRemove())
 			return true;

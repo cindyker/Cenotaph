@@ -96,6 +96,9 @@ permissions:
   cenotaph.nocost:
     description: Do not charge this player money when a cenotaph is created.
     default: false
+  cenotaph.security:
+    description: Whether a player gets their chest secured, overriden by security setting in the config.
+    default: false
 
   cenotaph.cmd.cenotaphlist:
     description: Allow this user to use /cenlist

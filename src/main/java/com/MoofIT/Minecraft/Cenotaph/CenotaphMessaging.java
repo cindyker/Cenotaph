@@ -8,6 +8,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.fusesource.jansi.Ansi;
 
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
+
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -29,17 +31,17 @@ public class CenotaphMessaging {
 	public static String centimeMsg(TombBlock tBlock) {
 		String msg = null;
 		if (CenotaphSettings.securityEnable()) { 
-			msg = ChatColor.YELLOW + "Security: " + ChatColor.WHITE + (!tBlock.isSecured() ? "Unsecured " : "Secured"); 	
+			msg = ChatColor.YELLOW + Lang.string("security") + ChatColor.WHITE + (!tBlock.isSecured() ? Lang.string("unsecured") : Lang.string("secured")); 	
 			if (tBlock.isSecured())
-				msg += ChatColor.YELLOW + " SecTime: " + ChatColor.WHITE + (CenotaphSettings.securityRemove() ? CenotaphUtil.convertTime(tBlock.securityTimeLeft()) + " " : "Inf ");
+				msg += ChatColor.YELLOW + Lang.string("sectime") + ChatColor.WHITE + (CenotaphSettings.securityRemove() ? CenotaphUtil.convertTime(tBlock.securityTimeLeft()) + " " : Lang.string("inf"));
 		}
 		if (CenotaphSettings.cenotaphRemove() && !CenotaphSettings.keepUntilEmpty()) 
-			msg += ChatColor.YELLOW + "BreakTime: " + ChatColor.WHITE + (CenotaphSettings.cenotaphRemove() ? CenotaphUtil.convertTime(tBlock.removalTimeLeft()) : "Inf") + " ";
+			msg += ChatColor.YELLOW + Lang.string("breaktime") + ChatColor.WHITE + (CenotaphSettings.cenotaphRemove() ? CenotaphUtil.convertTime(tBlock.removalTimeLeft()) : Lang.string("inf")) + " ";
 		if (CenotaphSettings.removeWhenEmpty() || CenotaphSettings.keepUntilEmpty()) {
-			msg += ChatColor.YELLOW + "BreakOverride: " + ChatColor.WHITE;
-			if (CenotaphSettings.removeWhenEmpty()) msg += "Break on empty";
+			msg += ChatColor.YELLOW + Lang.string("breakoverride") + ChatColor.WHITE;
+			if (CenotaphSettings.removeWhenEmpty()) msg += Lang.string("break_on_empty");
 			if (CenotaphSettings.removeWhenEmpty() && CenotaphSettings.keepUntilEmpty()) msg += " & ";
-			if (CenotaphSettings.keepUntilEmpty()) msg += "Keep until empty";
+			if (CenotaphSettings.keepUntilEmpty()) msg += Lang.string("keep_until_empty");
 		}
 		return msg;
 	}

@@ -7,7 +7,7 @@
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
     <packaging>jar</packaging>
-    <version>5.7</version>
+    <version>6.0</version>
     
     <properties>
         <project.bukkitAPIVersion>1.14</project.bukkitAPIVersion>
@@ -88,7 +88,13 @@
   		    <artifactId>Slimefun4</artifactId>
   		    <version>master-SNAPSHOT</version>
   		    <scope>provided</scope>
-     	</dependency>	
+     	</dependency>
+		<dependency>
+		    <groupId>com.github.TownyAdvanced</groupId>
+		    <artifactId>Towny</artifactId>
+	    	<version>0.96.2.0</version>
+		    <scope>provided</scope>
+		</dependency>	
     </dependencies>
 
     <build>

@@ -17,9 +17,16 @@ import org.bukkit.block.data.type.Chest.Type;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.projectiles.BlockProjectileSource;
+
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
+import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.WorldGuardWrapper;
+import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
+import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 
 public class CenotaphUtil {
 	
@@ -72,23 +79,23 @@ public class CenotaphUtil {
 	 */
 	public static String getDirection(double rot) {
 		if (0 <= rot && rot < 22.5) {
-			return "North";
+			return Lang.string("north");
 		} else if (22.5 <= rot && rot < 67.5) {
-			return "Northeast";
+			return Lang.string("northeast");
 		} else if (67.5 <= rot && rot < 112.5) {
-			return "East";
+			return Lang.string("east");
 		} else if (112.5 <= rot && rot < 157.5) {
-			return "Southeast";
+			return Lang.string("southeast");
 		} else if (157.5 <= rot && rot < 202.5) {
-			return "South";
+			return Lang.string("south");
 		} else if (202.5 <= rot && rot < 247.5) {
-			return "Southwest";
+			return Lang.string("southwest");
 		} else if (247.5 <= rot && rot < 292.5) {
-			return "West";
+			return Lang.string("west");
 		} else if (292.5 <= rot && rot < 337.5) {
-			return "Northwest";
+			return Lang.string("northwest");
 		} else if (337.5 <= rot && rot < 360.0) {
-			return "North";
+			return Lang.string("north");
 		} else {
 			return null;
 		}
@@ -125,62 +132,102 @@ public class CenotaphUtil {
 		degrees += 180;
 		return degrees;
 	}
-	
+
 	public static String getCause(EntityDamageEvent dmg) {
 		try {
 			switch (dmg.getCause()) {
+				case PROJECTILE:
+					Projectile p = (Projectile)getDamager((EntityDamageByEntityEvent) dmg);
+					if (p.getShooter() instanceof Player) {
+						return ((Player) p.getShooter()).getDisplayName();
+					} else if (p.getShooter() instanceof BlockProjectileSource){
+						return Lang.string("dispenser");
+					} else if (p.getShooter() instanceof Entity) {
+						return ((Entity)p.getShooter()).getType().name();
+					} else {
+						return p.getName();
+					}
 				case ENTITY_ATTACK:
 				{
-					EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
-					Entity e = event.getDamager();
-					if (e == null) {
-						return "Dispenser";
-					} else if (e instanceof Player) {
+					Entity e = getDamager((EntityDamageByEntityEvent) dmg);
+					if (e instanceof Player) {
 						return ((Player) e).getDisplayName();
 					} else {
-						return e.getName();
+						return e.getType().name();
 					}
 				}
-				case CONTACT:
-					return "Cactus";
-				case SUFFOCATION:
-					return "Suffocation";
-				case FALL:
-					return "Fall";
-				case FIRE:
-					return "Fire";
-				case FIRE_TICK:
-					return "Burning";
-				case LAVA:
-					return "Lava";
-				case DROWNING:
-					return "Drowning";
-				case BLOCK_EXPLOSION:
-					return "Explosion";
+				case ENTITY_SWEEP_ATTACK:
+				{
+					Entity e = getDamager((EntityDamageByEntityEvent) dmg);
+					if (e instanceof Player) {
+						return ((Player) e).getDisplayName();
+					} else {
+						return e.getType().name();
+					}
+				}
 				case ENTITY_EXPLOSION:
 				{
 					try {
-						EntityDamageByEntityEvent event = (EntityDamageByEntityEvent)dmg;
-						Entity e = event.getDamager();
-						if (e instanceof TNTPrimed) return "TNT";
-						else if (e instanceof Fireball) return "Ghast";
-						else return "Creeper";
+						Entity e = getDamager((EntityDamageByEntityEvent) dmg);
+						if (e instanceof TNTPrimed) return Lang.string("tnt");
+						else if (e instanceof Fireball) return Lang.string("ghast");
+						else return Lang.string("creeper");
 					} catch (Exception e) {
-						return "Explosion";
+						return Lang.string("explosion");
 					}
 				}
-				case VOID:
-					return "The Void";
+				case BLOCK_EXPLOSION:
+					return Lang.string("explosion");
+				case CONTACT:
+					return Lang.string("cactus");
+				case DRAGON_BREATH:
+					return Lang.string("dragonbreath");
+				case DROWNING:
+					return Lang.string("drowning");
+				case FALL:
+					return Lang.string("fall");
+				case FALLING_BLOCK:
+					return Lang.string("anvil");
+				case FLY_INTO_WALL:
+					return Lang.string("flyingintowall");
+				case FIRE:
+					return Lang.string("fire");
+				case FIRE_TICK:
+					return Lang.string("burning");
+				case HOT_FLOOR:
+					return Lang.string("hotfloor");
+				case LAVA:
+					return Lang.string("lava");
 				case LIGHTNING:
-					return "Lightning";
+					return Lang.string("lightning");
+				case MAGIC:
+					return Lang.string("magic");
+				case POISON:
+					return Lang.string("poison");
+				case STARVATION:
+					return Lang.string("starvation");
+				case SUFFOCATION:
+					return Lang.string("suffocation");
+				case SUICIDE:
+					return Lang.string("suicide");
+				case THORNS:
+					return Lang.string("thorns");
+				case VOID:
+					return Lang.string("void");
+				case WITHER:
+					return Lang.string("withereffect");
 				default:
-					return "Unknown";
+					return Lang.string("unknown");
 			}
 		} catch (NullPointerException e) {
 			Cenotaph.log.severe("[Cenotaph] Error processing death cause: " + dmg.getCause().toString());
 			e.printStackTrace();
 			return ChatColor.RED + "ERROR" + ChatColor.BLACK;
 		}
+	}
+
+	public static Entity getDamager(EntityDamageByEntityEvent dmg) {
+		return dmg.getDamager();		
 	}
 
 	/**
@@ -267,7 +314,7 @@ public class CenotaphUtil {
 		String date = new SimpleDateFormat(CenotaphSettings.dateFormat()).format(new Date());
 		String time = new SimpleDateFormat(CenotaphSettings.timeFormat()).format(new Date());
 		String name = p.getName();
-		String reason = "Unknown";
+		String reason = Lang.string("unknown");
 
 		EntityDamageEvent dmg = CenotaphDatabase.deathCause.get(name);
 		if (dmg != null) {
@@ -330,6 +377,33 @@ public class CenotaphUtil {
 		block.setBlockData(blockChestData,true);
 		lBlock.setBlockData(lBlockChestData,true);
 		
+	}
+
+	/**
+	 * Tests to make sure a player can build where their cenotaph will be formed.
+	 * WorldGuard and Towny are supported, both must be enabled in the config.
+	 * 
+	 * @param player - Player that died.
+	 * @param loc - Location of the death.
+	 * @return true if they can build in configured protection plugins.
+	 */
+	public static boolean testRegionForBuildRights(Player player, Location loc) {
+		//WorldGuard support, see if the player could build where they've died. Disallow a cenotaph if they cannot build.
+		if (Cenotaph.worldguardEnabled) {
+			if (!WorldGuardWrapper.canBuild(player)) {
+				CenotaphMessaging.sendPrefixedPlayerMessage(player, Lang.string("worldguard_area"));
+				return false;
+			}
+		}
+
+		//Towny support, see if the player could build where they've died. Disallow a cenotaph if they cannot build.
+		if (Cenotaph.townyEnabled) {
+			if (!PlayerCacheUtil.getCachePermission(player, loc, Material.CHEST, ActionType.BUILD)) {
+				CenotaphMessaging.sendPrefixedPlayerMessage(player, Lang.string("towny_area"));
+				return false;
+			}		
+		}
+		return true;
 	}
 
 }

@@ -19,6 +19,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 
@@ -37,27 +38,16 @@ public class CenotaphDatabase {
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine().trim();
 				String[] split = line.split(":");
-				Block block, lBlock, sign = null;
-				long time;
-				int level;
-				UUID ownerUUID;				
+				Block block = null;
+				Block lBlock = null;
+				Block sign = null;
+				long time = 0;
+				int level = 0;
+				UUID ownerUUID = null;
+				boolean secured = false;
 				
-				//Try and load old databases first.
-				if (split.length > 6) {
-					//block:lblock:sign:owner:level:time:lwc:locketteSign
-					block = readBlock(split[0]);
-					lBlock = readBlock(split[1]);
-					sign = readBlock(split[2]);									
-					level = Integer.valueOf(split[4]);
-					time = Long.valueOf(split[5]);
-					if (split.length == 8) {
-						ownerUUID = null;
-						continue;
-					} else {
-						ownerUUID = UUID.fromString(split[8]);
-					}
-				//Must be a new database Cenotaph 5.3+
-				} else {
+				// Try and load older Cenotaph database Cenotaph 5.3-5.7.
+				if (split.length == 6){
 					//block:lblock:sign:time:ownerlevel:ownerUUID
 					block = readBlock(split[0]);
 					lBlock = readBlock(split[1]);
@@ -65,13 +55,26 @@ public class CenotaphDatabase {
 					time = Long.valueOf(split[3]);
 					level = Integer.valueOf(split[4]);
 					ownerUUID = UUID.fromString(split[5]);
+					secured = CenotaphSettings.securityEnable();
+					
+				// Must be Cenotaph 5.8+
+				} else if (split.length == 7) {
+					//block:lblock:sign:time:ownerlevel:ownerUUID:secured
+					block = readBlock(split[0]);
+					lBlock = readBlock(split[1]);
+					sign = readBlock(split[2]);
+					time = Long.valueOf(split[3]);
+					level = Integer.valueOf(split[4]);
+					ownerUUID = UUID.fromString(split[5]);
+					secured = Boolean.valueOf(split[6]);
 				}
+				
 				if (block == null ) {
 					Cenotaph.log.info("[Cenotaph] Invalid entry in database " + fh.getName());
 					continue;
 				}
 				
-				TombBlock tBlock = new TombBlock(block, lBlock, sign, time, level, ownerUUID);
+				TombBlock tBlock = new TombBlock(block, lBlock, sign, time, level, ownerUUID, secured);
 				tombList.offer(tBlock);
 				// Used for quick tombStone lookup
 				tombBlockList.put(block.getLocation(), tBlock);
@@ -113,6 +116,8 @@ public class CenotaphDatabase {
 				bw.append(Integer.toString(tBlock.getOwnerLevel()));
 				bw.append(":");
 				bw.append(String.valueOf(tBlock.getOwnerUUID()));
+				bw.append(":");
+				bw.append(String.valueOf(tBlock.isSecured()));
 				bw.append(builder.toString());
 				bw.newLine();
 			}
@@ -186,7 +191,7 @@ public class CenotaphDatabase {
 		Player p = null;
 		if (tBlock.getOwnerUUID() != null)
 			p = Cenotaph.plugin.getServer().getPlayer(tBlock.getOwnerUUID());
-		if (p != null) CenotaphMessaging.sendPrefixedPlayerMessage(p, "Your cenotaph has broken.");
+		if (p != null) CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("your_cenotaph_has_broken"));
 	}
 
 	public static HashMap<String, ArrayList<TombBlock>> getCenotaphList() {

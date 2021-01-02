@@ -9,6 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
 
 public class CenotaphCommand implements CommandExecutor {
@@ -31,23 +32,23 @@ public class CenotaphCommand implements CommandExecutor {
 				return false;
 			ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(p.getName());
 			if (pList == null) {
-				CenotaphMessaging.sendPrefixedPlayerMessage(p, "You have no cenotaphs.");
+				CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("you_have_no_cenotaphs"));
 				return true;
 			}
-			CenotaphMessaging.sendPrefixedPlayerMessage(p, "Cenotaph List:");
+			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("cenotaph_list"));
 			int i = 0;
 			for (TombBlock tomb : pList) {
 				i++;
 				if (tomb.getBlock() == null) continue;
 				String message;
-				message = " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")";
+				message = " " + i + " - " + Lang.string("world") + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")";
 				if (CenotaphSettings.securityEnable()) {
 					if (!CenotaphSettings.securityRemove())
-						message = message + ChatColor.GREEN + " [Locked]";
+						message = message + ChatColor.GREEN + Lang.string("locked");
 					else if (CenotaphSettings.securityRemove() && (tomb.securityTimeLeft() > 0 ))
-						message = message + ChatColor.GREEN + " [Locked " + ChatColor.RED + CenotaphUtil.convertTime(tomb.securityTimeLeft()) + ChatColor.GREEN + "]";
+						message = message + ChatColor.GREEN + Lang.string("locked", ChatColor.RED + CenotaphUtil.convertTime(tomb.securityTimeLeft()) + ChatColor.GREEN);
 					else if (CenotaphSettings.securityRemove() && (!tomb.isSecured()))
-						message = message + ChatColor.RED + " [Unlocked]";
+						message = message + ChatColor.RED + Lang.string("unlocked");
 				}
 				CenotaphMessaging.sendPrefixedPlayerMessage(p, message);
 			}
@@ -56,18 +57,18 @@ public class CenotaphCommand implements CommandExecutor {
 		} else if (cmd.equalsIgnoreCase("cenfind")) {
 			TombBlock tBlock = CenotaphUtil.getBlockByIndex(p.getName(), args.length == 0 ? "last" : args[0]);
 			if (tBlock == null) {
-				CenotaphMessaging.sendPrefixedPlayerMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
+				CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("invalid_cenotaph_entry_verbose"));
 				return true;
 			}
 			double degrees = (CenotaphUtil.getYawTo(tBlock.getBlock().getLocation(), p.getLocation()) + 270) % 360;
 			p.setCompassTarget(tBlock.getBlock().getLocation());
-			CenotaphMessaging.sendPrefixedPlayerMessage(p, "Course: " + degrees + " (" + CenotaphUtil.getDirection(degrees) + "). Your compass has been set to point that direction. Use /cenreset to reset it to your spawn point.");
+			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("course", degrees, CenotaphUtil.getDirection(degrees)));
 			return true;
 			
 		} else if (cmd.equalsIgnoreCase("ceninfo")) {			
 			TombBlock tBlock = CenotaphUtil.getBlockByIndex(p.getName(), args.length == 0 ? "last" : args[0]);
 			if (tBlock == null) {
-				CenotaphMessaging.sendPrefixedPlayerMessage(p, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
+				CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("invalid_cenotaph_entry_verbose"));
 				return true;
 			}
 			CenotaphMessaging.sendPrefixedPlayerMessage(p, CenotaphMessaging.centimeMsg(tBlock));
@@ -94,25 +95,25 @@ public class CenotaphCommand implements CommandExecutor {
 			if (args.length == 0) {
 				if (!isConsole)
 					if (!sender.hasPermission("cenotaph.admin")) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("permission_denied"));
 						return;
 					}
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Missing Subcommand:");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin list");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin list <player>");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin info <player> <#>");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin find <player> <#>");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin remove <player> <#>");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin version");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin deletehologram");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin reload");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("missing_subcommand"));
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin list");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin list <player>");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin info <player> <#>");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin find <player> <#>");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin remove <player> <#>");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin version");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin deletehologram");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin reload");
 				return;
 			}
 			if (args.length > 1) {
 				try {					
 					playerName = plugin.getServer().getPlayer(args[1]).getName();
 				} catch (NullPointerException e) {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Player " + args[1] + " not found.");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("player_not_found", args[1]));
 					return;
 				}
 			}
@@ -120,17 +121,17 @@ public class CenotaphCommand implements CommandExecutor {
 			if (args[0].equalsIgnoreCase("list")) {
 				if (!isConsole)
 					if (!sender.hasPermission("cenotaph.admin.list")) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("permission_denied"));
 						return;
 					}
 				if (args.length == 1)
 					return;
 				if (args.length < 2) {
 					if (CenotaphDatabase.playerTombList.keySet().isEmpty()) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "There are no cenotaphs.");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("there_are_no_cenotaphs"));
 						return;
 					}
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Players with cenotaphs:");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("players_with_cenotaphs"));
 					for (String player : CenotaphDatabase.playerTombList.keySet()) {
 						CenotaphMessaging.sendPrefixedAdminMessage(sender, player);
 					}
@@ -138,29 +139,29 @@ public class CenotaphCommand implements CommandExecutor {
 				}
 				ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(playerName);
 				if (pList == null) {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "No cenotaphs found for " + playerName + ".");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("no_cenotaphs_found_for_x", playerName));
 					return;
 				}
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Cenotaph List:");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("cenotaph_list"));
 				int i = 0;
 				for (TombBlock tomb : pList) {
 					i++;
 					if (tomb.getBlock() == null) continue;
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, " " + i + " - World: " + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, " " + i + " - " + Lang.string("world") + tomb.getBlock().getWorld().getName() + " @(" + tomb.getBlock().getX() + "," + tomb.getBlock().getY() + "," + tomb.getBlock().getZ() + ")");
 				}
 				return;
 				
 			} else if (args[0].equalsIgnoreCase("find")) {
 				if (!isConsole)
 					if (!sender.hasPermission("cenotaph.admin.find")) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("permission_denied"));
 						return;
 					}
 				if (args.length == 1)
 					return;
 				TombBlock tBlock = CenotaphUtil.getBlockByIndex(playerName, args.length < 3 ? "last" : args[2]);
 				if (tBlock == null) {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("invalid_cenotaph_entry_verbose"));
 					return;
 				}
 
@@ -169,16 +170,16 @@ public class CenotaphCommand implements CommandExecutor {
 				int Z = tBlock.getBlock().getZ();
 				if (!isConsole) {
 					double degrees = (CenotaphUtil.getYawTo(tBlock.getBlock().getLocation(), ((Player) sender).getLocation()) + 270) % 360;
-					CenotaphMessaging.sendPrefixedAdminMessage(sender,"Location:" + X + "," + Y + "," + Z + ", to the " + CenotaphUtil.getDirection(degrees) + ".");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("admin_cen_find_with_dir", X, Y, Z, CenotaphUtil.getDirection(degrees)));
 					return;
 				} else {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender,"Location:" + X + "," + Y + "," + Z);
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("admin_cen_find", X, Y, Z));
 				}
 				
 			} else if (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("time")) {
 				if (!isConsole)
 					if (!sender.hasPermission("cenotaph.admin.time")) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("permission_denied"));
 						return;
 					}
 				if (args.length == 1)
@@ -186,7 +187,7 @@ public class CenotaphCommand implements CommandExecutor {
 
 				TombBlock tBlock = CenotaphUtil.getBlockByIndex(playerName, args.length < 3 ? "last" : args[2]);
 				if (tBlock == null) {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Invalid cenotaph entry or no cenotaphs active. Check with /cenlist.");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("invalid_cenotaph_entry_verbose"));
 					return;
 				}
 
@@ -196,7 +197,7 @@ public class CenotaphCommand implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("version")) {
 				if (!isConsole)
 					if (!sender.hasPermission("cenotaph.admin.version")) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("permission_denied"));
 						return;
 					}
 				String message;
@@ -206,26 +207,26 @@ public class CenotaphCommand implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("remove")) {
 				if (!isConsole)
 					if (!sender.hasPermission("cenotaph.admin.remove")) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("permission_denied"));
 						return;
 					}
 				if (args.length == 1)
 					return;
 				ArrayList<TombBlock> pList = CenotaphDatabase.playerTombList.get(playerName);
 				if (pList == null) {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "No cenotaphs found for " + playerName + ".");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("no_cenotaphs_found_for_x", playerName));
 					return;
 				}
 				int slot = 0;
 				try {
 					slot = Integer.parseInt(args[2]);
 				} catch (Exception e) {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Invalid cenotaph entry.");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("invalid_cenotaph_entry"));
 					return;
 				}
 				slot -= 1;
 				if (slot < 0 || slot >= pList.size()) {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Invalid cenotaph entry.");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("invalid_cenotaph_entry"));
 					return;
 				}
 				TombBlock tBlock = pList.get(slot);
@@ -234,33 +235,33 @@ public class CenotaphCommand implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("reload")) {
 				if (!isConsole)
 					if (!sender.hasPermission("cenotaph.admin.reload")) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("permission_denied"));
 						return;
 					}
 				plugin.loadSettings();
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Configuration reloaded from file.");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("config_reloaded"));
 				return;
 			} else if (args[0].equalsIgnoreCase("deletehologram")) {
 				if (isConsole) {
-					CenotaphMessaging.sendPrefixedAdminMessage(sender, "Command cannot be used from the console.");
+					CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("command_cannot_be_used_from_the_console"));
 					return;
 				} else {
 					if (!sender.hasPermission("cenotaph.admin.deletehologram")) {
-						CenotaphMessaging.sendPrefixedAdminMessage(sender, "Permission Denied");
+						CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("permission_denied"));
 						return;
 					}
 				}
 				HolographicDisplays.deleteHolo(Bukkit.getServer().getPlayer(sender.getName()), Bukkit.getServer().getPlayer(sender.getName()).getLocation());				
 			} else {
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Invalid command");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin list");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin list <player>");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin info <player> <#>");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin find <player> <#>");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin remove <player> <#>");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin version");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin deletehologram");
-				CenotaphMessaging.sendPrefixedAdminMessage(sender, "Usage: /cenadmin reload");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("invalid_command"));
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin list");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin list <player>");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin info <player> <#>");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin find <player> <#>");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin remove <player> <#>");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin version");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin deletehologram");
+				CenotaphMessaging.sendPrefixedAdminMessage(sender, Lang.string("usage") + "/cenadmin reload");
 				return;
 			}
 			return;

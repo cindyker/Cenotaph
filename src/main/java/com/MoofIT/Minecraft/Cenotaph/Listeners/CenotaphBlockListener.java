@@ -18,6 +18,8 @@ import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
+
 import java.util.List;
 
 public class CenotaphBlockListener implements Listener {
@@ -40,7 +42,7 @@ public class CenotaphBlockListener implements Listener {
 		TombBlock tBlock = CenotaphUtil.getTombBlock(b);
 		
 		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId()) && !p.hasPermission("cenotaph.admin")) {
-			CenotaphMessaging.sendActionBarPlayerMessage(p, "This cenotaph is secured.");
+			CenotaphMessaging.sendActionBarPlayerMessage(p, Lang.string("this_cenotaph_is_secured"));
 			event.setCancelled(true);
 			return;
 		}
@@ -49,7 +51,7 @@ public class CenotaphBlockListener implements Listener {
 		if (tBlock.getOwnerUUID() != null)
 			owner = plugin.getServer().getPlayer(tBlock.getOwnerUUID());
 		CenotaphDatabase.removeTomb(tBlock, true);
-		if (owner != null) CenotaphMessaging.sendPrefixedPlayerMessage(owner, "Your cenotaph has been destroyed by " + p.getName() + "!");
+		if (owner != null) CenotaphMessaging.sendPrefixedPlayerMessage(owner, Lang.string("your_cenotaph_has_been_destroyed_by_x", p.getName()));
 	}
 
 	@EventHandler

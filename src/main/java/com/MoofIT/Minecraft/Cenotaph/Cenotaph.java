@@ -30,8 +30,11 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapAPI;
+
+import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphBlockListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphEntityListener;
+import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphInventoryListener;
 import com.MoofIT.Minecraft.Cenotaph.Listeners.CenotaphPlayerListener;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.DynmapThread;
 import com.MoofIT.Minecraft.Cenotaph.PluginHandlers.HolographicDisplays;
@@ -62,6 +65,7 @@ public class Cenotaph extends JavaPlugin {
 	public final CenotaphEntityListener entityListener = new CenotaphEntityListener(this);
 	public final CenotaphBlockListener blockListener = new CenotaphBlockListener(this);
 	public final CenotaphPlayerListener playerListener = new CenotaphPlayerListener(this);
+	public final CenotaphInventoryListener inventoryListener = new CenotaphInventoryListener(this);
 	public final CenotaphCommand commandExec = new CenotaphCommand(this);
 	public final DynmapThread dynThread = new DynmapThread(this);
 	public static Logger log;
@@ -72,6 +76,7 @@ public class Cenotaph extends JavaPlugin {
 	public static boolean economyEnabled = false;
 	public static boolean dynmapEnabled = false;
 	public static boolean worldguardEnabled = false;
+	public static boolean townyEnabled = false;
 	public static boolean hologramsEnabled = false;
 	private String version = "2.0.0";
 	public static Economy econ = null;
@@ -89,10 +94,16 @@ public class Cenotaph extends JavaPlugin {
 		pm.registerEvents(entityListener,this);
 		pm.registerEvents(blockListener,this);
 		pm.registerEvents(playerListener,this);
+		pm.registerEvents(inventoryListener, this);
 		
 		if (!loadSettings()) {
-			log.info("Cenotaph config.yml couldn't load.");
+			CenotaphMessaging.sendSevereConsoleMessage("Cenotaph config.yml couldn't load.");
 			onDisable();
+		}
+
+		if (!versionCheck()) {
+			CenotaphMessaging.sendSevereConsoleMessage("Your previous Cenotaph version cannot be upgraded. Update to any version 5.3-5.7 and then update to this " + version);
+			onDisable();	
 		}
 
 		if (CenotaphSettings.enableAscii())
@@ -102,6 +113,7 @@ public class Cenotaph extends JavaPlugin {
 		economyEnabled = setupEconomy();
 		dynmapEnabled = setupDynmap();
 		worldguardEnabled = setupWorldGuard();
+		townyEnabled = setupTowny();
 		hologramsEnabled = setupHolograms();
 		slimefunEnabled = setupSlimefun();
 
@@ -115,6 +127,23 @@ public class Cenotaph extends JavaPlugin {
 		CenotaphMessaging.sendEnabledMessage(hooked);		
 	}
 	
+	/*
+	 * Nothing below Cenotaph 5.3 should be loaded.
+	 */
+	private boolean versionCheck() {
+		String lastRunVersion = CenotaphSettings.getLastRunVersion(version);
+		String[] numbers = lastRunVersion.split("\\.");
+		int one = Integer.valueOf(numbers[0]);
+		int two = Integer.valueOf(numbers[1]);
+		if (one < 6) {
+			if (one != 5)
+				return false;
+			if (two <=2)
+				return false;
+		}
+		return true;
+	}
+
 	public String getVersion() {
 		return version;
 	}
@@ -132,6 +161,7 @@ public class Cenotaph extends JavaPlugin {
         
         try {
             CenotaphSettings.loadConfig(this.getDataFolder() + File.separator + "config.yml", getVersion());
+            Lang.loadLanguage(this.getDataFolder().getPath(), "english.yml");
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -174,6 +204,18 @@ public class Cenotaph extends JavaPlugin {
     		}
     	} else if (CenotaphSettings.worldguardEnable())
     	    CenotaphMessaging.sendSevereConsoleMessage("Unabled to find WorldGuard. WorldGuard not hooked!");
+    	return false;
+    }
+    private boolean setupTowny() {
+    	if (pm.isPluginEnabled("Towny")) {
+    		if (!CenotaphSettings.townyEnable())
+    			return false;
+    		else {
+    			hooked += "Towny, ";
+    			return true;
+    		}
+    	} else if (CenotaphSettings.townyEnable())
+    		CenotaphMessaging.sendSevereConsoleMessage("Unable to find Towny. Towny not hooked!");
     	return false;
     }
     private boolean setupHolograms() {

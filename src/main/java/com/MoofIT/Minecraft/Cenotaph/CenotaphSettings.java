@@ -24,6 +24,7 @@ public class CenotaphSettings {
 
 			setDefaults(version, file);
 
+			CenotaphMessaging.sendInfoConsoleMessage("Config.yml loaded.");
 			config.save();
 		}
 	}
@@ -207,12 +208,20 @@ public class CenotaphSettings {
 		return getBoolean(ConfigNodes.CORE_WORLDGUARD_ENABLE);		
 	}
 	
+	public static boolean townyEnable() {
+		return getBoolean(ConfigNodes.CORE_TOWNY_ENABLE);
+	}
+	
 	public static boolean hologramsEnable() {
 		return getBoolean(ConfigNodes.CORE_HOLOGRAMS_ENABLE);
 	}
 	
 	public static double cenotaphCost() { 
 		return getDouble(ConfigNodes.CORE_CENOTAPH_COST);
+	}
+	
+	public static boolean isPVPKillsGetNoCenotaph() {
+		return getBoolean(ConfigNodes.CORE_PVP_KILLS_DONT_GET_CHESTS);
 	}
 	
 	public static boolean destroyQuickloot() { 
