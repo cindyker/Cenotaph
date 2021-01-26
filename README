@@ -121,6 +121,9 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
 =============
  Changes
 =============
+[Version 6.1]
+  - Altered the event priority upon which the cenotaphs are made, making it possible to:
+  - Cenotaphs should no longer generate when another plugin has altered the PlayerDeathEvent to keep the player's inventory.
 [Version 6.0]
   - New Database Schema. Old DB's Cenotaph v5.3 and newer will convert.
     - Cenotaph will no longer load when updating from a version 5.2 or earlier.

@@ -21,8 +21,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
@@ -80,10 +80,14 @@ public class CenotaphEntityListener implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onEntityDeath(EntityDeathEvent event) {
-		if (!(event.getEntity() instanceof Player)) return;
-		Player p = (Player)event.getEntity();
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onEntityDeath(PlayerDeathEvent event) {
+		
+		// Don't make a cenotaph if they would get to keep their inventory.
+		if (event.getKeepInventory())
+			return;
+
+		Player p = event.getEntity();
 		World world = p.getWorld();
 
 		if (!p.hasPermission("cenotaph.use")) return;
