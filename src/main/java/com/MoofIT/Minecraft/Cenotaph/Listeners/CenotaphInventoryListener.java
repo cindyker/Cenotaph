@@ -33,6 +33,10 @@ public class CenotaphInventoryListener implements Listener {
 			return;
 
 		Location loc = event.getSource().getLocation();
+		if (loc == null) {
+		    event.setCancelled(true);
+		    return;
+		}
 		// Double chests return .5 locations in between the chests. Only one will ever get floored.
 		loc.setX(loc.getBlockX());
 		loc.setZ(loc.getBlockZ());
