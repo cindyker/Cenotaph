@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.function.Predicate;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -11,7 +12,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
-
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 
@@ -32,11 +32,18 @@ public class CenotaphInventoryListener implements Listener {
 		if (!event.getSource().getType().equals(InventoryType.CHEST))
 			return;
 
+		/*
+		 * Spigot doesn't have a Composter InventoryType, so Composters being 
+		 * siphoned by a hopper report a Chest source Inventory, bypassing the
+		 * above if statement. If left unchecked, the loc will end up being null,
+		 * throwing an NPE. The following two lines take care of this until
+		 * Spigot can add a Composter InventoryType.
+		 */
+		Location destLoc = event.getDestination().getLocation(); 
+		if (destLoc.getWorld().getBlockAt(destLoc).getRelative(0, 1, 0).getType().equals(Material.COMPOSTER))
+			return;
+		
 		Location loc = event.getSource().getLocation();
-		if (loc == null) {
-		    event.setCancelled(true);
-		    return;
-		}
 		// Double chests return .5 locations in between the chests. Only one will ever get floored.
 		loc.setX(loc.getBlockX());
 		loc.setZ(loc.getBlockZ());
