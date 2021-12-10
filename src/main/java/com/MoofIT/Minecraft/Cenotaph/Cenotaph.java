@@ -21,6 +21,8 @@ package com.MoofIT.Minecraft.Cenotaph;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.World;
@@ -82,6 +84,7 @@ public class Cenotaph extends JavaPlugin {
 	public static Economy econ = null;
 	public static boolean isSpigot = false;
 	public static boolean slimefunEnabled = false;
+	public static Map<World, Integer> worldDepths = new HashMap<>();
 	private String hooked = "";
 
 	@Override
@@ -117,8 +120,10 @@ public class Cenotaph extends JavaPlugin {
 		hologramsEnabled = setupHolograms();
 		slimefunEnabled = setupSlimefun();
 
-		for (World w : getServer().getWorlds())
+		for (World w : getServer().getWorlds()) {
 			CenotaphDatabase.loadTombList(w.getName());
+			setWorldDepth(w);
+		}
 
 		// Start removal timer. Run every 5 seconds (20 ticks per second)
 		if (CenotaphSettings.cenotaphRemove())
@@ -238,6 +243,26 @@ public class Cenotaph extends JavaPlugin {
     	}
     	return false;
     }
+
+	public static void setWorldDepth(World w) {
+		try {
+			setWorldDepth(w, w.getMinHeight());
+		} catch (NoSuchMethodError e) {
+			setWorldDepth(w, 0);
+		}
+	}
+
+	private static void setWorldDepth(World w, int minHeight) {
+		worldDepths.put(w, minHeight);
+	}
+
+	public static boolean hasSetWorldDepth(World w) {
+		return worldDepths.containsKey(w);
+	}
+
+	public static int getWorldDepth(World w) {
+		return worldDepths.get(w);
+	}
 
 	@Override
 	public void onDisable() {

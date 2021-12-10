@@ -330,11 +330,8 @@ public class CenotaphEntityListener implements Listener {
 	}
 
 	private boolean underWorldBottom(Location loc) {
-		try {
-			return loc.getY() < loc.getWorld().getMinHeight();
-		} catch (NoSuchMethodError e) {
-			// Pre 1.18 WorldInfo api doesn't exist, this is a pre-world-height-change server.
-			return loc.getY() < 1;
-		}
+		if (!Cenotaph.hasSetWorldDepth(loc.getWorld()))
+			Cenotaph.setWorldDepth(loc.getWorld());
+		return loc.getY() < Cenotaph.getWorldDepth(loc.getWorld()) + 1;
 	}
 }
