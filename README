@@ -121,6 +121,8 @@ LlmDl: I helped with lockette support on earlier versions and did some major cha
 =============
  Changes
 =============
+[Version 6.3]
+  - Add support for MC 1.18 and the increased world depth.
 [Version 6.2]
   - Cleaner solution to the NPE solved in 6.1. (The NPE was tracked down to auto-composting setups and occurs because of incomplete Spigot API.)
 [Version 6.1]

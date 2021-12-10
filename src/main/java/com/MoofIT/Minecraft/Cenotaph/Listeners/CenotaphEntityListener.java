@@ -125,7 +125,8 @@ public class CenotaphEntityListener implements Listener {
 		Block block = p.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
 		//Don't create the chest if it or its sign would be in the void
-		if (CenotaphSettings.voidCheck() && ((CenotaphSettings.cenotaphSign() && block.getY() > p.getWorld().getMaxHeight() - 1) || (!CenotaphSettings.cenotaphSign() && block.getY() > p.getWorld().getMaxHeight()) || p.getLocation().getY() < 1)) {
+		if (CenotaphSettings.voidCheck() 
+			&& aboveSurface(block.getY(), p.getWorld().getMaxHeight()) || underWorldBottom(loc)) {
 			CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("chest_would_be_in_the_void"));
 			return;
 		}
@@ -321,6 +322,19 @@ public class CenotaphEntityListener implements Listener {
 			if (r.transactionSuccess()){
 				CenotaphMessaging.sendPrefixedPlayerMessage(p, Lang.string("cenotaph_paid_for", CenotaphSettings.cenotaphCost(), Cenotaph.econ.currencyNamePlural()));
 			}
+		}
+	}
+
+	private boolean aboveSurface(int y, int maxHeight) {
+		return CenotaphSettings.cenotaphSign() ? y > maxHeight - 1 : y > maxHeight;
+	}
+
+	private boolean underWorldBottom(Location loc) {
+		try {
+			return loc.getY() < loc.getWorld().getMinHeight();
+		} catch (NoSuchMethodError e) {
+			// Pre 1.18 WorldInfo api doesn't exist, this is a pre-world-height-change server.
+			return loc.getY() < 1;
 		}
 	}
 }
