@@ -7,7 +7,7 @@
     <groupId>MoofIT</groupId>
     <artifactId>Cenotaph</artifactId>
     <packaging>jar</packaging>
-    <version>6.2</version>
+    <version>6.3</version>
     
     <properties>
         <project.bukkitAPIVersion>1.14</project.bukkitAPIVersion>
@@ -45,7 +45,7 @@
         <dependency>
            <groupId>org.spigotmc</groupId>
            <artifactId>spigot-api</artifactId>
-           <version>1.14.4-R0.1-SNAPSHOT</version>
+           <version>1.18-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
         </dependency>
         <dependency>
