@@ -288,7 +288,7 @@ public class CenotaphUtil {
 				mat == Material.SUGAR_CANE ||
 				mat == Material.GRAVEL ||
 				mat == Material.SAND ||
-				mat == Material.GRASS ||
+				mat == Material.SHORT_GRASS ||
 				mat == Material.TALL_GRASS ||
 				(mat.createBlockData() instanceof Ageable) ||
 				(Tag.SMALL_FLOWERS.isTagged(mat) && mat != Material.WITHER_ROSE) ||
