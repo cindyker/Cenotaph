@@ -10,12 +10,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
+import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphUtil;
 import com.MoofIT.Minecraft.Cenotaph.TombBlock;
 import com.MoofIT.Minecraft.Cenotaph.Config.Lang;
@@ -143,5 +145,30 @@ public class CenotaphBlockListener implements Listener {
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
 		CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
+	}
+
+	@EventHandler
+	public void onBlockExplode(BlockExplodeEvent event) {
+		if (event.isCancelled()) 
+			return;
+		for (Block block : event.blockList()) {
+			if (CenotaphUtil.isTombBlock(block)) {
+				if (CenotaphUtil.getTombBlock(block).isSecured())
+					event.setCancelled(true);
+				else if (CenotaphSettings.explosionProtection())
+					event.setCancelled(true);
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onBlockExplodeMonitor(BlockExplodeEvent event) {
+		if (event.isCancelled()) 
+			return;
+		for (Block block : event.blockList()) {
+			if (CenotaphUtil.isTombBlock(block))
+				if (!event.isCancelled())
+					CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
+		}
 	}
 }
