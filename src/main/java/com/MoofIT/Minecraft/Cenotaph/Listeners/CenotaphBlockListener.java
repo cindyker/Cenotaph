@@ -3,7 +3,7 @@ package com.MoofIT.Minecraft.Cenotaph.Listeners;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
-
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,6 +14,8 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+
 import com.MoofIT.Minecraft.Cenotaph.Cenotaph;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphDatabase;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
@@ -56,10 +58,30 @@ public class CenotaphBlockListener implements Listener {
 		if (owner != null) CenotaphMessaging.sendPrefixedPlayerMessage(owner, Lang.string("your_cenotaph_has_been_destroyed_by_x", p.getName()));
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
+	public void onBlockPlace(BlockPlaceEvent event) {
+		Block b = event.getBlock();
+		Player p = event.getPlayer();
+		if (b.getType() != Material.HOPPER)
+			return;
+
+		b = b.getRelative(BlockFace.UP);
+		if (b.getType() != Material.CHEST)
+			return;
+
+		if (!CenotaphUtil.isTombBlock(b))
+			return;
+		TombBlock tBlock = CenotaphUtil.getTombBlock(b);
+		
+		if (tBlock.isSecured() && !tBlock.getOwnerUUID().equals(event.getPlayer().getUniqueId()) && !p.hasPermission("cenotaph.admin")) {
+			CenotaphMessaging.sendActionBarPlayerMessage(p, Lang.string("this_cenotaph_is_secured"));
+			event.setCancelled(true);
+			return;
+		}
+	}
+
+	@EventHandler(ignoreCancelled = true)
 	public void onPistonRetract(BlockPistonRetractEvent event) {
-		if (event.isCancelled()) 
-			return;
 		List<Block> blockList = event.getBlocks();
 		for (Block block : blockList) {
 			if (!CenotaphUtil.isTombBlock(block))
@@ -68,10 +90,9 @@ public class CenotaphBlockListener implements Listener {
 				event.setCancelled(true);
 		}
 	}
-	@EventHandler(priority = EventPriority.MONITOR)
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPistonRetractMonitor(BlockPistonRetractEvent event) {
-		if (event.isCancelled()) 
-			return;
 		List<Block> blockList = event.getBlocks();
 		for (Block block : blockList) {
 			if (!CenotaphUtil.isTombBlock(block))
@@ -80,10 +101,8 @@ public class CenotaphBlockListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPistonExtend(BlockPistonExtendEvent event) {
-		if (event.isCancelled()) 
-			return;
 		List<Block> blockList = event.getBlocks();
 		for (Block block : blockList) {
 			if (!CenotaphUtil.isTombBlock(block))
@@ -93,10 +112,8 @@ public class CenotaphBlockListener implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPistonExtendMonitor(BlockPistonExtendEvent event) {
-		if (event.isCancelled()) 
-			return;
 		List<Block> blockList = event.getBlocks();
 		for (Block block : blockList) {
 			if (!CenotaphUtil.isTombBlock(block))
@@ -105,10 +122,8 @@ public class CenotaphBlockListener implements Listener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockIgnite(BlockIgniteEvent event) {
-		if (event.isCancelled()) 
-			return;
 		Block block = event.getBlock();
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
@@ -116,20 +131,16 @@ public class CenotaphBlockListener implements Listener {
 			event.setCancelled(true);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockIgniteMonitor(BlockIgniteEvent event) {
-		if (event.isCancelled()) 
-			return;
 		Block block = event.getBlock();
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
 		CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBurn(BlockBurnEvent event) {
-		if (event.isCancelled()) 
-			return;
 		Block block = event.getBlock();		
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
@@ -137,20 +148,16 @@ public class CenotaphBlockListener implements Listener {
 			event.setCancelled(true);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBurnMonitor(BlockBurnEvent event) {
-		if (event.isCancelled()) 
-			return;
 		Block block = event.getBlock();		
 		if (!CenotaphUtil.isTombBlock(block))
 			return;
 		CenotaphDatabase.removeTomb(CenotaphUtil.getTombBlock(block), true);
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockExplode(BlockExplodeEvent event) {
-		if (event.isCancelled()) 
-			return;
 		for (Block block : event.blockList()) {
 			if (CenotaphUtil.isTombBlock(block)) {
 				if (CenotaphUtil.getTombBlock(block).isSecured())
@@ -161,10 +168,8 @@ public class CenotaphBlockListener implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockExplodeMonitor(BlockExplodeEvent event) {
-		if (event.isCancelled()) 
-			return;
 		for (Block block : event.blockList()) {
 			if (CenotaphUtil.isTombBlock(block))
 				if (!event.isCancelled())

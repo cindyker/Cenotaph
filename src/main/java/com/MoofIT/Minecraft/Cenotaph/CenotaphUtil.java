@@ -14,6 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.type.Chest.Type;
+import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -246,7 +247,9 @@ public class CenotaphUtil {
 		for (int x = baseX - 1; x < baseX + 1; x++) {
 			for (int z = baseZ - 1; z < baseZ + 1; z++) {
 				Block b = w.getBlockAt(x, baseY, z);
-				if (canReplace(b.getType()) && smallChest) 
+				if (b.getRelative(BlockFace.DOWN).getType().equals(Material.HOPPER))
+					continue;
+				if (canReplace(b.getType()) && smallChest)
 					return b;
 				else if (canReplace(b.getType())) { 
 					// When there ought to be a double chest we should test to see if there's space for a double chest and force a oneBlockUpCheck for it.
@@ -259,7 +262,7 @@ public class CenotaphUtil {
 			}
 		}
 		if(CenotaphSettings.oneBlockUpCheck()) {
-			//Check block one up, in case of Carpeting/
+			//Check block one up, in case of Carpeting/Hopper
 			for (int x = baseX - 1; x < baseX + 1; x++) {
 				for (int z = baseZ - 1; z < baseZ + 1; z++) {
 					Block b = w.getBlockAt(x, baseY + 1, z);
@@ -338,7 +341,7 @@ public class CenotaphUtil {
 			line = line.replace("{reason}", reason);
 
 			if (line.length() > 15) line = line.substring(0, 15);
-			sign.setLine(x, line);
+			sign.getSide(Side.FRONT).setLine(x, line);
 		}
 
 		Cenotaph.plugin.getServer().getScheduler().scheduleSyncDelayedTask(Cenotaph.plugin, new Runnable() {

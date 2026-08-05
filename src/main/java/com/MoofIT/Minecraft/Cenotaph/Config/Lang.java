@@ -8,6 +8,8 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphMessaging;
 import com.MoofIT.Minecraft.Cenotaph.CenotaphSettings;
 
+import io.github.townyadvanced.commentedconfiguration.CommentedConfiguration;
+
 public class Lang {
 	
 	public static CommentedConfiguration language;
@@ -22,9 +24,9 @@ public class Lang {
 		File file = FileMgmt.unpackResourceFile(fullPath, res, defaultRes);
 
 		// read the (language).yml into memory
-		language = new CommentedConfiguration(file);
+		language = new CommentedConfiguration(file.toPath());
 		language.load();
-		CommentedConfiguration newLanguage = new CommentedConfiguration(file);
+		CommentedConfiguration newLanguage = new CommentedConfiguration(file.toPath());
 		
 		try {
 			newLanguage.loadFromString(FileMgmt.convertStreamToString("/" + res));
