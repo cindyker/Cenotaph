@@ -3,7 +3,6 @@ package com.MoofIT.Minecraft.Cenotaph;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,6 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.type.Chest.Type;
+import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -229,7 +229,7 @@ public class CenotaphUtil {
 	public static Entity getDamager(EntityDamageByEntityEvent dmg) {
 		return dmg.getDamager();		
 	}
-
+	
 	/**
 	 * Find a block near the base block to place the tombstone
 	 * @param base
@@ -237,7 +237,9 @@ public class CenotaphUtil {
 	 * @return
 	 */
 	public static Block findPlace(Block base, boolean smallChest) {
-		if (canReplace(base.getType()) && smallChest) return base;
+		if (canReplace(base.getType()) && smallChest && !isAboveHopper(base))
+			return base;
+
 		int baseX = base.getX();
 		int baseY = base.getY();
 		int baseZ = base.getZ();
@@ -246,20 +248,33 @@ public class CenotaphUtil {
 		for (int x = baseX - 1; x < baseX + 1; x++) {
 			for (int z = baseZ - 1; z < baseZ + 1; z++) {
 				Block b = w.getBlockAt(x, baseY, z);
-				if (canReplace(b.getType()) && smallChest) 
+				if (isAboveHopper(b))
+					continue;
+				if (canReplace(b.getType()) && smallChest)
 					return b;
-				else if (canReplace(b.getType())) { 
+				else if (canReplace(b.getType())) {
 					// When there ought to be a double chest we should test to see if there's space for a double chest and force a oneBlockUpCheck for it.
 					// Previously if you died in a 1x1x1 hole only a small chest would form, causing overflow.
-					if (canReplace(b.getRelative(BlockFace.NORTH).getType())) return b;
-					else if (canReplace(b.getRelative(BlockFace.EAST).getType())) return b;
-					else if (canReplace(b.getRelative(BlockFace.WEST).getType())) return b;
-					else if (canReplace(b.getRelative(BlockFace.SOUTH).getType())) return b;
+					Block relativeBlock = b.getRelative(BlockFace.NORTH);
+					if (canReplace(relativeBlock.getType()) && !isAboveHopper(relativeBlock))
+						return b;
+
+					relativeBlock = b.getRelative(BlockFace.EAST);
+					if (canReplace(relativeBlock.getType()) && !isAboveHopper(relativeBlock))
+						return b;
+
+					relativeBlock = b.getRelative(BlockFace.WEST);
+					if (canReplace(relativeBlock.getType()) && !isAboveHopper(relativeBlock))
+						return b;
+
+					relativeBlock = b.getRelative(BlockFace.SOUTH);
+					if (canReplace(relativeBlock.getType()) && !isAboveHopper(relativeBlock))
+						return b;
 				}
 			}
 		}
 		if(CenotaphSettings.oneBlockUpCheck()) {
-			//Check block one up, in case of Carpeting/
+			//Check block one up, in case of Carpeting/Hopper
 			for (int x = baseX - 1; x < baseX + 1; x++) {
 				for (int z = baseZ - 1; z < baseZ + 1; z++) {
 					Block b = w.getBlockAt(x, baseY + 1, z);
@@ -268,6 +283,10 @@ public class CenotaphUtil {
 			}
 		}
 		return null;
+	}
+
+	private static boolean isAboveHopper(Block base) {
+		return base.getRelative(BlockFace.DOWN).getType().equals(Material.HOPPER);
 	}
 
 	public static Boolean canReplace(Material mat) {
@@ -300,13 +319,18 @@ public class CenotaphUtil {
 		// Check all 4 sides for air.
 		Block exp;
 		exp = base.getRelative(BlockFace.NORTH);
-		if (canReplace(exp.getType())) return exp;
+		if (canReplace(exp.getType()) && !isAboveHopper(exp))
+			return exp;
 		exp = base.getRelative(BlockFace.EAST);
-		if (canReplace(exp.getType())) return exp;
+		if (canReplace(exp.getType()) && !isAboveHopper(exp))
+			return exp;
 		exp = base.getRelative(BlockFace.SOUTH);
-		if (canReplace(exp.getType())) return exp;
+		if (canReplace(exp.getType()) && !isAboveHopper(exp))
+			return exp;
 		exp = base.getRelative(BlockFace.WEST);
-		if (canReplace(exp.getType())) return exp;
+		if (canReplace(exp.getType()) && !isAboveHopper(exp))
+			return exp;
+
 		return null;
 	}
 	
@@ -338,7 +362,7 @@ public class CenotaphUtil {
 			line = line.replace("{reason}", reason);
 
 			if (line.length() > 15) line = line.substring(0, 15);
-			sign.setLine(x, line);
+			sign.getSide(Side.FRONT).setLine(x, line);
 		}
 
 		Cenotaph.plugin.getServer().getScheduler().scheduleSyncDelayedTask(Cenotaph.plugin, new Runnable() {

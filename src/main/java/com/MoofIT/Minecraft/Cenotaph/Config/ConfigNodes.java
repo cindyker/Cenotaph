@@ -54,8 +54,8 @@ public enum ConfigNodes {
 			"true",
 			"",
 			"# Cenotaph will normally only check the world around the player for chest placement.",
-			"# But if they are standing on a carpeted floor, it will fail to find a good place for",
-			"# the chest. This check will allow Cenotaph to look one block up for a safe place."),
+			"# But if they are standing on a carpeted floor or a hopper, it will fail to find a good",
+			"# place for the chest. This check will allow Cenotaph to look one block up for a safe place."),
 	CORE_EXPLOSION_PROTECTION(
 			"core.explosion_protection",
 			"true",

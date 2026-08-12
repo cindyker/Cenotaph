@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.MoofIT.Minecraft.Cenotaph.Config.CommentedConfiguration;
 import com.MoofIT.Minecraft.Cenotaph.Config.ConfigNodes;
+
+import io.github.townyadvanced.commentedconfiguration.CommentedConfiguration;
 
 public class CenotaphSettings {
 
@@ -17,7 +18,7 @@ public class CenotaphSettings {
 			File file = new File(filepath);
 
 			// read the config.yml into memory
-			config = new CommentedConfiguration(file);
+			config = new CommentedConfiguration(file.toPath());
 			if (!config.load()) {
 				System.out.print("Failed to load Config!");
 			}
@@ -34,7 +35,7 @@ public class CenotaphSettings {
 	 */
 	private static void setDefaults(String version, File file) {
 
-		newConfig = new CommentedConfiguration(file);
+		newConfig = new CommentedConfiguration(file.toPath());
 		newConfig.load();
 
 		for (ConfigNodes root : ConfigNodes.values()) {

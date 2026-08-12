@@ -50,8 +50,6 @@ public class CenotaphInventoryListener implements Listener {
 		
 		if (CenotaphDatabase.tombBlockList.containsKey(loc)) {
 			event.setCancelled(true);
-			// Kill the hopper/rail.
-			event.getDestination().getLocation().getBlock().breakNaturally();
 			// Kill the hoppercart.
 			Collection<Entity> entities = loc.getWorld().getNearbyEntities(loc, 2, 1.5, 2, isHopperMinecart());
 			for (Entity hoppercart : entities)

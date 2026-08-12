@@ -56,7 +56,7 @@ public class CenotaphMessaging {
 		if (!Cenotaph.isSpigot)
 			sendPrefixedPlayerMessage(player, message);
 		else 
-			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(message));
 	}
 
 	public static void sendPrefixedAdminMessage(CommandSender sender, String string) {
